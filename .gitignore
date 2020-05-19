@@ -128,7 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-CAIL2020/
+CAIL2018/
 CAIL2019/
 jec-qa/
+pytorch-worker
 .idea/

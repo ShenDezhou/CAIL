@@ -1,4 +1,7 @@
 import json
+import os
+
+import psutil
 import thulac
 from sklearn.externals import joblib
 
@@ -45,7 +48,12 @@ class Predictor(object):
 			return 18
 		else:
 			return 6
-		
+
+	def print_mem(self):
+		process = psutil.Process(os.getpid())  # os.getpid()
+		memInfo = process.memory_info()
+		return '{:.4f}G'.format(1.0 * memInfo.rss / 1024 / 1024 / 1024)
+
 	def predict(self, content):
 		fact = self.cut.cut(content[0], text = True)
 		
@@ -56,7 +64,8 @@ class Predictor(object):
 		ans['articles'] = self.predict_law(vec)
 		ans['imprisonment'] = self.predict_time(vec)
 		
-		print(ans)
+		# print(ans)
+		print(self.print_mem())
 		return [ans]
 
 		 

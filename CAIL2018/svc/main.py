@@ -4,7 +4,7 @@ import multiprocessing
 
 from predictor import Predictor
 
-data_path = "input"  # The directory of the input data
+data_path = "input/small/"  # The directory of the input data
 output_path = "output"  # The directory of the output data
 
 
