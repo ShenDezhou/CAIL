@@ -7,7 +7,7 @@ import json
 from tools.init_tool import init_all
 from config_parser import create_config
 from tools.test_tool import test
-from gbt.SingleMulti import SingleMulti
+
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)

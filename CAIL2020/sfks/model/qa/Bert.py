@@ -46,7 +46,7 @@ class BertQA(nn.Module):
 
         y = y.view(batch, option)
 
-        if self.multi:
+        if data['sorm'][0]:
             y = self.multi_module(y)
 
         label = data["label"]
@@ -54,7 +54,8 @@ class BertQA(nn.Module):
         acc_result = self.accuracy_function(y, label, config, acc_result)
 
 
-        if config.getboolean("data", "multi_choice"):
+        # if config.getboolean("data", "multi_choice"):
+        if data['sorm'][0]:
             ind = y.argmax(dim=1) + 1
             answer = []
             for i in ind:

@@ -46,8 +46,10 @@ class BertQA:
 
         for temp_data in data:
             idx.append(temp_data["id"])
-            sm.append(self.siglemulti.checkSingleMulti(temp_data['statement'])) #singlemulti
-            if config.getboolean("data", "multi_choice"):
+            sorm = self.siglemulti.checkSingleMulti(temp_data['statement'])
+            sm.append(sorm) #singlemulti
+            # if config.getboolean("data", "multi_choice"):
+            if sorm:
                 label_x = 0
                 if "A" in temp_data["answer"]:
                     label_x += 1

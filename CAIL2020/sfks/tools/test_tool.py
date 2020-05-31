@@ -35,7 +35,7 @@ def test(parameters, config, gpu_list):
                     data[key] = Variable(data[key].cuda())
                 else:
                     data[key] = Variable(data[key])
-        if 1 in data['sorm'] :
+        if data['sorm'][0] == 1:
             results = parameters[1]["model"](data, config, gpu_list, acc_result, "test")
         else:
             results = parameters[0]["model"](data, config, gpu_list, acc_result, "test")
