@@ -17,7 +17,7 @@ class BertQA(nn.Module):
         self.criterion = nn.CrossEntropyLoss()
 
         self.multi = config.getboolean("data", "multi_choice")
-        self.multi_module = nn.Linear(4, 16)
+        self.multi_module = nn.Linear(4, 15)
         self.accuracy_function = single_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
@@ -60,36 +60,45 @@ class BertQA(nn.Module):
             answer = []
             for i in ind:
                 subanswer = []
-                if i==1:
-                    subanswer.append('A')
-                if i==2:
-                    subanswer.append('B')
-                if i==4:
-                    subanswer.append('C')
-                if i==8:
-                    subanswer.append('D')
-                if i == 3:
+                # if i==1:
+                #     subanswer.append('A')
+                # if i==2:
+                #     subanswer.append('B')
+                # if i==4:
+                #     subanswer.append('C')
+                # if i==8:
+                #     subanswer.append('D')
+                if i == 1:
                     subanswer=['A', 'B']
-                if i == 5:
+                if i == 2:
                     subanswer = ['A','C']
-                if i == 6:
+                if i == 3:
                     subanswer = ['B','C']
-                if i == 7:
+                if i == 4:
                     subanswer = ['A','B','C']
-                if i == 9:
+                if i == 5:
                     subanswer = ['A','D']
-                if i == 10:
+                if i == 6:
                     subanswer = ['B','D']
-                if i == 11:
+                if i == 7:
                     subanswer = ['A','B','D']
-                if i == 12:
+                if i == 8:
                     subanswer = ['C','D']
-                if i == 13:
+                if i == 9:
                     subanswer = ['A','C','D']
-                if i == 14:
+                if i == 10:
                     subanswer = ['B','C','D']
-                if i == 15:
+                if i == 11:
                     subanswer = ['A','B','C','D']
+                if i==12:
+                    subanswer.append('A')
+                if i==13:
+                    subanswer.append('B')
+                if i==14:
+                    subanswer.append('C')
+                if i==15:
+                    subanswer.append('D')
+
                 answer.append(subanswer)
             output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
         else:

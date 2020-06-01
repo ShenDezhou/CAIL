@@ -94,8 +94,6 @@ def init_test_dataset(config, *args, **params):
 def init_dataset(config, *args, **params):
     init_formatter(config, ["train", "valid"], *args, **params)
     train_dataset = init_one_dataset(config, "train", *args, **params)
-    # for step, data in enumerate(train_dataset):
-    #     print(step, data)
     valid_dataset = init_one_dataset(config, "valid", *args, **params)
 
     return train_dataset, valid_dataset

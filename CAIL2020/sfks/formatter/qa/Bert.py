@@ -49,7 +49,7 @@ class BertQA:
             sorm = self.siglemulti.checkSingleMulti(temp_data['statement'])
             sm.append(sorm) #singlemulti
             # if config.getboolean("data", "multi_choice"):
-            if sorm:
+            if sorm == 1:
                 label_x = 0
                 if "A" in temp_data["answer"]:
                     label_x += 1
@@ -60,16 +60,45 @@ class BertQA:
                 if "D" in temp_data["answer"]:
                     label_x += 8
             else:
-                label_x = 0
-                if "A" in temp_data["answer"]:
+                # label_x = 0
+                # if "A" in temp_data["answer"]:
+                #     label_x = 0
+                # if "B" in temp_data["answer"]:
+                #     label_x = 1
+                # if "C" in temp_data["answer"]:
+                #     label_x = 2
+                # if "D" in temp_data["answer"]:
+                #     label_x = 3
+                if temp_data["answer"] == ['A', 'B']:
                     label_x = 0
-                if "B" in temp_data["answer"]:
+                if temp_data["answer"] == ['A','C']:
                     label_x = 1
-                if "C" in temp_data["answer"]:
+                if temp_data["answer"] == ['B','C']:
                     label_x = 2
-                if "D" in temp_data["answer"]:
+                if temp_data["answer"] == ['A','B','C']:
                     label_x = 3
-
+                if temp_data["answer"] == ['A','D']:
+                    label_x = 4
+                if temp_data["answer"] == ['B','D']:
+                    label_x = 5
+                if temp_data["answer"] == ['A','B','D']:
+                    label_x = 6
+                if temp_data["answer"] == ['C','D']:
+                    label_x = 7
+                if temp_data["answer"] == ['A','C','D']:
+                    label_x = 8
+                if temp_data["answer"] == ['B','C','D']:
+                    label_x = 9
+                if temp_data["answer"] == ['A','B','C','D']:
+                    label_x = 10
+                if temp_data["answer"] == ['A']:
+                    label_x = 11
+                if temp_data["answer"] == ['B']:
+                    label_x = 12
+                if temp_data["answer"] == ['C']:
+                    label_x = 13
+                if temp_data["answer"] == ['D']:
+                    label_x = 14
             label.append(label_x)
 
             temp_text = []
