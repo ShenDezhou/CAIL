@@ -48,7 +48,6 @@ def train(parameters, config, gpu_list, do_test=False):
     global_step = parameters["global_step"]
     output_function = parameters["output_function"]
 
-
     if do_test:
         init_formatter(config, ["test"])
         test_dataset = init_test_dataset(config)
