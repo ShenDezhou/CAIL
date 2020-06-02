@@ -262,3 +262,16 @@ zope.sqlalchemy                  1.3
 等待补全中
 
 如果你有需要的环境，请联系比赛管理员进行安装。
+
+
+
+#PKULAW
+##1. Training
+###1.1 Multiple choice model training
+nohup python train.py  -c default-ls.config >train.log &
+###1.2 Single choice model training
+nohup python train.py  -c default-lm.config >trainm.log &
+
+##2. Testing
+python test.py -c default-ls.config > test.log &
+

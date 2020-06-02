@@ -4,10 +4,12 @@ from torch.utils.data import Dataset
 import random
 
 from tools.dataset_tool import dfs_search
+
 from gbt.SingleMulti import SingleMulti
 
+
 class JsonFromFilesDataset(Dataset):
-    def __init__(self, config, mode, encoding="utf8", *args, **params):
+    def __init__(self, config, mode,  encoding="utf8", *args, **params):
         self.config = config
         self.mode = mode
         self.file_list = []

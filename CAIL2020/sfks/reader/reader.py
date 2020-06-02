@@ -5,18 +5,20 @@ import logging
 
 import formatter as form
 from dataset import dataset_list
+from gbt.SingleMulti import SingleMulti
+
 logger = logging.getLogger(__name__)
 
 collate_fn = {}
 formatter = {}
 
-
+siglemulti = SingleMulti('gbt/statement_tfidf.model', 'gbt/statement_som_gbt.model')
 
 def init_formatter(config, task_list, *args, **params):
 
 
     for task in task_list:
-        formatter[task] = form.init_formatter(config, task, *args, **params)
+        formatter[task] = form.init_formatter(config, task,  *args, **params)
 
         def train_collate_fn(data):
             return formatter["train"].process(data, config, "train")

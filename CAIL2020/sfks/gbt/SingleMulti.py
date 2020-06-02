@@ -17,16 +17,16 @@ class SingleMulti():
         self.tfidf = joblib.load(tfidf)
         print('train gbt...', self.print_mem())
         self.gbt = joblib.load(gbt)
+        self.cut = thulac.thulac(seg_only=True)
 
     def cut_text(self, alltext):
         count = 0
-        cut = thulac.thulac(seg_only=True)
         train_text = []
         for text in alltext:
             count += 1
             if count % 2000 == 0:
                 print(count)
-            train_text.append(cut.cut(text, text=True))
+            train_text.append(self.cut.cut(text, text=True))
 
         return train_text
 

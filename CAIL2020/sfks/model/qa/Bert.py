@@ -17,8 +17,9 @@ class BertQA(nn.Module):
         self.criterion = nn.CrossEntropyLoss()
 
         self.multi = config.getboolean("data", "multi_choice")
-        self.multi_module = nn.Linear(4, 15)
+        self.multi_module = nn.Linear(4, 11)
         self.accuracy_function = single_label_top1_accuracy
+
 
     def init_multi_gpu(self, device, config, *args, **params):
         self.bert = nn.DataParallel(self.bert, device_ids=device)

@@ -76,8 +76,9 @@ if __name__ == '__main__':
 	alltext, accu_label, law_label, time_label = read_trainData('../final_all_data/exercise_contest/data_train.json')
 	print('cut text...',print_mem())
 
-	train_data = cut_text(alltext)
-	joblib.dump(train_data,'inputseg/data_train.model', compress=3)
+	# train_data = cut_text(alltext)
+	# joblib.dump(train_data,'inputseg/data_train.model', compress=3)
+	train_data = joblib.load('inputseg/data_train.model')
 
 	print('train tfidf...',print_mem())
 	tfidf = train_tfidf(train_data)
