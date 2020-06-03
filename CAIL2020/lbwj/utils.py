@@ -63,7 +63,7 @@ def load_torch_model(model, model_path):
     pretrained_model_dict = torch.load(model_path)
     new_state_dict = OrderedDict()
     for k, value in pretrained_model_dict.items():
-        name = k[7:]  # remove `module.`
-        new_state_dict[name] = value
+        # name = k[7:]  # remove `module.`
+        new_state_dict[k] = value
     model.load_state_dict(new_state_dict, strict=True)
     return model
