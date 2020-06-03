@@ -39,7 +39,8 @@ import torch
 import pandas as pd
 
 from torch.utils.data import TensorDataset
-from transformers import BertTokenizer
+# from transformers import BertTokenizer
+from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
 
@@ -103,7 +104,7 @@ class Data:
     def __init__(self,
                  vocab_file='',
                  max_seq_len: int = 512,
-                 model_type: str = 'bert'):
+                 model_type: str = 'bert', config=None):
         """Initialize data processor for SMP-CAIL2020-Argmine.
 
         Args:
@@ -115,7 +116,7 @@ class Data:
         """
         self.model_type = model_type
         if self.model_type == 'bert':
-            self.tokenizer = BertTokenizer(vocab_file)
+            self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)
         self.max_seq_len = max_seq_len

@@ -94,4 +94,4 @@ def build_vocab(file_in, file_out):
 
 
 if __name__ == '__main__':
-    build_vocab('data/SMP-CAIL2020-train.csv', 'vocab.txt')
+    build_vocab('data/train.csv', 'vocab.txt')

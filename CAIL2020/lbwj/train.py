@@ -228,7 +228,7 @@ def main(config_file='config/bert_config.json'):
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
-                model_type=config.model_type)
+                model_type=config.model_type, config=config)
     datasets = data.load_train_and_valid_files(
         train_file=config.train_file_path,
         valid_file=config.valid_file_path)

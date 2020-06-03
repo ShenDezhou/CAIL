@@ -52,7 +52,7 @@ def main(in_file='data/SMP-CAIL2020-test1.csv',
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
-                model_type=config.model_type)
+                model_type=config.model_type, config=config)
     test_set = data.load_file(in_file, train=False)
     data_loader_test = DataLoader(
         test_set, batch_size=config.batch_size, shuffle=False)

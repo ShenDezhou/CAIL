@@ -8,8 +8,8 @@ import torch
 
 from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
-from transformers.modeling_bert import BertModel
-
+# from transformers.modeling_bert import BertModel
+from pytorch_pretrained_bert import BertModel
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
@@ -48,7 +48,8 @@ class BertForClassification(nn.Module):
             input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
-            encoder_hidden_states=False)
+            # encoder_hidden_states=False
+        )
         # bert_output[0]: (batch_size, sequence_length, hidden_size)
         # bert_output[1]: (batch_size, hidden_size)
         pooled_output = bert_output[1]
