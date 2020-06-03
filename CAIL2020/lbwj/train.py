@@ -8,6 +8,7 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
+#acc: 0.45454545454545453, f1: 0.43
 from typing import Dict
 import argparse
 import json
