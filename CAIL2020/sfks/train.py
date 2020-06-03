@@ -38,7 +38,7 @@ if __name__ == "__main__":
             gpu_list.append(int(a))
 
 
-    os.system("cls")
+    os.system("clear")
 
     config = create_config(configFilePath)
 

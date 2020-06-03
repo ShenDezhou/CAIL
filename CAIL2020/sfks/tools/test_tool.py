@@ -28,7 +28,7 @@ def test(parameters, config, gpu_list):
     result = []
 
     for step, data in enumerate(dataset):
-        print(data)
+        # print(data)
         for key in data.keys():
             if isinstance(data[key], torch.Tensor):
                 if len(gpu_list) > 0:
@@ -39,7 +39,7 @@ def test(parameters, config, gpu_list):
             results = parameters[1]["model"](data, config, gpu_list, acc_result, "test")
         else:
             results = parameters[0]["model"](data, config, gpu_list, acc_result, "test")
-        print(results)
+        # print(results)
         result.extend(results["output"])
         cnt += 1
 
