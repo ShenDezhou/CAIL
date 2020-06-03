@@ -235,8 +235,9 @@ def main(config_file='config/bert_config.json'):
     train_set, valid_set_train, valid_set_valid = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
-        torch.distributed.init_process_group(backend="nccl")
-        sampler_train = DistributedSampler(train_set)
+        # torch.distributed.init_process_group(backend="nccl")
+        # sampler_train = DistributedSampler(train_set)
+        sampler_train = RandomSampler(train_set)
     else:
         device = torch.device('cpu')
         sampler_train = RandomSampler(train_set)
@@ -251,8 +252,9 @@ def main(config_file='config/bert_config.json'):
     model = MODEL_MAP[config.model_type](config)
     model.to(device)
     if torch.cuda.is_available():
-        model = torch.nn.parallel.DistributedDataParallel(
-            model, find_unused_parameters=True)
+        model = model
+        # model = torch.nn.parallel.DistributedDataParallel(
+        #     model, find_unused_parameters=True)
     # 3. Train
     trainer = Trainer(model=model, data_loader=data_loader,
                       device=device, config=config)
