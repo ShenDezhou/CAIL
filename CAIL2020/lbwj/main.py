@@ -10,6 +10,7 @@ Usage:
                    --in_file 'data/SMP-CAIL2020-test1.csv' \
                    --out_file 'rnn-submission-test-1.csv'
 """
+import argparse
 import json
 import os
 from types import SimpleNamespace
@@ -34,7 +35,7 @@ MODEL_MAP = {
 
 def main(in_file='data/dev.csv',
          out_file='submission.csv',
-         model_config='config/rnn_config.json'):
+         model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.
 
     Args:

@@ -90,5 +90,5 @@ def evaluate(model, data_loader, device) -> List[str]:
 
 if __name__ == '__main__':
     acc, f1_score = eval_file(
-        'data/test-1.csv', 'bert-submission-test-1.csv')
+        'data/dev.csv', 'submission.csv')
     print("acc: {}, f1: {}".format(acc, f1_score))
