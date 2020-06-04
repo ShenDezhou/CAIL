@@ -9,15 +9,16 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.742
+#training score :  0.738
 
-class SingleMulti():
-    def __init__(self, tfidf='statement_tfidf.model', gbt='statement_som_gbt.model'):
+class CompResult():
+    def __init__(self, cwd=".", tfidf='statement_tfidf.model', gbt='statement_som_gbt.model'):
         print('train tfidf...', self.print_mem())
-        self.tfidf = joblib.load(tfidf)
+        self.tfidf = joblib.load(os.path.join(cwd, tfidf))
         print('train gbt...', self.print_mem())
-        self.gbt = joblib.load(gbt)
+        self.gbt = joblib.load(os.path.join(cwd, gbt))
         self.cut = thulac.thulac(seg_only=True)
+
 
     def cut_text(self, alltext):
         count = 0
@@ -36,8 +37,30 @@ class SingleMulti():
         return '{:.4f}G'.format(1.0 * memInfo.rss / 1024 /1024 /1024)
 
 
-    def checkRank(self, statement):
+    def checkResult(self, statement):
         train_data = self.cut_text([statement])
         vec = self.tfidf.transform(train_data)
         yp = self.gbt.predict(vec)
         return yp[0]
+
+    def getCourtResult(self, sentences):
+        patterns = "判决如下"
+        ps = re.compile(patterns)
+        patterne1 = '^案件受理费'#如不(服)?本判决
+        patterne2 = '如不(服)?本判决'
+        pe1 = re.compile(patterne1)
+        pe2 = re.compile(patterne2)
+        tap = False
+        cr = []
+        for dic in sentences:
+            if tap and (pe1.search(dic['sentence']) or pe2.search(dic['sentence'])):
+                tap = False
+
+            if tap:
+                cr.append(dic['sentence'])
+
+            if ps.search(dic['sentence']):
+                tap = True
+
+        # print(cr)
+        return cr

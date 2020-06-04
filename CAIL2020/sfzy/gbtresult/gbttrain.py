@@ -9,12 +9,11 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.673
-
+#training score :  0.842
+cut = thulac.thulac(seg_only=True)
 types=5
 def cut_text(alltext):
     count = 0
-    cut = thulac.thulac(seg_only=True)
     train_text = []
     for text in alltext:
         count += 1
@@ -34,7 +33,6 @@ def train_tfidf(train_data):
         smooth_idf=1
     )
     tfidf.fit(train_data)
-
     return tfidf
 
 def print_mem():
@@ -43,27 +41,65 @@ def print_mem():
 	return '{:.4f}G'.format(1.0 * memInfo.rss / 1024 /1024 /1024)
 
 
+def score(candidate, summarypool):
+    target_data = cut_text([candidate])
+    target_set = set(target_data[0].split(' '))
+    # print(target_set)
+    score = []
+    for j in range(len(summarypool)):
+        score.append(len(summarypool[j] & target_set))
+
+    return max(score)
+
+
 data_path="../data"
 filename_list="sfzy_small.json".replace(" ", "").split(",")
 
-# pattern = '[何|哪|那|几][一|个|项|些|种|者]|\(\)|如何|何罪|什么|谁|怎[么|样]'
-# pr = re.compile(pattern)
+patterns = "判决如下"
+ps = re.compile(patterns)
+patterne1 = '^案件受理费'  # 如不(服)?本判决
+patterne2 = '如不(服)?本判决'
+pe1 = re.compile(patterne1)
+pe2 = re.compile(patterne2)
+
 statement =[]
 target=[]
-# ignoren = 0
+
+
 for filename in filename_list:
     f = open(os.path.join(data_path, filename), "r", encoding='utf-8')
     for line in f:
         data = json.loads(line)
-        text = data['summary']
-        positions = text.split('。')
-        positions = [position for position in positions if len(position)>0]
-        types = max(types, len(positions))
-        for index,pos in enumerate(positions):
-            statement.append(pos)
-            target.append(index)
+        text = data['text']
+        summary = data['summary']
 
-print('n:', len(statement),"classes:", types)
+        candidate = []
+        sumlines = summary.split("。")
+        sumlines = [line for line in sumlines if len(line) > 0]
+        train_data = cut_text(sumlines)
+        for line in train_data:
+            candidate.append(set(line.split(' ')))
+
+        tap = False
+        for dic in text:
+            if tap and (pe1.search(dic['sentence']) or pe2.search(dic['sentence'])):
+                tap = False
+
+            if tap:
+                ss = score(dic['sentence'], candidate)
+                if ss > 10:
+                    statement.append(dic['sentence'])
+                    target.append(1)
+                else:
+                    statement.append(dic['sentence'])
+                    target.append(0)
+
+            if ps.search(dic['sentence']):
+                tap = True
+
+
+
+print('n:', len(statement),"classes:", target)
 train_data = cut_text(statement)
 joblib.dump(train_data,'statement_seg.model', compress=3)
 train_data = joblib.load('statement_seg.model')
@@ -83,7 +119,7 @@ gbt = GradientBoostingClassifier(learning_rate=0.01,
                                  # max_features=9,
                                  verbose=1,
                                  ).fit(vec, target)
-joblib.dump(gbt, 'statement_som_gbt_from_home.model')
+joblib.dump(gbt, 'statement_som_gbt.model')
 
 yp = gbt.predict(vec)
 print("training score : %.3f " % gbt.score(vec, target))

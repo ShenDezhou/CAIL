@@ -9,14 +9,14 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.88
+#training score :  0.738
 
-class SingleMulti():
-    def __init__(self, tfidf='statement_tfidf.model', gbt='statement_som_gbt.model'):
+class CompRank():
+    def __init__(self, cwd=".", tfidf='statement_tfidf.model', gbt='statement_som_gbt.model'):
         print('train tfidf...', self.print_mem())
-        self.tfidf = joblib.load(tfidf)
+        self.tfidf = joblib.load(os.path.join(cwd, tfidf))
         print('train gbt...', self.print_mem())
-        self.gbt = joblib.load(gbt)
+        self.gbt = joblib.load(os.path.join(cwd, gbt))
         self.cut = thulac.thulac(seg_only=True)
 
     def cut_text(self, alltext):
@@ -36,7 +36,7 @@ class SingleMulti():
         return '{:.4f}G'.format(1.0 * memInfo.rss / 1024 /1024 /1024)
 
 
-    def checkImportance(self, statement):
+    def checkRank(self, statement):
         train_data = self.cut_text([statement])
         vec = self.tfidf.transform(train_data)
         yp = self.gbt.predict(vec)
