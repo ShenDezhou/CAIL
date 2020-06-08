@@ -40,7 +40,7 @@ def test(parameters, config, gpu_list):
         else:
             results = parameters[0]["model"](data, config, gpu_list, acc_result, "test")
         # print(results)
-        result.extend(results["output"])
+        result = results["output"]
         cnt += 1
 
         if step % output_time == 0:

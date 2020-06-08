@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', default='default.config', help="specific config file", required=False)
     parser.add_argument('--gpu', '-g', help="gpu id list")
-    parser.add_argument('--checkpoint', default='saved_model/train.model/0.pkl', help="checkpoint file path", required=False)
+    parser.add_argument('--checkpoint', default='saved_model/train.model/4.pkl', help="checkpoint file path", required=False)
     parser.add_argument('--result', default='output/result.txt', help="result file path", required=False)
     args = parser.parse_args()
 
