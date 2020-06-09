@@ -9,7 +9,7 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.641
+#training score : 0.715
 
 def cut_text(alltext):
     count = 0
@@ -64,9 +64,12 @@ for filename in filename_list:
             print('.')
             continue
 
-        statement.append(data["statement"])
+        temp = data["statement"]
+        for op in data["option_list"].values():
+            temp += "。"
+            temp += op
+        statement.append(temp)
 
-        # target.append(len(data["answer"]))
         if len(data["answer"]) == 1:
             target.append(0)
         else:
@@ -74,6 +77,7 @@ for filename in filename_list:
 print('ignore n:', ignoren)
 
 
+# vec=None
 vec = numpy.load("statement_vec.npz")["arr_0"]
 
 if vec is None:
@@ -85,7 +89,7 @@ if vec is None:
     numpy.savez_compressed("statement_vec.npz", vec.todense())
 
 print('train gbt...', print_mem())
-gbt = GradientBoostingClassifier(learning_rate=0.01,
+gbt = GradientBoostingClassifier(learning_rate=0.001,
                                  n_estimators=100,
                                  max_depth=10,
                                  min_samples_leaf = 10,

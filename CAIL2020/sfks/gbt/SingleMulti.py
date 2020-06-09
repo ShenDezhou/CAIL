@@ -36,7 +36,21 @@ class SingleMulti():
         return '{:.4f}G'.format(1.0 * memInfo.rss / 1024 /1024 /1024)
 
 
-    def checkSingleMulti(self, statement):
+    def checkSingleMulti(self, statement_option):
+        spattern = '[何|哪|那][一|个|项|种|者]|\(\)|如何|何罪|什么|谁|怎[么|样]'
+        mpattern = '[何|哪|那][些]|[几][个|项|种|者]'
+        spr = re.compile(spattern)
+        mpr = re.compile(mpattern)
+        if spr.search(statement_option):
+            return 0
+        if mpr.search(statement_option):
+            return 1
+        train_data = self.cut_text([statement_option])
+        vec = self.tfidf.transform(train_data)
+        yp = self.gbt.predict(vec)
+        return yp[0]
+
+    def checkSingleMulti_old(self, statement):
         spattern = '[何|哪|那][一|个|项|种|者]|\(\)|如何|何罪|什么|谁|怎[么|样]'
         mpattern = '[何|哪|那][些]|[几][个|项|种|者]'
         spr = re.compile(spattern)

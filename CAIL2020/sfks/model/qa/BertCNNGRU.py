@@ -10,9 +10,9 @@ def conv3x3(in_planes, out_planes, stride=1):#基本的3x3卷积
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=False)
 
-class BertQACNN(nn.Module):
+class BertQACNNGRU(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
-        super(BertQACNN, self).__init__()
+        super(BertQACNNGRU, self).__init__()
 
         self.bert = BertModel.from_pretrained(config.get("model", "bert_path"))
         # print(self.bert)
@@ -61,10 +61,14 @@ class BertQACNN(nn.Module):
         self.bn2 = nn.BatchNorm2d(p2)
         self.bn3 = nn.BatchNorm2d(p)
 
-        self.rank_module1 = nn.Linear(262144, 600)
-        self.rank_module3 = nn.Linear(600, 4)
-        self.rank_module3m = nn.Linear(600, 11)
+        self.rank_module1 = nn.Linear(262144, 600) # CNN
 
+        self.rank_module3 = nn.Linear(700, 4)
+        self.rank_module3m = nn.Linear(700, 11)
+
+        p4 = 128
+        self.gru = nn.GRU(768, p4, num_layers=2, bidirectional=True)
+        self.rank_module2 = nn.Linear(1024*256, 100) #GRU
 
     def init_multi_gpu(self, device, config, *args, **params):
         self.bert = nn.DataParallel(self.bert, device_ids=device)
@@ -126,14 +130,19 @@ class BertQACNN(nn.Module):
 
         y = y.view(batch, -1)
 
+        encode = encode.view(batch, 1024, -1)
+        z = self.gru(encode)[0]
+        z = z.view(batch, -1)
+        z = self.rank_module2(z)
+
         if data['sorm'][0]:
             y = self.rank_module1(y)
+            y = torch.cat([y, z], dim=1)
             # y = self.rank_module2(y)
             y = self.rank_module3m(y)
-            # y = self.multirank_module(y)
         else:
             y = self.rank_module1(y)
-            # y = self.rank_module2(y)
+            y = torch.cat([y,z],dim=1)
             y = self.rank_module3(y)
             y = y.view(batch, option)
 
@@ -184,14 +193,13 @@ class BertQACNN(nn.Module):
                 #     subanswer.append('C')
                 # if i==15:
                 #     subanswer.append('D')
-
                 answer.append(subanswer)
-            output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
+            output = [{"id": id, "answer": answer} for id, answer in zip(data['id'], answer)]
         else:
             ind = y.argmax(dim=1)
             answer=[]
             for i in ind:
                 answer.append(chr(ord('A')+i))
-            output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
+            output = [{"id": id, "answer": answer} for id, answer in zip(data['id'], answer)]
 
         return {"loss": loss, "acc_result": acc_result, "output": output}

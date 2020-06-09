@@ -1,12 +1,13 @@
 from model.qa.Bert import BertQA
 from model.qa.BertCNN import BertQACNN
+from model.qa.BertCNNGRU import BertQACNNGRU
 from model.qa.BiDAF import BiDAFQA
 from model.qa.CoMatch import CoMatching
 from model.qa.HAF import HAF
 
 model_list = {
     "Bert": BertQA,
-    "BertCNN": BertQACNN,
+    "BertCNN": BertQACNNGRU,
     "BiDAF": BiDAFQA,
     "Comatch": CoMatching,
     "HAF": HAF

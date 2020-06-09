@@ -36,7 +36,12 @@ class JsonFromFilesDataset(Dataset):
                     self.data.append(json.loads(line))
                     continue
 
-                aimodel = self.siglemulti.checkSingleMulti(data['statement'])
+                statementoption = data['statement']
+                for op in data["option_list"].values():
+                    statementoption += "。"
+                    statementoption += op
+
+                aimodel = self.siglemulti.checkSingleMulti(statementoption)
                 # filter dataset for Single option model and Multiple option model.
                 if multi:
                     if aimodel:

@@ -46,7 +46,13 @@ class BertQA:
 
         for temp_data in data:
             idx.append(temp_data["id"])
-            sorm = self.siglemulti.checkSingleMulti(temp_data['statement'])
+
+            statementoption = temp_data['statement']
+            for op in temp_data["option_list"].values():
+                statementoption += "。"
+                statementoption += op
+
+            sorm = self.siglemulti.checkSingleMulti(statementoption)
             sm.append(sorm) #singlemulti
             # if config.getboolean("data", "multi_choice"):
             if sorm == 1:
