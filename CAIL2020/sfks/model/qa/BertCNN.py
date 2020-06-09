@@ -17,29 +17,45 @@ class BertQACNN(nn.Module):
         self.bert = BertModel.from_pretrained(config.get("model", "bert_path"))
         # print(self.bert)
         # self.rank_module = nn.Linear(768 * config.getint("data", "topk"), 1)
-        self.rank_module = nn.Linear(36, 60)
-        self.rank_module2 = nn.Linear(60, 4)
+        self.rank_module = nn.Linear(4194304, 4)
+        # self.rank_module2 = nn.Linear(15, 4)
 
         self.criterion = nn.CrossEntropyLoss()
 
         self.multi = config.getboolean("data", "multi_choice")
-        self.multi_module = nn.Linear(60, 15)
+        self.multirank_module = nn.Linear(4194304, 15)
         self.accuracy_function = single_label_top1_accuracy
 
-        p = 3
-        q = 16  # 8 * 8 * 4 * 3
-        r = 120
-        # q = 768 * config.getint("data", "topk")  # 8 * 4 * 3
-        # q = 768 * config.getint("data", "topk")  # 4 * 3
-        self.conv1 = nn.Conv2d(4, p, kernel_size=256, stride=1, padding=1, bias=False)
-        self.maxpool1 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)  # C1中唯一出现了一次Maxpooling
-        self.bn1 = nn.BatchNorm2d(p)
+        # 12, 256, 256
+
+        p = 32
+        p2 = 64
+
+        self.conv1 = nn.Conv2d(12, p, kernel_size=5, stride=1, padding=2, bias=False)
+        self.conv2 = nn.Conv2d(p, p, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv3 = nn.Conv2d(p, p, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv4 = nn.Conv2d(p, p, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv5 = nn.Conv2d(p, p, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv6 = nn.Conv2d(p, p2, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv7 = nn.Conv2d(p2, p2, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv8 = nn.Conv2d(p2, p2, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv9 = nn.Conv2d(p2, p2, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv10 = nn.Conv2d(p2, p2, kernel_size=3, stride=1, padding=1, bias=False)
+
+        self.maxpool1 = nn.MaxPool2d(kernel_size=5, stride=1, padding=2)
+        self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.maxpool3 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.maxpool4 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = nn.Conv2d(p, q, kernel_size=3, stride=1, padding=1, bias=False)
-        self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)  # C1中唯一出现了一次Maxpooling
-        self.bn2 = nn.BatchNorm2d(q)
-        self.conv2 = nn.Conv2d(q, r, kernel_size=3, stride=1, padding=1, bias=False)
-        self.single_module = nn.Linear(r, 4)
+        self.bn1 = nn.BatchNorm2d(p)
+        self.bn2 = nn.BatchNorm2d(p2)
+
+        # self.conv2 = nn.Conv2d(p, q, kernel_size=3, stride=1, padding=1, bias=False)
+        # self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)  # C1中唯一出现了一次Maxpooling
+        # self.bn2 = nn.BatchNorm2d(q)
+        # self.conv2 = nn.Conv2d(q, r, kernel_size=3, stride=1, padding=1, bias=False)
+        # self.single_module = nn.Linear(r, 4)
         # self.downsample = True
         # self.stride = 1
         # self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)  # C1中唯一出现了一次Maxpooling
@@ -58,41 +74,55 @@ class BertQACNN(nn.Module):
         k = config.getint("data", "topk")
         option = option // k
 
-        # print('first:',text, token, mask, batch, option, k)
+
         text = text.view(text.size()[0] * text.size()[1], text.size()[2])
         token = token.view(token.size()[0] * token.size()[1], token.size()[2])
         mask = mask.view(mask.size()[0] * mask.size()[1], mask.size()[2])
-        print(batch)
-        # print('second', text, token, mask, batch, option, k)
+        # print(batch)
+
         encode, y = self.bert.forward(text, token, mask, output_all_encoded_layers=False)
-        # print('last', text,token,mask, batch, option, k)
-        l = encode.size()[1]
+        l = encode.size()[1] #256
         p = encode.size()[2]
         # y = y.view(batch  * option, l, -1)
         # #y = self.rank_module(y)
-        encode = encode.view(3, option, l, l)
+        encode = encode.view(batch, 3*option, l, p//3)
 
         y = self.conv1(encode)
+        y = self.relu(y)
+        y = self.conv2(y)
         y = self.maxpool1(y)
+        y = self.conv3(y)
+        y = self.relu(y)
+        y = self.conv4(y)
+        y = self.relu(y)
+        y = self.conv5(y)
+        y = self.maxpool2(y)
         y = self.bn1(y)
+        y = self.conv6(y)
+        y = self.relu(y)
+        y = self.conv7(y)
+        y = self.maxpool3(y)
+        y = self.conv8(y)
+        y = self.relu(y)
+        y = self.conv9(y)
+        y = self.relu(y)
+        y = self.conv10(y)
+        y = self.maxpool4(y)
+        y = self.bn2(y)
         y = self.relu(y)
 
-        y = y.view(batch, option * 9)
-        y = self.rank_module(y)
-
+        y = y.view(batch, -1)
 
         if data['sorm'][0]:
-            y = self.multi_module(y)
+            y = self.multirank_module(y)
         else:
+            y = self.rank_module(y)
             y = y.view(batch, option)
-            y = self.rank_module2(y)
 
         label = data["label"]
         loss = self.criterion(y, label)
         acc_result = self.accuracy_function(y, label, config, acc_result)
 
-
-        # if config.getboolean("data", "multi_choice"):
         if data['sorm'][0]:
             ind = y.argmax(dim=1) + 1
             answer = []

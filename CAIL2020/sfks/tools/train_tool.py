@@ -9,6 +9,7 @@ from timeit import default_timer as timer
 
 from tools.eval_tool import valid, gen_time_str, output_value
 from tools.init_tool import init_test_dataset, init_formatter
+from judge.precision import precision
 
 logger = logging.getLogger(__name__)
 
@@ -136,3 +137,5 @@ def train(parameters, config, gpu_list, do_test=False):
                 # valid(model, parameters["valid_dataset"], current_epoch, writer, config, gpu_list, output_function)
                 if do_test:
                     valid(model, test_dataset, current_epoch, writer, config, gpu_list, output_function, mode="test")
+        #print precision
+        precision(results['acc_result'])
