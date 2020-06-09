@@ -83,14 +83,14 @@ class BertQA:
                     label_x = 9
                 if set(temp_data["answer"]) == set(['A','B','C','D']):
                     label_x = 10
-                if set(temp_data["answer"]) == set(['A']):
-                    label_x = 11
-                if set(temp_data["answer"]) == set(['B']):
-                    label_x = 12
-                if set(temp_data["answer"]) == set(['C']):
-                    label_x = 13
-                if set(temp_data["answer"]) == set(['D']):
-                    label_x = 14
+                # if set(temp_data["answer"]) == set(['A']):
+                #     label_x = 11
+                # if set(temp_data["answer"]) == set(['B']):
+                #     label_x = 12
+                # if set(temp_data["answer"]) == set(['C']):
+                #     label_x = 13
+                # if set(temp_data["answer"]) == set(['D']):
+                #     label_x = 14
             else:
                 label_x = 0
                 if "A" in temp_data["answer"]:
