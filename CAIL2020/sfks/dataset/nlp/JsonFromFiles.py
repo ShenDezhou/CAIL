@@ -43,13 +43,15 @@ class JsonFromFilesDataset(Dataset):
 
                 aimodel = self.siglemulti.checkSingleMulti(statementoption)
                 # filter dataset for Single option model and Multiple option model.
+                data["answer"] = [a for a in data["answer"] if a != "。"]  #clean up answers.
+
                 if multi:
                     if aimodel:
                         if len(data["answer"]) > 1:
                             self.data.append(json.loads(line))
-                        else:
-                            if random.randint(0, 2) > 0:
-                                self.data.append(json.loads(line))
+                        # else:
+                        #     if random.randint(0, 2) > 0:
+                        #         self.data.append(json.loads(line))
 
                 else:
                     if not aimodel and len(data["answer"]) == 1:

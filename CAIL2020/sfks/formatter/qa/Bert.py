@@ -65,7 +65,9 @@ class BertQA:
                 #     label_x += 4
                 # if "D" in set(temp_data["answer"]):
                 #     label_x += 8
-                temp_data["answer"] = [a for a in temp_data["answer"] if a!="。"]
+                if len(temp_data["answer"])<=1:
+                    print('GBT ERROR:M')
+
                 print(temp_data["answer"])
                 if set(temp_data["answer"]) == set(['A', 'B']):
                     label_x = 0
@@ -98,6 +100,9 @@ class BertQA:
                 # if set(temp_data["answer"]) == set(['D']):
                 #     label_x = 14
             else:
+                if len(temp_data["answer"]) != 1:
+                    print('GBT ERROR:S')
+
                 label_x = 0
                 if "A" in temp_data["answer"]:
                     label_x = 0
