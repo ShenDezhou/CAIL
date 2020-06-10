@@ -39,6 +39,7 @@ class BertQACNN(nn.Module):
 
         self.conv7 = nn.Conv2d(p2, p, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv8 = nn.Conv2d(p, p, kernel_size=3, stride=1, padding=1, bias=False)
+
         self.conv9 = nn.Conv2d(p, p, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv10 = nn.Conv2d(p, 4, kernel_size=3, stride=1, padding=1, bias=False)
 

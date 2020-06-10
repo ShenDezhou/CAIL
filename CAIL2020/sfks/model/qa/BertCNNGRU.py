@@ -18,9 +18,16 @@ class BertQACNNGRU(nn.Module):
         # print(self.bert)
         # self.rank_module = nn.Linear(768 * config.getint("data", "topk"), 1)
         # self.singlerank_module = nn.Linear(262144, 4)
-        self.criterion = nn.CrossEntropyLoss()
-
         self.multi = config.getboolean("data", "multi_choice")
+
+        if self.multi:
+            weights = [0.2071555643407788, 0.06868946432101206, 0.06829412927456019, 0.12205969559201423, 0.05930025696778019, 0.058904921921328325, 0.08588653884166832, 0.05159122356196877, 0.07461949001779007, 0.06424194504842855, 0.13925677011267049]
+        else:
+            weights = [0.19371986648535047, 0.2489800964272469, 0.2834713808876252, 0.2738286561997775]
+        self.criterion = nn.CrossEntropyLoss(weight=weights)
+
+
+
         # self.multirank_module = nn.Linear(262144, 11)
         self.accuracy_function = single_label_top1_accuracy
 
@@ -73,7 +80,7 @@ class BertQACNNGRU(nn.Module):
     def init_multi_gpu(self, device, config, *args, **params):
         self.bert = nn.DataParallel(self.bert, device_ids=device)
 
-    # precision: 0.27135616269007296
+    # precision: 27.23
     # precision: 0.22066748605464687
     # precision: 0.24263366548805315
     def forward(self, data, config, gpu_list, acc_result, mode):
