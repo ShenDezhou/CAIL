@@ -136,5 +136,3 @@ def train(parameters, config, gpu_list, do_test=False):
                 # valid(model, parameters["valid_dataset"], current_epoch, writer, config, gpu_list, output_function)
                 if do_test:
                     valid(model, test_dataset, current_epoch, writer, config, gpu_list, output_function, mode="test")
-        #print precision
-        # precision(results['acc_result'])

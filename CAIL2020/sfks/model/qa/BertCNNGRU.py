@@ -21,12 +21,10 @@ class BertQACNNGRU(nn.Module):
         self.multi = config.getboolean("data", "multi_choice")
 
         if self.multi:
-            weights = torch.FloatTensor([0.2071555643407788, 0.06868946432101206, 0.06829412927456019, 0.12205969559201423, 0.05930025696778019, 0.058904921921328325, 0.08588653884166832, 0.05159122356196877, 0.07461949001779007, 0.06424194504842855, 0.13925677011267049])
+            weights = torch.FloatTensor([0.07517006802721088, 0.06972789115646258, 0.0717687074829932, 0.11961451247165533, 0.0707482993197279, 0.06938775510204082, 0.10294784580498866, 0.06950113378684808, 0.09070294784580499, 0.08854875283446711, 0.17188208616780046])
         else:
-            weights = torch.FloatTensor([0.19371986648535047, 0.2489800964272469, 0.2834713808876252, 0.2738286561997775])
+            weights = torch.FloatTensor([0.19923918212077985, 0.23763670946267237, 0.29018069424631476, 0.272943414170233])
         self.criterion = nn.CrossEntropyLoss(weight=weights)
-
-
 
         # self.multirank_module = nn.Linear(262144, 11)
         self.accuracy_function = single_label_top1_accuracy
@@ -76,6 +74,8 @@ class BertQACNNGRU(nn.Module):
         p4 = 128
         self.gru = nn.GRU(768, p4, num_layers=2, bidirectional=True)
         self.rank_module2 = nn.Linear(1024*256, 100) #GRU
+
+        self.lgsoftmax = nn.LogSoftmax(dim=1)
 
     def init_multi_gpu(self, device, config, *args, **params):
         self.bert = nn.DataParallel(self.bert, device_ids=device)
@@ -147,10 +147,12 @@ class BertQACNNGRU(nn.Module):
             y = torch.cat([y, z], dim=1)
             # y = self.rank_module2(y)
             y = self.rank_module3m(y)
+            y = self.lgsoftmax(y)
         else:
             y = self.rank_module1(y)
             y = torch.cat([y,z],dim=1)
             y = self.rank_module3(y)
+            y = self.lgsoftmax(y)
             y = y.view(batch, option)
 
         label = data["label"]

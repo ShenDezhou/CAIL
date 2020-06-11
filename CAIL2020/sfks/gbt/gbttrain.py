@@ -86,7 +86,7 @@ if vec is None:
 
 print('train gbt...', print_mem())
 gbt = GradientBoostingClassifier(learning_rate=0.01,
-                                 n_estimators=100,
+                                 n_estimators=120,
                                  max_depth=10,
                                  min_samples_leaf = 10,
                                  min_samples_split = 20,

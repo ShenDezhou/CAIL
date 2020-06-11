@@ -9,7 +9,7 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.673
+#training score : 0.722
 
 class SingleMulti():
     def __init__(self, tfidf='statement_tfidf.model', gbt='statement_som_gbt.model'):
@@ -37,8 +37,8 @@ class SingleMulti():
 
 
     def checkSingleMulti(self, statement_option):
-        spattern = '[何|哪|那][一|个|项|种|者]|\(\)|如何|何罪|什么|谁|怎[么|样]'
-        mpattern = '[何|哪|那][些]|[几][个|项|种|者]'
+        spattern = '下列.*[何|哪|那](一|个).*'
+        mpattern = '下列.*[何|哪|那](几|些).*'
         spr = re.compile(spattern)
         mpr = re.compile(mpattern)
         if spr.search(statement_option):

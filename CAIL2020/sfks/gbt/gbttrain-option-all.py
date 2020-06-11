@@ -9,7 +9,26 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.715
+# dtype = object), 'params': [{'n_estimators': 20}, {'n_estimators': 30}, {'n_estimators': 40}, {'n_estimators': 50},
+#                             {'n_estimators': 60}, {'n_estimators': 70},
+#                             {'n_estimators': 80}], 'split0_test_score': array(
+#     [0.56535078, 0.56615581, 0.56915381, 0.57136097, 0.57136097,
+#      0.56360044, 0.56360044]), 'split1_test_score': array([0.58530144, 0.58559289, 0.58609119, 0.58580192, 0.58685283,
+#                                                            0.58649125, 0.587132]), 'split2_test_score': array(
+#     [0.59252028, 0.59277243, 0.59277789, 0.60809892, 0.60843076,
+#      0.60816878, 0.60823209]), 'split3_test_score': array([0.57848586, 0.57848586, 0.57848586, 0.57848586, 0.57848586,
+#                                                            0.58176138, 0.5819711]), 'split4_test_score': array(
+#     [0.58598912, 0.58594433, 0.59089981, 0.59073378, 0.5933471,
+#      0.59332307, 0.59498063]), 'mean_test_score': array([0.58152949, 0.58179026, 0.58348171, 0.58689629, 0.5876955,
+#                                                          0.58666898, 0.58718325]), 'std_test_score': array(
+#     [0.0092296, 0.00902972, 0.00870062, 0.01247042, 0.01276116,
+#      0.01457938, 0.01474565]), 'rank_test_score': array([7, 6, 5, 3, 1, 4, 2], dtype=int32)}
+
+#training score : 0.563  0.554 0.611
+#319/7175  4.4%
+#339/7459
+from sklearn.model_selection import GridSearchCV
+
 
 def cut_text(alltext):
     count = 0
@@ -45,11 +64,20 @@ def print_mem():
 data_path="../input"
 filename_list="0_train.json,1_train.json".replace(" ", "").split(",")
 
+# spattern = '[何|哪|那][一|个|项|种|者|罪]|\(\)|谁'
+# mpattern = '[何|哪|那][些]|[几][个|项|种|者|类]'
+# spattern = '[何|哪|那][一|个|项|种|者]|\(\)|如何|何罪|什么|谁|怎[么|样]'
+# mpattern = '[何|哪|那][些]|[几][个|项|种|者]'
+
 spattern = '下列.*[何|哪|那](一|个).*'
 mpattern = '下列.*[何|哪|那](几|些).*'
+xpattern = '下列(.*)'
+
+# pattern = '[何|哪|那|几][一|个|项|些|种|者]|\(\)|如何|何罪|什么|谁|怎[么|样]'
+
 spr = re.compile(spattern)
 mpr = re.compile(mpattern)
-
+xpr = re.compile(xpattern)
 statement =[]
 target=[]
 ignoren = 0
@@ -64,15 +92,16 @@ for filename in filename_list:
             continue
         if (spr.search(data["statement"]) and len(data["answer"]) == 1) or (mpr.search(data["statement"]) and len(data["answer"]) > 1):
             ignoren +=1
+            #print('.')
             continue
 
         if (spr.search(data["statement"]) and len(data["answer"]) != 1) or (mpr.search(data["statement"]) and len(data["answer"]) == 1):
             print('X', data["statement"], data["answer"])
 
         temp = data["statement"]
-        for op in data["option_list"].values():
-            temp += "。"
-            temp += op
+        #for op in data["option_list"].values():
+        #    temp += "。"
+        #    temp += op
         statement.append(temp)
 
         if len(data["answer"]) == 1:
@@ -82,8 +111,8 @@ for filename in filename_list:
 print('ignore n:', ignoren)
 
 
-vec=None
-# vec = numpy.load("statement_vec.npz")["arr_0"]
+# vec=None
+vec = numpy.load("statement_vec.npz")["arr_0"]
 
 if vec is None:
     train_data = cut_text(statement)
@@ -94,14 +123,25 @@ if vec is None:
     numpy.savez_compressed("statement_vec.npz", vec.todense())
 
 print('train gbt...', print_mem())
-gbt = GradientBoostingClassifier(learning_rate=0.01,
-                                 n_estimators=120,
-                                 max_depth=10,
-                                 min_samples_leaf = 10,
-                                 min_samples_split = 20,
+gbt = GradientBoostingClassifier(learning_rate = 0.01,
+                                 n_estimators = 100,
+                                 max_depth = 5,
+                                 min_samples_leaf = 20,
+                                 min_samples_split = 120,
                                  # max_features=9,
+                                 # subsample=0.7,
                                  verbose=1,
-                                 ).fit(vec, target)
+                                 )
+param_test1 = {'n_estimators': range(130, 321, 20)}
+param_test2 = {'max_depth':range(3,14,2), 'min_samples_split':range(100,801,200)}
+param_test3 = {'min_samples_split':range(800,1900,200), 'min_samples_leaf':range(60,101,10)}
+param_test4 = {'max_features':range(7,20,2)}
+param_test5 = {'subsample':[0.6,0.7,0.75,0.8,0.85,0.9]}
+
+gsearch1 = GridSearchCV(estimator = gbt, param_grid = param_test1, n_jobs=24, scoring='roc_auc',iid=False,cv=None)
+gsearch1.fit(vec, target)
+
+print(gsearch1.cv_results_)
 joblib.dump(gbt, 'statement_som_gbt.model')
 
 yp = gbt.predict(vec)
