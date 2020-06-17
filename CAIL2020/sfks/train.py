@@ -8,6 +8,7 @@ from config_parser import create_config
 from tools.train_tool import train
 
 from gbt.SingleMulti import SingleMulti
+from torch.autograd import Variable
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -39,7 +40,6 @@ if __name__ == "__main__":
 
 
     os.system("clear")
-
     config = create_config(configFilePath)
 
     cuda = torch.cuda.is_available()

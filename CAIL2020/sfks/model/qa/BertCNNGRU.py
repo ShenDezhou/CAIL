@@ -5,6 +5,11 @@ from pytorch_pretrained_bert import BertModel
 
 from tools.accuracy_tool import single_label_top1_accuracy
 
+
+# precision: 28.48
+# precision: 15.31
+# precision: 0.24263366548805315
+
 def conv3x3(in_planes, out_planes, stride=1):#基本的3x3卷积
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -80,9 +85,7 @@ class BertQACNNGRU(nn.Module):
     def init_multi_gpu(self, device, config, *args, **params):
         self.bert = nn.DataParallel(self.bert, device_ids=device)
 
-    # precision: 27.23
-    # precision: 0.22066748605464687
-    # precision: 0.24263366548805315
+
     def forward(self, data, config, gpu_list, acc_result, mode):
         text = data["text"]
         token = data["token"]

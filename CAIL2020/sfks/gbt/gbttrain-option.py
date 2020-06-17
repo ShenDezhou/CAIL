@@ -9,7 +9,7 @@ import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
 
-#training score : 0.715
+#training score :  0.722
 
 def cut_text(alltext):
     count = 0

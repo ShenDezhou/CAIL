@@ -14,7 +14,7 @@ single =[{'TP': 57, 'FN': 1619, 'FP': 218, 'TN': 0}, {'TP': 207, 'FN': 1792, 'FP
 # precision : 0.1988563488670372
 # BET+CNN+GRU
 # precision : 0.2791
-# precision : 0.1741
+# precision : 0.1531
 # precision : 0.2253
 
 def precision(dic):

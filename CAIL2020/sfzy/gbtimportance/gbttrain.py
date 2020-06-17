@@ -8,8 +8,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer as TFIDF
 import joblib
 from sklearn.ensemble import GradientBoostingClassifier
 import re
+from CAIL2020.sfzy.rulepropose.CompPropose import CompPropose
+from CAIL2020.sfzy.ruleopinion.CompOpinion import CompOpinion
+from CAIL2020.sfzy.ruleresult.CompResult import CompResult
+from CAIL2020.sfzy.rulereason.CheckReason import CheckReason
+from CAIL2020.sfzy.rulefact.CompFact import CompFact
 
-#training score : 0.673
+#training score :0.880
+
 
 def cut_text(alltext):
     count = 0
@@ -50,14 +56,32 @@ filename_list="sfzy_small.json".replace(" ", "").split(",")
 statement =[]
 target=[]
 # ignoren = 0
+reason = CheckReason()
+propose = CompPropose()
+fact = CompFact()
+opinion = CompOpinion()
+courtresult = CompResult()
 for filename in filename_list:
     f = open(os.path.join(data_path, filename), "r", encoding='utf-8')
     for line in f:
         data = json.loads(line)
         text = data['text']
+        pool = []
+        # 2.原告起诉
+        proposed = propose.getPropose(text)
+        # 3.查明
+        facts = fact.getFact(text)
+        # 4.法院意见
+        opinions = opinion.getOpinion(text)
+        # 5.6 依据+判决结果
+        trialresults = courtresult.getCourtResult(text)
+        pool = pool + proposed + facts+ opinions + trialresults
         for dic in text:
             statement.append(dic['sentence'])
-            target.append(dic['label'])
+            tv = dic['label']
+            if tv=='0' and dic['sentence'] in pool:
+                    tv = '1'
+            target.append(tv)
 
 print('n:', len(statement))
 train_data = cut_text(statement)

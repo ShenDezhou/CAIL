@@ -13,11 +13,14 @@ import re
 
 class CompResult():
     def __init__(self, cwd=".", tfidf='statement_tfidf.model', gbt='statement_som_gbt.model'):
-        print('train tfidf...', self.print_mem())
-        self.tfidf = joblib.load(os.path.join(cwd, tfidf))
-        print('train gbt...', self.print_mem())
-        self.gbt = joblib.load(os.path.join(cwd, gbt))
-        self.cut = thulac.thulac(seg_only=True)
+        patterns1 = "依照"
+        patterns2 = "判决如下"
+        self.ps1 = re.compile(patterns1)
+        self.ps2 = re.compile(patterns2)
+        patterne1 = '案件受理费'
+        patterne2 = '如不服本判决'
+        self.pe1 = re.compile(patterne1)
+        self.pe2 = re.compile(patterne2)
 
 
     def cut_text(self, alltext):
@@ -44,23 +47,18 @@ class CompResult():
         return yp[0]
 
     def getCourtResult(self, sentences):
-        patterns = "判决如下"
-        ps = re.compile(patterns)
-        patterne1 = '^案件受理费'#如不(服)?本判决
-        patterne2 = '如不(服)?本判决'
-        pe1 = re.compile(patterne1)
-        pe2 = re.compile(patterne2)
+
         tap = False
         cr = []
         for dic in sentences:
-            if tap and (pe1.search(dic['sentence']) or pe2.search(dic['sentence'])):
-                tap = False
+            if tap and (self.pe1.search(dic['sentence']) or self.pe2.search(dic['sentence'])):
+                break
+
+            if self.ps1.search(dic['sentence']) or self.ps2.search(dic['sentence']):
+                tap = True
 
             if tap:
                 cr.append(dic['sentence'])
-
-            if ps.search(dic['sentence']):
-                tap = True
 
         # print(cr)
         return cr
