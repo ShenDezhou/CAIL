@@ -8,6 +8,8 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
+#batch size:24->14 and max length:512-256 have negtive impact on acc, after 10 epochs drop to (train_acc: 0.490404, train_f1: 0.489924, valid_acc: 0.375000, valid_f1: 0.361930,)
+
 #for bert 2 epochs
 #train_acc: 0.873826, train_f1: 0.873886, valid_acc: 0.775000, valid_f1: 0.701429
 #rnn 2 epochs
@@ -30,14 +32,15 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification
+from model import BertForClassification, RnnForSentencePairClassification, bilstm_attn
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BertForClassification,
-    'rnn': RnnForSentencePairClassification
+    'rnn': RnnForSentencePairClassification,
+    'att': bilstm_attn
 }
 
 
@@ -182,8 +185,7 @@ class Trainer:
                          self.config.experiment_name + '-step.csv'),
             title='step,loss')
         trange_obj = trange(self.config.num_epoch, desc='Epoch', ncols=120)
-        self._epoch_evaluate_update_description_log(
-            tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
+
         best_model_state_dict, best_valid_f1, global_step = None, 0, 0
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
@@ -204,14 +206,19 @@ class Trainer:
                     global_step += 1
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
+
             results = self._epoch_evaluate_update_description_log(
                 tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
             self.save_model(os.path.join(
                 self.config.model_path, self.config.experiment_name,
                 self.config.model_type + '-' + str(epoch + 1) + '.bin'))
+
             if results[-1] > best_valid_f1:
                 best_model_state_dict = deepcopy(self.model.state_dict())
                 best_valid_f1 = results[-1]
+
+        self._epoch_evaluate_update_description_log(
+            tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
         return best_model_state_dict
 
 
