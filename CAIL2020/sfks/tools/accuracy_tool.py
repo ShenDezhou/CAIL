@@ -83,7 +83,7 @@ def single_label_top1_accuracy(outputs, label, config, result=None):
     id1 = torch.max(outputs, dim=1)[1]
     # id2 = torch.max(label, dim=1)[1]
     id2 = label
-    print(id1, id2)
+    #print(id1, id2)
     nr_classes = outputs.size(1)
     while len(result) < nr_classes:
         result.append({"TP": 0, "FN": 0, "FP": 0, "TN": 0})

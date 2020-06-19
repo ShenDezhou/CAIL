@@ -25,11 +25,11 @@ class BertQACNNGRU(nn.Module):
         # self.singlerank_module = nn.Linear(262144, 4)
         self.multi = config.getboolean("data", "multi_choice")
 
-        if self.multi:
-            weights = torch.FloatTensor([0.07517006802721088, 0.06972789115646258, 0.0717687074829932, 0.11961451247165533, 0.0707482993197279, 0.06938775510204082, 0.10294784580498866, 0.06950113378684808, 0.09070294784580499, 0.08854875283446711, 0.17188208616780046])
-        else:
-            weights = torch.FloatTensor([0.19923918212077985, 0.23763670946267237, 0.29018069424631476, 0.272943414170233])
-        self.criterion = nn.CrossEntropyLoss(weight=weights)
+        # if self.multi:
+        #     weights = torch.FloatTensor([0.07517006802721088, 0.06972789115646258, 0.0717687074829932, 0.11961451247165533, 0.0707482993197279, 0.06938775510204082, 0.10294784580498866, 0.06950113378684808, 0.09070294784580499, 0.08854875283446711, 0.17188208616780046])
+        # else:
+        #     weights = torch.FloatTensor([0.19923918212077985, 0.23763670946267237, 0.29018069424631476, 0.272943414170233])
+        self.criterion = nn.CrossEntropyLoss()
 
         # self.multirank_module = nn.Linear(262144, 11)
         self.accuracy_function = single_label_top1_accuracy
@@ -71,14 +71,14 @@ class BertQACNNGRU(nn.Module):
         self.bn2 = nn.BatchNorm2d(p2)
         self.bn3 = nn.BatchNorm2d(p)
 
-        self.rank_module1 = nn.Linear(262144, 600) # CNN
+        self.cnn_module = nn.Linear(262144, 600) # CNN
 
-        self.rank_module3 = nn.Linear(700, 4)
-        self.rank_module3m = nn.Linear(700, 11)
+        self.merge_module = nn.Linear(700, 15)
+        # self.rank_module3m = nn.Linear(700, 11)
 
         p4 = 128
         self.gru = nn.GRU(768, p4, num_layers=2, bidirectional=True)
-        self.rank_module2 = nn.Linear(1024*256, 100) #GRU
+        self.gru_module = nn.Linear(1024*256, 100) #GRU
 
         self.lgsoftmax = nn.LogSoftmax(dim=1)
 
@@ -143,75 +143,70 @@ class BertQACNNGRU(nn.Module):
         encode = encode.view(batch, 1024, -1)
         z = self.gru(encode)[0]
         z = z.view(batch, -1)
-        z = self.rank_module2(z)
+        z = self.cnn_module(z)
 
-        if data['sorm'][0]:
-            y = self.rank_module1(y)
-            y = torch.cat([y, z], dim=1)
-            # y = self.rank_module2(y)
-            y = self.rank_module3m(y)
-            y = self.lgsoftmax(y)
-        else:
-            y = self.rank_module1(y)
-            y = torch.cat([y,z],dim=1)
-            y = self.rank_module3(y)
-            y = self.lgsoftmax(y)
-            y = y.view(batch, option)
+        y = self.gru_module(y)
+        y = torch.cat([y, z], dim=1)
+        y = self.merge_module(y)
+        y = self.lgsoftmax(y)
+
+        # if data['sorm'][0]:
+        #     y = self.rank_module1(y)
+        #     y = torch.cat([y, z], dim=1)
+        #     # y = self.rank_module2(y)
+        #     y = self.rank_module3m(y)
+        #     y = self.lgsoftmax(y)
+        # else:
+        #     y = self.rank_module1(y)
+        #     y = torch.cat([y,z],dim=1)
+        #     y = self.rank_module3(y)
+        #     y = self.lgsoftmax(y)
+        #     y = y.view(batch, option)
 
         label = data["label"]
         loss = self.criterion(y, label)
         acc_result = self.accuracy_function(y, label, config, acc_result)
 
-        if data['sorm'][0]:
-            ind = y.argmax(dim=1) + 1
-            answer = []
-            for i in ind:
+        answer = []
+        predm = y.argmax(dim=1)
+        preds = y[:, 0:3].argmax(dim=1)
+        for x in range(batch):
+            if data['sorm'][x]:
+                i = predm[x]
                 subanswer = []
-                # if i==1:
-                #     subanswer.append('A')
-                # if i==2:
-                #     subanswer.append('B')
-                # if i==4:
-                #     subanswer.append('C')
-                # if i==8:
-                #     subanswer.append('D')
+                if i == 0:
+                    subanswer.append('A')
                 if i == 1:
-                    subanswer=['A', 'B']
+                    subanswer.append('B')
                 if i == 2:
-                    subanswer = ['A','C']
+                    subanswer.append('C')
                 if i == 3:
-                    subanswer = ['B','C']
+                    subanswer.append('D')
                 if i == 4:
-                    subanswer = ['A','B','C']
+                    subanswer = ['A', 'B']
                 if i == 5:
-                    subanswer = ['A','D']
+                    subanswer = ['A', 'C']
                 if i == 6:
-                    subanswer = ['B','D']
+                    subanswer = ['B', 'C']
                 if i == 7:
-                    subanswer = ['A','B','D']
+                    subanswer = ['A', 'B', 'C']
                 if i == 8:
-                    subanswer = ['C','D']
+                    subanswer = ['A', 'D']
                 if i == 9:
-                    subanswer = ['A','C','D']
+                    subanswer = ['B', 'D']
                 if i == 10:
-                    subanswer = ['B','C','D']
+                    subanswer = ['A', 'B', 'D']
                 if i == 11:
-                    subanswer = ['A','B','C','D']
-                # if i==12:
-                #     subanswer.append('A')
-                # if i==13:
-                #     subanswer.append('B')
-                # if i==14:
-                #     subanswer.append('C')
-                # if i==15:
-                #     subanswer.append('D')
+                    subanswer = ['C', 'D']
+                if i == 12:
+                    subanswer = ['A', 'C', 'D']
+                if i == 13:
+                    subanswer = ['B', 'C', 'D']
+                if i == 14:
+                    subanswer = ['A', 'B', 'C', 'D']
                 answer.append(subanswer)
-            output = [{"id": id, "answer": answer} for id, answer in zip(data['id'], answer)]
-        else:
-            ind = y.argmax(dim=1)
-            answer=[]
-            for i in ind:
-                answer.append(chr(ord('A')+i))
-            output = [{"id": id, "answer": answer} for id, answer in zip(data['id'], answer)]
+            else:
+                answer.append(chr(ord('A') + preds[x]))
 
+        output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
         return {"loss": loss, "acc_result": acc_result, "output": output}

@@ -65,6 +65,9 @@ def train(parameters, config, gpu_list, do_test=False):
     step_size = config.getint("train", "step_size")
     gamma = config.getfloat("train", "lr_multiplier")
 
+    gradient_accumulation_steps = config.getint("train","gradient_accumulation_steps")
+    max_grad_norm = config.getfloat("train", "max_grad_norm")
+
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
     exp_lr_scheduler.step(trained_epoch)
 
@@ -96,15 +99,22 @@ def train(parameters, config, gpu_list, do_test=False):
                     else:
                         data[key] = Variable(data[key])
 
-            optimizer.zero_grad()
 
             results = model(data, config, gpu_list, acc_result, "train")
-            print(results)
+            # print(results)
             loss, acc_result = results["loss"], results["acc_result"]
+            # if gradient_accumulation_steps > 1:
+            #     loss = loss / gradient_accumulation_steps
             total_loss += float(loss)
 
+            # optimizer.zero_grad()
             loss.backward()
-            optimizer.step()
+            if (step + 1) % gradient_accumulation_steps == 0:
+                torch.nn.utils.clip_grad_norm_(
+                    model.parameters(), max_grad_norm)
+                optimizer.step()
+                optimizer.zero_grad()
+                global_step += 1
 
             if step % output_time == 0:
                 output_info = output_function(acc_result, config)
@@ -115,7 +125,6 @@ def train(parameters, config, gpu_list, do_test=False):
                     gen_time_str(delta_t), gen_time_str(delta_t * (total_len - step - 1) / (step + 1))),
                              "%.3lf" % (total_loss / (step + 1)), output_info, '\r', config)
 
-            global_step += 1
             writer.add_scalar(config.get("output", "model_name") + "_train_iter", float(loss), global_step)
 
         output_value(current_epoch, "train", "%d/%d" % (step + 1, total_len), "%s/%s" % (
@@ -136,3 +145,6 @@ def train(parameters, config, gpu_list, do_test=False):
                 # valid(model, parameters["valid_dataset"], current_epoch, writer, config, gpu_list, output_function)
                 if do_test:
                     valid(model, test_dataset, current_epoch, writer, config, gpu_list, output_function, mode="test")
+
+    # checkpoint(os.path.join(output_path, "%d.pkl" % current_epoch), model, optimizer, current_epoch, config,
+    #            global_step)

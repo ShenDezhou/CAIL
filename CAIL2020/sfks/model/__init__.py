@@ -8,7 +8,7 @@ from model.qa.HAF import HAF
 
 model_list = {
     "Bert": BertQA,
-    "BertCNN": BertQACNNGRUGAN,
+    "BertCNN": BertQACNN,
     "BiDAF": BiDAFQA,
     "Comatch": CoMatching,
     "HAF": HAF

@@ -5,14 +5,14 @@ import logging
 
 import formatter as form
 from dataset import dataset_list
-from gbt.SingleMulti import SingleMulti
+# from gbt.SingleMulti import SingleMulti
 
 logger = logging.getLogger(__name__)
 
 collate_fn = {}
 formatter = {}
 
-siglemulti = SingleMulti('gbt/statement_tfidf.model', 'gbt/statement_som_gbt.model')
+# siglemulti = SingleMulti('gbt/statement_tfidf.model', 'gbt/statement_som_gbt.model')
 
 def init_formatter(config, task_list, *args, **params):
 

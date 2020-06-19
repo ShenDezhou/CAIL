@@ -20,7 +20,7 @@ class BertQACNN(nn.Module):
         # self.singlerank_module = nn.Linear(262144, 4)
         self.criterion = nn.CrossEntropyLoss()
 
-        self.multi = config.getboolean("data", "multi_choice")
+        # self.multi = config.getboolean("data", "multi_choice")
         # self.multirank_module = nn.Linear(262144, 11)
         self.accuracy_function = single_label_top1_accuracy
 
@@ -62,9 +62,9 @@ class BertQACNN(nn.Module):
         self.bn2 = nn.BatchNorm2d(p2)
         self.bn3 = nn.BatchNorm2d(p)
 
-        self.rank_module1 = nn.Linear(262144, 600)
-        self.rank_module3 = nn.Linear(600, 4)
-        self.rank_module3m = nn.Linear(600, 11)
+        self.rank_module1 = nn.Linear(262144, 15)
+        # self.rank_module3 = nn.Linear(600, 4)
+        # self.rank_module3m = nn.Linear(600, 11)
 
 
     def init_multi_gpu(self, device, config, *args, **params):
@@ -87,7 +87,6 @@ class BertQACNN(nn.Module):
         text = text.view(text.size()[0] * text.size()[1], text.size()[2])
         token = token.view(token.size()[0] * token.size()[1], token.size()[2])
         mask = mask.view(mask.size()[0] * mask.size()[1], mask.size()[2])
-        # print(batch)
 
         encode, y = self.bert.forward(text, token, mask, output_all_encoded_layers=False)
         l = encode.size()[1] #256
@@ -127,72 +126,52 @@ class BertQACNN(nn.Module):
 
         y = y.view(batch, -1)
 
-        if data['sorm'][0]:
-            y = self.rank_module1(y)
-            # y = self.rank_module2(y)
-            y = self.rank_module3m(y)
-            # y = self.multirank_module(y)
-        else:
-            y = self.rank_module1(y)
-            # y = self.rank_module2(y)
-            y = self.rank_module3(y)
-            y = y.view(batch, option)
+        y = self.rank_module1(y)
 
         label = data["label"]
         loss = self.criterion(y, label)
         acc_result = self.accuracy_function(y, label, config, acc_result)
 
-        if data['sorm'][0]:
-            ind = y.argmax(dim=1) + 1
-            answer = []
-            for i in ind:
+        answer = []
+        predm = y.argmax(dim=1)
+        preds = y[:, 0:3].argmax(dim=1)
+        for x in range(batch):
+            if data['sorm'][x]:
+                i = predm[x]
                 subanswer = []
-                # if i==1:
-                #     subanswer.append('A')
-                # if i==2:
-                #     subanswer.append('B')
-                # if i==4:
-                #     subanswer.append('C')
-                # if i==8:
-                #     subanswer.append('D')
+                if i == 0:
+                    subanswer.append('A')
                 if i == 1:
-                    subanswer=['A', 'B']
+                    subanswer.append('B')
                 if i == 2:
-                    subanswer = ['A','C']
+                    subanswer.append('C')
                 if i == 3:
-                    subanswer = ['B','C']
+                    subanswer.append('D')
                 if i == 4:
-                    subanswer = ['A','B','C']
+                    subanswer = ['A', 'B']
                 if i == 5:
-                    subanswer = ['A','D']
+                    subanswer = ['A', 'C']
                 if i == 6:
-                    subanswer = ['B','D']
+                    subanswer = ['B', 'C']
                 if i == 7:
-                    subanswer = ['A','B','D']
+                    subanswer = ['A', 'B', 'C']
                 if i == 8:
-                    subanswer = ['C','D']
+                    subanswer = ['A', 'D']
                 if i == 9:
-                    subanswer = ['A','C','D']
+                    subanswer = ['B', 'D']
                 if i == 10:
-                    subanswer = ['B','C','D']
+                    subanswer = ['A', 'B', 'D']
                 if i == 11:
-                    subanswer = ['A','B','C','D']
-                # if i==12:
-                #     subanswer.append('A')
-                # if i==13:
-                #     subanswer.append('B')
-                # if i==14:
-                #     subanswer.append('C')
-                # if i==15:
-                #     subanswer.append('D')
-
+                    subanswer = ['C', 'D']
+                if i == 12:
+                    subanswer = ['A', 'C', 'D']
+                if i == 13:
+                    subanswer = ['B', 'C', 'D']
+                if i == 14:
+                    subanswer = ['A', 'B', 'C', 'D']
                 answer.append(subanswer)
-            output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
-        else:
-            ind = y.argmax(dim=1)
-            answer=[]
-            for i in ind:
-                answer.append(chr(ord('A')+i))
-            output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
+            else:
+                answer.append(chr(ord('A') + preds[x]))
 
+        output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
         return {"loss": loss, "acc_result": acc_result, "output": output}

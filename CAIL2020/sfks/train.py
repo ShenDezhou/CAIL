@@ -7,7 +7,7 @@ from tools.init_tool import init_all
 from config_parser import create_config
 from tools.train_tool import train
 
-from gbt.SingleMulti import SingleMulti
+# from gbt.SingleMulti import SingleMulti
 from torch.autograd import Variable
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',

@@ -5,7 +5,7 @@ import random
 
 from tools.dataset_tool import dfs_search
 
-from gbt.SingleMulti import SingleMulti
+# from gbt.SingleMulti import SingleMulti
 
 
 class JsonFromFilesDataset(Dataset):
@@ -15,12 +15,12 @@ class JsonFromFilesDataset(Dataset):
         self.file_list = []
         self.data_path = config.get("data", "%s_data_path" % mode)
         self.encoding = encoding
-        self.siglemulti = SingleMulti('gbt/statement_tfidf.model', 'gbt/statement_som_gbt.model')
+        # self.siglemulti = SingleMulti('gbt/statement_tfidf.model', 'gbt/statement_som_gbt.model')
 
         filename_list = config.get("data", "%s_file_list" % mode).replace(" ", "").split(",")
         recursive = False
 
-        multi = config.getboolean("data", "multi_choice")
+        # multi = config.getboolean("data", "multi_choice")
 
 
         for name in filename_list:
@@ -36,26 +36,25 @@ class JsonFromFilesDataset(Dataset):
                     self.data.append(json.loads(line))
                     continue
 
-                statementoption = data['statement']
-                for op in data["option_list"].values():
-                    statementoption += "。"
-                    statementoption += op
 
-                aimodel = self.siglemulti.checkSingleMulti(statementoption)
                 # filter dataset for Single option model and Multiple option model.
                 data["answer"] = [a for a in data["answer"] if a != "。"]  #clean up answers.
 
-                if multi:
-                    if aimodel:
-                        if len(data["answer"]) > 1:
-                            self.data.append(json.loads(line))
-                        # else:
-                        #     if random.randint(0, 2) > 0:
-                        #         self.data.append(json.loads(line))
+                #before
+                # if multi:
+                #     if aimodel:
+                #         if len(data["answer"]) > 1:
+                #             self.data.append(json.loads(line))
+                #         # else:
+                #         #     if random.randint(0, 2) > 0:
+                #         #         self.data.append(json.loads(line))
+                #
+                # else:
+                #     if not aimodel and len(data["answer"]) == 1:
+                #         self.data.append(json.loads(line))
 
-                else:
-                    if not aimodel and len(data["answer"]) == 1:
-                        self.data.append(json.loads(line))
+                #after
+                self.data.append(json.loads(line))
 
                 # if (not multi) and len(data["answer"]) != 1:
                 #     if mode != "test":
