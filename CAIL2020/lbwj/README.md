@@ -185,3 +185,6 @@ python main.py --model_config 'config/rnn_config.json' \
                --out_file 'rnn-submission-test-1.csv'
 ```
 
+### RESULT
+202000619   BERT 
+Epoch: 1, train_acc: 0.726073, train_f1: 0.725676, valid_acc: 0.760000, valid_f1: 0.768889,

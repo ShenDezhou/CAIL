@@ -185,8 +185,9 @@ class Trainer:
                          self.config.experiment_name + '-step.csv'),
             title='step,loss')
         trange_obj = trange(self.config.num_epoch, desc='Epoch', ncols=120)
-
-        best_model_state_dict, best_valid_f1, global_step = None, 0, 0
+        # self._epoch_evaluate_update_description_log(
+        #     tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
+        best_model_state_dict, best_train_f1, global_step = None, 0, 0
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
             tqdm_obj = tqdm(self.data_loader['train'], ncols=80)
@@ -194,15 +195,33 @@ class Trainer:
                 batch = tuple(t.to(self.device) for t in batch)
                 logits = self.model(*batch[:-1])  # the last one is label
                 loss = self.criterion(logits, batch[-1])
-                if self.config.gradient_accumulation_steps > 1:
-                    loss = loss / self.config.gradient_accumulation_steps
-                self.optimizer.zero_grad()
+                # before
+                #
+                # 1, 0.6943069306930693, 0.6943334832344427, 0.8, 0.7813786213786215
+                # 2, 0.5676567656765676, 0.567110781423962, 0.68, 0.6895238095238095
+                # 3, 0.4397689768976898, 0.43767768291252807, 0.68, 0.5321303258145363
+                #
+                # 1, 0.7755775577557755, 0.7751473256259231, 0.68, 0.6659673659673658
+                # 2, 0.8259075907590759, 0.8258801788591528, 0.64, 0.6095238095238095
+                # 3, 0.7301980198019802, 0.7299902191092236, 0.44, 0.4243711843711844
+                # 4, 0.6452145214521452, 0.6417822327936696, 0.64, 0.6233333333333333
+
+                # if self.config.gradient_accumulation_steps > 1:
+                #     loss = loss / self.config.gradient_accumulation_steps
+                # self.optimizer.zero_grad()
                 loss.backward()
+                self.scheduler.step()
+
                 if (step + 1) % self.config.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(
                         self.model.parameters(), self.config.max_grad_norm)
+                    #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
                     self.optimizer.step()
-                    self.scheduler.step()
+                    #after
+                    # 1, 0.8316831683168316, 0.8313869101119111, 0.92, 0.9180952380952382
+                    # 2, 0.8494224422442245, 0.8495365103077607, 0.72, 0.7218648018648018
+                    # 3, 0.5878712871287128, 0.5829667340150554, 0.64, 0.5922222222222222
+                    self.optimizer.zero_grad()
                     global_step += 1
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
@@ -213,12 +232,9 @@ class Trainer:
                 self.config.model_path, self.config.experiment_name,
                 self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
-            if results[-1] > best_valid_f1:
+            if results[-3] > best_train_f1:
                 best_model_state_dict = deepcopy(self.model.state_dict())
-                best_valid_f1 = results[-1]
-
-        self._epoch_evaluate_update_description_log(
-            tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
+                best_train_f1 = results[-3]
         return best_model_state_dict
 
 

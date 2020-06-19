@@ -9,8 +9,8 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
-# from transformers.modeling_bert import BertModel
-from pytorch_pretrained_bert import BertModel
+from transformers.modeling_bert import BertModel
+# from pytorch_pretrained_bert import BertModel
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
