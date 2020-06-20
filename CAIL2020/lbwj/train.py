@@ -209,13 +209,13 @@ class Trainer:
                 #     loss = loss / self.config.gradient_accumulation_steps
                 # self.optimizer.zero_grad()
                 loss.backward()
-                self.scheduler.step()
 
                 if (step + 1) % self.config.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(
                         self.model.parameters(), self.config.max_grad_norm)
                     #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
                     self.optimizer.step()
+                    self.scheduler.step()
                     #after
                     # 1, 0.8316831683168316, 0.8313869101119111, 0.92, 0.9180952380952382
                     # 2, 0.8494224422442245, 0.8495365103077607, 0.72, 0.7218648018648018
