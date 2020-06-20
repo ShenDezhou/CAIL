@@ -23,7 +23,7 @@ def main(train_in='data/SMP-CAIL2020-train.csv',
     """
     data = pd.read_csv(train_in, encoding='utf-8')
     total_num = data.shape[0]
-    train_num = int(0.99 * total_num)
+    train_num = int(1 * total_num)
     data[:train_num].to_csv(train_out, encoding='utf-8', index=False)
     data[train_num:].to_csv(valid_out, encoding='utf-8', index=False)
 
