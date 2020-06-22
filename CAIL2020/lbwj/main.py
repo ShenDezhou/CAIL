@@ -22,13 +22,13 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertXForClassification, RnnForSentencePairClassification
+from model import BertYForClassification, RnnForSentencePairClassification
 from utils import load_torch_model
 
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 

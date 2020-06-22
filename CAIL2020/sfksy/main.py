@@ -86,7 +86,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_config', '-c', default='config/bert_config.json', help="specific config file", required=False)
     parser.add_argument('--in_file', '-i',  default='/input', help="input folder", required=False)
-    parser.add_argument('--out_file', '-o', default='/output/result.csv', help="result file path", required=False)
+    parser.add_argument('--out_file', '-o', default='/output/result.txt', help="result file path", required=False)
     args = parser.parse_args()
     main(args.in_file, args.out_file, args.model_config)
 

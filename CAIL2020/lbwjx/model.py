@@ -11,7 +11,10 @@ from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
 # from pytorch_pretrained_bert import BertModel
-
+#20200620,BERTX->train_acc: 0.713761, train_f1: 0.713807, valid_acc: 0.764000, valid_f1: 0.760061
+#20200620-2,BERTX
+# 1,0.7909350755410371,0.790836697236448,0.838,0.8352161478089404
+# 2,0.7913434054716211,0.7912636458834423,0.838,0.8352161478089404
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
@@ -346,7 +349,7 @@ class BertYForClassification(nn.Module):
 
         # bert_output[1]: (batch_size, hidden_size)
         pooled_output = bert_output[1]
-        # 228 + 1691 + 768 ->
+        # 228 + 768 ->
         pooled_output = torch.cat([con_cnn_feats, pooled_output], dim=1)
         pooled_output = self.dropout(pooled_output)
         logits = self.linear(pooled_output).view(batch_size, self.num_classes)

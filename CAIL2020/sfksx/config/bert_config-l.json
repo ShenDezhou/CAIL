@@ -7,7 +7,7 @@
   "train_file_path": "private/train.csv",
   "valid_file_path": "private/valid.csv",
 
-  "batch_size": 16,
+  "batch_size": 8,
 
   "bert_model_path": "/mnt/data/torchcail/bert-base-chinese",
   "hidden_size": 768,
