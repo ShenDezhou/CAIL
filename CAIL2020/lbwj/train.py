@@ -32,13 +32,13 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
@@ -194,17 +194,6 @@ class Trainer:
                 batch = tuple(t.to(self.device) for t in batch)
                 logits = self.model(*batch[:-1])  # the last one is label
                 loss = self.criterion(logits, batch[-1])
-                # before
-                #
-                # 1, 0.6943069306930693, 0.6943334832344427, 0.8, 0.7813786213786215
-                # 2, 0.5676567656765676, 0.567110781423962, 0.68, 0.6895238095238095
-                # 3, 0.4397689768976898, 0.43767768291252807, 0.68, 0.5321303258145363
-                #
-                # 1, 0.7755775577557755, 0.7751473256259231, 0.68, 0.6659673659673658
-                # 2, 0.8259075907590759, 0.8258801788591528, 0.64, 0.6095238095238095
-                # 3, 0.7301980198019802, 0.7299902191092236, 0.44, 0.4243711843711844
-                # 4, 0.6452145214521452, 0.6417822327936696, 0.64, 0.6233333333333333
-
                 # if self.config.gradient_accumulation_steps > 1:
                 #     loss = loss / self.config.gradient_accumulation_steps
                 # self.optimizer.zero_grad()
@@ -216,10 +205,6 @@ class Trainer:
                     #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
                     self.optimizer.step()
                     self.scheduler.step()
-                    #after
-                    # 1, 0.8316831683168316, 0.8313869101119111, 0.92, 0.9180952380952382
-                    # 2, 0.8494224422442245, 0.8495365103077607, 0.72, 0.7218648018648018
-                    # 3, 0.5878712871287128, 0.5829667340150554, 0.64, 0.5922222222222222
                     self.optimizer.zero_grad()
                     global_step += 1
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
@@ -261,7 +246,7 @@ def main(config_file='config/bert_config.json'):
     train_set, valid_set_train, valid_set_valid = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
-        device = torch.device('cpu')
+        # device = torch.device('cpu')
         # torch.distributed.init_process_group(backend="nccl")
         # sampler_train = DistributedSampler(train_set)
         sampler_train = RandomSampler(train_set)

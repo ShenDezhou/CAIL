@@ -275,3 +275,4 @@ nohup python train.py  -c default-lm.config >trainm.log &
 ##2. Testing
 python test.py -c default-ls.config > test.log &
 
+#RESULT

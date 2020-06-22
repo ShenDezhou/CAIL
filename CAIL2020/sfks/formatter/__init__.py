@@ -1,6 +1,6 @@
 import logging
 
-from formatter.qa.Bert import BertQA
+from formatter.qa.Bert import BertQA, BertXQA
 from formatter.qa.Char import CharQA
 from formatter.qa.Comatch import ComatchingFormatter
 from formatter.qa.HAF import HAFQA
@@ -9,7 +9,7 @@ from formatter.qa.Word import WordQA
 logger = logging.getLogger(__name__)
 
 formatter_list = {
-    "BertQA": BertQA,
+    "BertQA": BertXQA,
     "CharQA": CharQA,
     "WordQA": WordQA,
     "ComatchQA": ComatchingFormatter,

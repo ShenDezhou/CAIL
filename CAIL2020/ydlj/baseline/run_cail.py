@@ -3,7 +3,10 @@ from os.path import join
 from tqdm import tqdm
 from transformers import BertModel
 from transformers import BertConfig as BC
+import json
 
+import torch
+from torch import nn
 from transformers.optimization import AdamW, get_linear_schedule_with_warmup
 from model.modeling import *
 from tools.utils import convert_to_tokens
@@ -18,10 +21,6 @@ try:
     from apex import amp
 except Exception:
     print('Apex not imoport!')
-
-
-import torch
-from torch import nn
 
 
 def set_seed(args):
@@ -51,7 +50,7 @@ def compute_loss(batch, start_logits, end_logits, type_logits, sp_logits, start_
 
 
 
-import json
+
 
 @torch.no_grad()
 def predict(model, dataloader, example_dict, feature_dict, prediction_file, need_sp_logit_file=False):

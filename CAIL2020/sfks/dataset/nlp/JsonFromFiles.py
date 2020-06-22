@@ -5,9 +5,6 @@ import random
 
 from tools.dataset_tool import dfs_search
 
-# from gbt.SingleMulti import SingleMulti
-
-
 class JsonFromFilesDataset(Dataset):
     def __init__(self, config, mode,  encoding="utf8", *args, **params):
         self.config = config
@@ -17,11 +14,12 @@ class JsonFromFilesDataset(Dataset):
         self.encoding = encoding
         # self.siglemulti = SingleMulti('gbt/statement_tfidf.model', 'gbt/statement_som_gbt.model')
 
-        filename_list = config.get("data", "%s_file_list" % mode).replace(" ", "").split(",")
+        if mode != "test":
+            filename_list = config.get("data", "%s_file_list" % mode).replace(" ", "").split(",")
+        else:
+            filename_list = "/input/"
+
         recursive = False
-
-        # multi = config.getboolean("data", "multi_choice")
-
 
         for name in filename_list:
             self.file_list = self.file_list + dfs_search(os.path.join(self.data_path, name), recursive)
@@ -35,31 +33,10 @@ class JsonFromFilesDataset(Dataset):
                 if mode == "test":
                     self.data.append(json.loads(line))
                     continue
-
-
                 # filter dataset for Single option model and Multiple option model.
-                data["answer"] = [a for a in data["answer"] if a != "。"]  #clean up answers.
-
-                #before
-                # if multi:
-                #     if aimodel:
-                #         if len(data["answer"]) > 1:
-                #             self.data.append(json.loads(line))
-                #         # else:
-                #         #     if random.randint(0, 2) > 0:
-                #         #         self.data.append(json.loads(line))
-                #
-                # else:
-                #     if not aimodel and len(data["answer"]) == 1:
-                #         self.data.append(json.loads(line))
-
-                #after
+                # clean up answers.
+                data["answer"] = [a for a in data["answer"] if a != "。"]
                 self.data.append(json.loads(line))
-
-                # if (not multi) and len(data["answer"]) != 1:
-                #     if mode != "test":
-                #         continue
-
 
         if mode == "train":
             random.shuffle(self.data)

@@ -186,5 +186,12 @@ python main.py --model_config 'config/rnn_config.json' \
 ```
 
 ### RESULT
-202000619   BERT 
+202000619,   BERT model,    TEST result: 0.67-0.682
 Epoch: 1, train_acc: 0.726073, train_f1: 0.725676, valid_acc: 0.760000, valid_f1: 0.768889,
+
+202000622,   BERT+1-7CNN,   TEST result: 0.696
+1,0.7909350755410371,0.790836697236448,0.838,0.8352161478089404
+2,0.7913434054716211,0.7912636458834423,0.838,0.8352161478089404
+
+202000622,   BERT+1-14CNN,   TEST result: 
+train_acc: 0.770110, train_f1: 0.769986, valid_acc: 0.788000, valid_f1: 0.787216,
