@@ -194,8 +194,8 @@ class Trainer:
                 batch = tuple(t.to(self.device) for t in batch)
                 logits = self.model(*batch[:-1])  # the last one is label
                 loss = self.criterion(logits, batch[-1])
-                # if self.config.gradient_accumulation_steps > 1:
-                #     loss = loss / self.config.gradient_accumulation_steps
+                if self.config.gradient_accumulation_steps > 1:
+                    loss = loss / self.config.gradient_accumulation_steps
                 # self.optimizer.zero_grad()
                 loss.backward()
 
