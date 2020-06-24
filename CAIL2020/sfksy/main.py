@@ -22,20 +22,20 @@ from torch.utils.data import DataLoader
 from preprocess import preprocess
 from data import Data
 from evaluate import evaluatex
-from model import BertXForClassification, RnnForSentencePairClassification
+from model import BertYForClassification, RnnForSentencePairClassification
 from utils import load_torch_model
 
 
 LABELS = ['0', '1']
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
 TEMPFILE='test.csv'
 
 def main(in_file='/input/',
-         out_file='/output/result.csv',
+         out_file='/output/result.txt',
          model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.
 

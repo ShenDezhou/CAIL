@@ -26,7 +26,8 @@ def set_config():
     parser.add_argument("--prediction_path", type=str, default=join(data_path, 'submissions'))
     parser.add_argument("--checkpoint_path", type=str, default=join(data_path, 'checkpoints'))
     parser.add_argument("--data_dir", type=str, default='data_model')
-    parser.add_argument("--rawdata", type=str, default='data/test.json')
+    parser.add_argument("--rawdata", type=str, default='data/train.json')
+    parser.add_argument("--validdata", type=str, default='data/dev.json')
     parser.add_argument("--output", type=str, default='result.txt')
 
     parser.add_argument("--fp16", action='store_true')
@@ -38,14 +39,14 @@ def set_config():
     # learning and log
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=2)
+    parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument('--decay', type=float, default=1.0)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
     parser.add_argument("--verbose_step", default=50, type=int)
-    parser.add_argument("--gradient_accumulation_steps", default=1, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=4, type=int)
     parser.add_argument("--seed", default=0, type=int)
 
     parser.add_argument('--q_update', action='store_true', help='Whether update query')

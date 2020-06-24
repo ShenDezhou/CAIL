@@ -35,8 +35,6 @@ def set_seed(args):
         torch.cuda.manual_seed_all(args.seed)
 
 
-
-
 def dispatch(context_encoding, context_mask, batch, device):
     batch['context_encoding'] = context_encoding.cuda(device)
     batch['context_mask'] = context_mask.float().cuda(device)
@@ -46,14 +44,10 @@ def dispatch(context_encoding, context_mask, batch, device):
 def compute_loss(batch, start_logits, end_logits, type_logits, sp_logits, start_position, end_position):
     loss1 = criterion(start_logits, batch['y1']) + criterion(end_logits, batch['y2'])
     loss2 = args.type_lambda * criterion(type_logits, batch['q_type'])
-
     sent_num_in_batch = batch["start_mapping"].sum()
     loss3 = args.sp_lambda * sp_loss_fct(sp_logits.view(-1), batch['is_support'].float().view(-1)).sum() / sent_num_in_batch
     loss = loss1 + loss2 + loss3
     return loss, loss1, loss2, loss3
-
-
-
 
 
 @torch.no_grad()
@@ -114,7 +108,7 @@ def train_epoch(data_loader, model, predict_during_train=False):
     pbar = tqdm(total=len(data_loader))
     epoch_len = len(data_loader)
     step_count = 0
-    predict_step = epoch_len // 5
+    predict_step = epoch_len // 4
     while not data_loader.empty():
         step_count += 1
         batch = next(iter(data_loader))
@@ -124,9 +118,7 @@ def train_epoch(data_loader, model, predict_during_train=False):
         if predict_during_train and (step_count % predict_step == 0):
             predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
                      join(args.prediction_path, 'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epc, step_count)))
-            eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epc, step_count)),
-                 args.rawdata)
-
+            eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epc, step_count)), args.validdata)
             model_to_save = model.module if hasattr(model, 'module') else model
             torch.save(model_to_save.state_dict(), join(args.checkpoint_path, "ckpt_seed_{}_epoch_{}_{}.pkl".format(args.seed, epc, step_count)))
             model.train()
@@ -134,8 +126,7 @@ def train_epoch(data_loader, model, predict_during_train=False):
 
     predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
              join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)))
-    eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc, step_count)), args.rawdata)
-
+    eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)), args.validdata)
     model_to_save = model.module if hasattr(model, 'module') else model
     torch.save(model_to_save.state_dict(), join(args.checkpoint_path, "ckpt_seed_{}_epoch_{}_99999.pkl".format(args.seed, epc)))
 
@@ -184,7 +175,7 @@ if __name__ == "__main__":
         set_seed(args)
 
     tokenizer = BertTokenizer.from_pretrained(args.bert_model)
-    examples = read_examples( full_file="data/train.json")
+    examples = read_examples( full_file=args.rawdata)
     with gzip.open("data_model/train_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
@@ -193,7 +184,7 @@ if __name__ == "__main__":
         pickle.dump(features, fout)
 
     tokenizer = BertTokenizer.from_pretrained(args.bert_model)
-    examples = read_examples( full_file="data/dev.json")
+    examples = read_examples( full_file=args.validdata)
     with gzip.open("data_model/dev_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 

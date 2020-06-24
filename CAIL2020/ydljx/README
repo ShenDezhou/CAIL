@@ -35,3 +35,9 @@ Output file is a json file dict.
 Evaluation
 
 python evaluate.py predict.json test.json
+
+#log
+1. 20200624 BERT batch_size=2, gradient_accumulation_steps=1
+{'em': 0.8, 'f1': 0.8, 'prec': 0.8, 'recall': 0.8, 'sp_em': 0.4, 'sp_f1': 0.72, 'sp_prec': 0.7333333333333333, 'sp_recall': 0.7333333333333333, 'joint_em': 0.4, 'joint_f1': 0.72, 'joint_prec': 0.7333333333333333, 'joint_recall': 0.7333333333333333}
+2. 20200624 BERT batch_size=8, gradient_accumulation_steps=4
+

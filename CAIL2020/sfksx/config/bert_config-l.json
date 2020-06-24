@@ -14,12 +14,12 @@
   "num_classes": 2,
   "dropout": 0.20,
 
-  "lr": 5e-4,
-  "num_epoch": 4,
+  "lr": 5e-5,
+  "num_epoch": 8,
   "num_warmup_steps": 1,
-  "num_training_steps": 32000,
-  "gradient_accumulation_steps": 8,
-  "max_grad_norm": 1e-3,
+  "num_training_steps": 80000,
+  "gradient_accumulation_steps": 16,
+  "max_grad_norm": 5e-4,
 
   "experiment_name": "BERT"
 }
