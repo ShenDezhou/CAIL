@@ -93,7 +93,7 @@ class DataIteratorPack(object):
                 if case.ans_type == 0:
                     if len(case.end_position) == 0:
                         y1[i] = y2[i] = 0   # 如果结束位置是0，span的标签就为0
-                    elif case.end_position[0] < max_seq_len:
+                    elif case.end_position[0] < self.max_seq_len:
                         y1[i] = case.start_position[0]   # 只用第一个找到的span
                         y2[i] = case.end_position[0]
                     else:
