@@ -182,7 +182,7 @@ if __name__ == "__main__":
     with gzip.open("data_model/train_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
     with gzip.open("data_model/train_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     with gzip.open("data_model/dev_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
     with gzip.open("data_model/dev_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 

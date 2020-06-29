@@ -235,3 +235,59 @@ yolk3k          		- 0.9          - active
 等待补全中
 
 如果你有需要的环境，请联系比赛管理员进行安装。
+
+Α	Alpha	&Alpha;	&#913;
+Β	Beta	&Beta;	&#914;
+Γ	Gamma	&Gamma;	&#915;
+Δ	Delta	&Delta;	&#916;
+Ε	Epsilon	&Epsilon;	&#917;
+Ζ	Zeta	&Zeta;	&#918;
+Η	Eta	&Eta;	&#919;
+Θ	Theta	&Theta;	&#920;
+Ι	Iota	&Iota;	&#921;
+Κ	Kappa	&Kappa;	&#922;
+Λ	Lambda	&Lambda;	&#923;
+Μ	Mu	&Mu;	&#924;
+Ν	Nu	&Nu;	&#925;
+Ξ	Xi	&Xi;	&#926;
+Ο	Omicron	&Omicron;	&#927;
+Π	Pi	&Pi;	&#928;
+Ρ	Rho	&Rho;	&#929;
+ 	Sigmaf	 	undefined
+Σ	Sigma	&Sigma;	&#931;
+Τ	Tau	&Tau;	&#932;
+Υ	Upsilon	&Upsilon;	&#933;
+Φ	Phi	&Phi;	&#934;
+Χ	Chi	&Chi;	&#935;
+Ψ	Psi	&Psi;	&#936;
+Ω	Omega	&Omega;	&#937;
+ 	 	 	 
+α	alpha	&alpha;	&#945;
+β	beta	&beta;	&#946;
+γ	gamma	&gamma;	&#947;
+δ	delta	&delta;	&#948;
+ε	epsilon	&epsilon;	&#949;
+ζ	zeta	&zeta;	&#950;
+η	eta	&eta;	&#951;
+θ	theta	&theta;	&#952;
+ι	iota	&iota;	&#953;
+κ	kappa	&kappa;	&#954;
+λ	lambda	&lambda;	&#923;
+μ	mu	&mu;	&#956;
+ν	nu	&nu;	&#925;
+ξ	xi	&xi;	&#958;
+ο	omicron	&omicron;	&#959;
+π	pi	&pi;	&#960;
+ρ	rho	&rho;	&#961;
+ς	sigmaf	&sigmaf;	&#962;
+σ	sigma	&sigma;	&#963;
+τ	tau	&tau;	&#964;
+υ	upsilon	&upsilon;	&#965;
+φ	phi	&phi;	&#966;
+χ	chi	&chi;	&#967;
+ψ	psi	&psi;	&#968;
+ω	omega	&omega;	&#969;
+ 	 	 	 
+ϑ	theta symbol	&thetasym;	&#977;
+ϒ	upsilon symbol	&upsih;	&#978;
+ϖ	pi symbol	&piv;	&#982;

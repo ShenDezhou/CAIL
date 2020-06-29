@@ -33,20 +33,21 @@ def set_config():
     parser.add_argument("--fp16", action='store_true')
 
     parser.add_argument("--ckpt_id", type=int, default=0)
-    parser.add_argument("--bert_model", type=str, default='F:\\bert-base-chinese',
+    parser.add_argument("--bert_model", type=str, default=r'F:\bert-base-chinese',
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--batch_size", type=int, default=12)
+    parser.add_argument("--max_seq_len", type=int, default=384)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument('--decay', type=float, default=1.0)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
-    parser.add_argument("--verbose_step", default=50, type=int)
-    parser.add_argument("--gradient_accumulation_steps", default=4, type=int)
+    parser.add_argument("--verbose_step", default=50000, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=16, type=int)
     parser.add_argument("--seed", default=0, type=int)
 
     parser.add_argument('--q_update', action='store_true', help='Whether update query')
@@ -57,7 +58,7 @@ def set_config():
     parser.add_argument("--input_dim", type=int, default=768, help="bert-base=768, bert-large=1024")
 
     parser.add_argument("--model_gpu", default='0', type=str, help="device to place model.")
-    parser.add_argument('--trained_weight',default="data_model/model.bin")
+    parser.add_argument('--trained_weight',default="data_model/381model.bin")
 
     # loss
     parser.add_argument("--type_lambda", type=float, default=1)

@@ -7,7 +7,7 @@ IGNORE_INDEX = -100
 
 class DataIteratorPack(object):
     def __init__(self, features, example_dict,bsz, device, sent_limit, entity_limit,
-                 entity_type_dict=None, sequential=False,):
+                 entity_type_dict=None, sequential=False, max_seq_len=512):
         self.bsz = bsz   # batch_size
         self.device = device
         self.features = features
@@ -18,6 +18,7 @@ class DataIteratorPack(object):
         # self.para_limit = 4  # 默认值，有必要再重设
         # self.entity_limit = entity_limit
         self.example_ptr = 0
+        self.max_seq_len = max_seq_len
         if not sequential:
             shuffle(self.features)  # 只shuffle feature，别的还能对得上吗？
 
@@ -34,15 +35,15 @@ class DataIteratorPack(object):
 
     def __iter__(self):
         # BERT input
-        context_idxs = torch.LongTensor(self.bsz, 512)
-        context_mask = torch.LongTensor(self.bsz, 512)
-        segment_idxs = torch.LongTensor(self.bsz, 512)
+        context_idxs = torch.LongTensor(self.bsz, self.max_seq_len )
+        context_mask = torch.LongTensor(self.bsz, self.max_seq_len )
+        segment_idxs = torch.LongTensor(self.bsz, self.max_seq_len )
 
         # Graph and Mappings   注意这些是在gpu里的，可能是因为训练的过程中要用到
 
-        query_mapping = torch.Tensor(self.bsz, 512).cuda(self.device)
-        start_mapping = torch.Tensor(self.bsz, self.sent_limit, 512).cuda(self.device)
-        all_mapping = torch.Tensor(self.bsz, 512, self.sent_limit).cuda(self.device)
+        query_mapping = torch.Tensor(self.bsz, self.max_seq_len ).cuda(self.device)
+        start_mapping = torch.Tensor(self.bsz, self.sent_limit, self.max_seq_len ).cuda(self.device)
+        all_mapping = torch.Tensor(self.bsz, self.max_seq_len , self.sent_limit).cuda(self.device)
 
 
         # Label tensor
@@ -92,7 +93,7 @@ class DataIteratorPack(object):
                 if case.ans_type == 0:
                     if len(case.end_position) == 0:
                         y1[i] = y2[i] = 0   # 如果结束位置是0，span的标签就为0
-                    elif case.end_position[0] < 512:
+                    elif case.end_position[0] < max_seq_len:
                         y1[i] = case.start_position[0]   # 只用第一个找到的span
                         y2[i] = case.end_position[0]
                     else:
@@ -116,8 +117,8 @@ class DataIteratorPack(object):
                     start, end = sent_span
                     if start < end:  # 还有start大于end的时候？
                         is_support[i, j] = int(is_sp_flag)   # 样本i的第j个句子是否是sp
-                        all_mapping[i, start:end+1, j] = 1   # （batch_size, 512, 20) 第j个句子开始和结束全为1
-                        start_mapping[i, j, start] = 1       # （batch_size, 20, 512)
+                        all_mapping[i, start:end+1, j] = 1   # （batch_size, max_seq_len, 20) 第j个句子开始和结束全为1
+                        start_mapping[i, j, start] = 1       # （batch_size, 20, max_seq_len)
 
 
 

@@ -447,7 +447,7 @@ if __name__ == '__main__':
                              "than this will be truncated, and sequences shorter than this will be padded.")
     parser.add_argument("--batch_size", default=15, type=int, help="Batch size for predictions.")
     parser.add_argument("--full_data", default='data/train.json', type=str, required=False)   # 原始数据集文件
-    parser.add_argument('--tokenizer_path', default='F:\\bert-base-chinese', type=str, required=False)
+    parser.add_argument('--tokenizer_path', default='/root/torchs/bert-jd-chinese', type=str, required=False)
 
 
     args = parser.parse_args()

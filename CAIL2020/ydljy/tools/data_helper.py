@@ -174,6 +174,7 @@ class DataHelper:
                                  sent_limit=self.sent_limit,   # 25
                                  entity_limit=self.entity_limit,
                                  sequential=True,
+                                 max_seq_len = self.config.max_seq_len
                                 )
 
     @property
@@ -183,7 +184,8 @@ class DataHelper:
                                  device='cuda:{}'.format(self.config.model_gpu),   # 读取来的数据放gpu里？不好吧？
                                  sent_limit=self.sent_limit,
                                  entity_limit=self.entity_limit,
-                                 sequential=False
+                                 sequential=False,
+                                 max_seq_len=self.config.max_seq_len
             )
 
 

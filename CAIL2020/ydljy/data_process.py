@@ -456,7 +456,7 @@ if __name__ == '__main__':
     with gzip.open(args.example_output, 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
     with gzip.open(args.feature_output, 'wb') as fout:
         pickle.dump(features, fout)
 

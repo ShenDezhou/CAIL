@@ -108,7 +108,7 @@ def train_epoch(data_loader, model, predict_during_train=False):
     pbar = tqdm(total=len(data_loader))
     epoch_len = len(data_loader)
     step_count = 0
-    predict_step = epoch_len // 4
+    predict_step = epoch_len // 5
     while not data_loader.empty():
         step_count += 1
         batch = next(iter(data_loader))
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     with gzip.open("data_model/train_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
     with gzip.open("data_model/train_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     with gzip.open("data_model/dev_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
     with gzip.open("data_model/dev_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 

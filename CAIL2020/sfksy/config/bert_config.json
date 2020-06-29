@@ -9,7 +9,7 @@
 
   "batch_size": 8,
 
-  "bert_model_path": "model/bert/bert-base-chinese",
+  "bert_model_path": "model/bert/bert-jd-chinese",
   "hidden_size": 768,
   "num_classes": 2,
   "dropout": 0.20,

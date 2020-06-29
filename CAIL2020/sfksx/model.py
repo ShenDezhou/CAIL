@@ -10,11 +10,7 @@ from torch import nn
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
-# from pytorch_pretrained_bert import BertModel
-#20200620,BERTX->train_acc: 0.713761, train_f1: 0.713807, valid_acc: 0.764000, valid_f1: 0.760061
-#20200620-2,BERTX
-# 1,0.7909350755410371,0.790836697236448,0.838,0.8352161478089404
-# 2,0.7913434054716211,0.7912636458834423,0.838,0.8352161478089404
+
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
@@ -245,12 +241,12 @@ class BertYForClassification(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 4, 4)
         self.conv_module7 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(7, 10), stride=(7, 10), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(8, 8), stride=(8, 8), padding=(1, 1))
+            nn.MaxPool2d(kernel_size=(16, 16), stride=(8, 8), padding=(1, 1))
         )
         self.conv_module8 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(8, 12), stride=(8, 12), padding=(0, 0)),
@@ -293,18 +289,18 @@ class BertYForClassification(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 4, 4)
         self.conv_moduleE = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(14, 21), stride=(14, 21), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
+            nn.MaxPool2d(kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
         )
 
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
-        self.linear = nn.Linear(config.hidden_size + 228 + 1691, config.num_classes)
-        self.bn = nn.BatchNorm1d(config.num_classes)
+        self.linear = nn.Linear(config.hidden_size + 228 + 1637, config.num_classes)
+        # self.bn = nn.BatchNorm1d(config.num_classes)
         self.num_classes = config.num_classes
 
     def forward(self, input_ids, attention_mask, token_type_ids):
@@ -354,7 +350,7 @@ class BertYForClassification(nn.Module):
         pooled_output = torch.cat([con_cnn_feats, pooled_output], dim=1)
         pooled_output = self.dropout(pooled_output)
         logits = self.linear(pooled_output).view(batch_size, self.num_classes)
-        logits = self.bn(logits)
+        # logits = self.bn(logits)
         logits = nn.functional.softmax(logits, dim=-1)
         # logits: (batch_size, num_classes)
         return logits
