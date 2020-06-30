@@ -115,3 +115,4 @@ saved_model/
 tensorboard/
 python_sample/
 data_model/
+log/

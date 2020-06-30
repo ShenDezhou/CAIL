@@ -225,6 +225,21 @@ class Data:
             #     else:  # test
             #         sc_list.append(sc_tokens)
             #         bc_list.append(bc_tokens)
+        #add laws book for training dataset augment
+        if train:
+            law_book = pd.read_csv('private/laws.csv')
+            #sc_list, bc_list, label_list = [], [], []
+            for row in law_book.itertuples(index=False):
+                answer = bool(row[-1]) if train else None
+                sc_tokens = self.tokenizer.tokenize(row[0])
+                bc_tokens = self.tokenizer.tokenize("")
+                label = 1 if answer else 0
+
+                sc_list.append(sc_tokens)
+                bc_list.append(bc_tokens)
+                if train:
+                    label_list.append(label)
+
         return sc_list, bc_list, label_list
 
     def _convert_sentence_pair_to_bert_dataset(
