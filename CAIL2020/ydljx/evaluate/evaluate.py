@@ -124,6 +124,7 @@ def eval(prediction_file, gold_file):
         metrics[k] /= N
 
     print(metrics)
+    return metrics
 
 if __name__ == '__main__':
     if(len(sys.argv) > 1):

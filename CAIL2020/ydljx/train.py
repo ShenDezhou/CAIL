@@ -1,5 +1,6 @@
 import argparse
 import gzip
+import os
 import pickle
 from os.path import join
 from tqdm import tqdm
@@ -19,6 +20,8 @@ import random
 from config import set_config
 from tools.data_helper import DataHelper
 from data_process import InputFeatures,Example
+
+
 try:
     from apex import amp
 except Exception:
@@ -26,6 +29,7 @@ except Exception:
 
 from data_process import read_examples, convert_examples_to_features
 from evaluate.evaluate import eval
+from utils import get_path,get_csv_logger
 
 def set_seed(args):
     random.seed(args.seed)
@@ -103,12 +107,12 @@ def predict(model, dataloader, example_dict, feature_dict, prediction_file, need
     test_loss_record.append(sum(total_test_loss[:3]) / len(dataloader))
 
 
-def train_epoch(data_loader, model, predict_during_train=False):
+def train_epoch(data_loader, model, logger, predict_during_train=False, epoch=1):
     model.train()
     pbar = tqdm(total=len(data_loader))
     epoch_len = len(data_loader)
     step_count = 0
-    predict_step = epoch_len // 5
+    predict_step = epoch_len // 2
     while not data_loader.empty():
         step_count += 1
         batch = next(iter(data_loader))
@@ -126,7 +130,10 @@ def train_epoch(data_loader, model, predict_during_train=False):
 
     predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
              join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)))
-    eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)), args.validdata)
+    results = eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)), args.validdata)
+    # Logging
+    keys='em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall'.split(',')
+    logger.info(','.join([str(epoch)] + [str(results[s]) for s in keys]))
     model_to_save = model.module if hasattr(model, 'module') else model
     torch.save(model_to_save.state_dict(), join(args.checkpoint_path, "ckpt_seed_{}_epoch_{}_99999.pkl".format(args.seed, epc)))
 
@@ -167,6 +174,7 @@ def train_batch(model, batch):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = set_config()
+    get_path("log/")
 
     args.n_gpu = torch.cuda.device_count()
 
@@ -236,6 +244,9 @@ if __name__ == "__main__":
     total_train_loss = [0] * 5
     test_loss_record = []
     VERBOSE_STEP = args.verbose_step
+
+    epoch_logger = get_csv_logger(os.path.join("log/", args.name + '-epoch.csv'),
+        title='epoch,em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall')
     while True:
         if epc == args.epochs:  # 5 + 30
             exit(0)
@@ -244,7 +255,8 @@ if __name__ == "__main__":
         Loader = Full_Loader
         Loader.refresh()
 
-        if epc > 2:
-            train_epoch(Loader, model, predict_during_train=True)
-        else:
-            train_epoch(Loader, model)
+        train_epoch(Loader, model, logger=epoch_logger, predict_during_train=False, epoch=epc)
+        # if epc > 2:
+        #
+        # else:
+        #     train_epoch(Loader, model, logger=None)
