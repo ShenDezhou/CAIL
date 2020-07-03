@@ -21,38 +21,23 @@ if __name__ == "__main__":
     parser.add_argument('--config', '-c', default="default.config", help="specific config file", required=False)
     parser.add_argument('--gpu', '-g', help="gpu id list")
     parser.add_argument('--checkpoint', help="checkpoint file path")
-    parser.add_argument('--do_test', help="do test while training or not", action="store_true")
+    parser.add_argument('--do_test', help="do test while training or not", default="False", action="store_true")
     args = parser.parse_args()
 
-    configFilePath = args.config
-
-    use_gpu = True
     gpu_list = []
-    if args.gpu is None:
-        use_gpu = False
-    else:
-        use_gpu = True
+    if args.gpu:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
-
         device_list = args.gpu.split(",")
         for a in range(0, len(device_list)):
             gpu_list.append(int(a))
 
+    config = create_config(args.config)
 
-    os.system("clear")
-    config = create_config(configFilePath)
-
-    cuda = torch.cuda.is_available()
-    logger.info("CUDA available: %s" % str(cuda))
-    if not cuda and len(gpu_list) > 0:
+    if not torch.cuda.is_available() and len(gpu_list) > 0:
         logger.error("CUDA is not available but specific gpu id")
         raise NotImplementedError
-
+    else:
+        logger.info("CUDA available")
 
     parameters = init_all(config, gpu_list, args.checkpoint, "train")
-
-    do_test = False
-    if args.do_test:
-        do_test = True
-
-    train(parameters, config, gpu_list, do_test)
+    train(parameters, config, gpu_list, args.do_test)

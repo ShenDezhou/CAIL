@@ -4,6 +4,7 @@ import torch
 from torch.autograd import Variable
 from timeit import default_timer as timer
 from eval_tool import gen_time_str, output_value
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,8 @@ def test(parameters, config, gpu_list):
     step = -1
     result = []
 
-    for step, data in enumerate(dataset):
+    tqdm_obj = tqdm(dataset, ncols=80)
+    for step, data in enumerate(tqdm_obj):
         for key in data.keys():
             if isinstance(data[key], torch.Tensor):
                 if len(gpu_list) > 0:

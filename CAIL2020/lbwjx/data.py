@@ -243,15 +243,16 @@ class Data:
             segment_ids = [0] * len(tokens)
             tokens += s2_list[i] + ['[SEP]']
             segment_ids += [1] * (len(s2_list[i]) + 1)
-            if len(tokens) > self.max_seq_len:
-                tokens = tokens[:self.max_seq_len]
-                segment_ids = segment_ids[:self.max_seq_len]
+            if len(tokens) > 512:
+                tokens = tokens[:256] + tokens[-256:]
+                assert len(tokens) == 512
+                segment_ids = segment_ids[:256] + segment_ids[-256:]
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
-            input_ids += [0] * (self.max_seq_len - tokens_len)
-            segment_ids += [0] * (self.max_seq_len - tokens_len)
-            input_mask += [0] * (self.max_seq_len - tokens_len)
+            input_ids += [0] * (512 - tokens_len)
+            segment_ids += [0] * (512 - tokens_len)
+            input_mask += [0] * (512 - tokens_len)
             all_input_ids.append(input_ids)
             all_input_mask.append(input_mask)
             all_segment_ids.append(segment_ids)

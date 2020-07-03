@@ -1,0 +1,2 @@
+epoch,train_acc,train_f1,valid_acc,valid_f1
+0,0.0,0.0,0.18333333333333332,0.18333333333333332

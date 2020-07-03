@@ -311,3 +311,4 @@ epoch,train_acc,train_f1,valid_acc,valid_f1,
 20,0.8939469438116933,0.8929792374489012,0.8894736842105263,0.8846120477746608
 
 5.bert+1-14CNN, lr=3e-4, dropout=0.5, batch=8, gradient=16, bert=jd, max=1e-3. test f1=19.1
+6.7000 knowledge; bert+1-14CNN, lr=3e-4, dropout=0.5, batch=8, gradient=16, bert=jd, max=1e-3. less epoch test f1=11.3

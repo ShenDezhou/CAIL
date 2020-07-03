@@ -302,8 +302,8 @@ class BertYForClassification(nn.Module):
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         # 1-7: 228; 8-14: 1691
-        self.linear = nn.Linear(config.hidden_size + 228 + 1691, config.num_classes)
-        self.bn = nn.BatchNorm1d(config.num_classes)
+        self.linear = nn.Linear(config.hidden_size + 1919, config.num_classes)
+        #self.bn = nn.BatchNorm1d(config.num_classes)
         self.num_classes = config.num_classes
 
     def forward(self, input_ids, attention_mask, token_type_ids):
@@ -353,7 +353,7 @@ class BertYForClassification(nn.Module):
         pooled_output = torch.cat([con_cnn_feats, pooled_output], dim=1)
         pooled_output = self.dropout(pooled_output)
         logits = self.linear(pooled_output).view(batch_size, self.num_classes)
-        logits = self.bn(logits)
+        #logits = self.bn(logits)
         logits = nn.functional.softmax(logits, dim=-1)
         # logits: (batch_size, num_classes)
         return logits

@@ -26,6 +26,7 @@ if __name__ == "__main__":
 
     config.set("data", "test_data_path", args.input)
     fs = ",".join(os.listdir(args.input))
+    print(fs)
     config.set("data", "test_file_list", fs)
 
     gpu_list = []

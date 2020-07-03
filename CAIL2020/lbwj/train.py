@@ -262,6 +262,9 @@ def main(config_file='config/bert_config.json'):
             valid_set_valid, batch_size=config.batch_size, shuffle=False)}
     # 2. Build model
     model = MODEL_MAP[config.model_type](config)
+    #load model states.
+    if config.trained_weight is not None:
+        model.load_state_dict(torch.load(config.trained_weight))
     model.to(device)
     if torch.cuda.is_available():
         model = model

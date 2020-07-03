@@ -231,12 +231,18 @@ class Data:
             #sc_list, bc_list, label_list = [], [], []
             for row in law_book.itertuples(index=False):
                 answer = bool(row[-1]) if train else None
-                sc_tokens = self.tokenizer.tokenize(row[0])
-                bc_tokens = self.tokenizer.tokenize("")
+                desclen = len(row[0])
+                sc_tokens = self.tokenizer.tokenize(row[0][:desclen//2])
+                bc_tokens = self.tokenizer.tokenize(row[0][desclen//2:])
                 label = 1 if answer else 0
 
                 sc_list.append(sc_tokens)
                 bc_list.append(bc_tokens)
+                if train:
+                    label_list.append(label)
+
+                bc_list.append(sc_tokens)
+                sc_list.append(bc_tokens)
                 if train:
                     label_list.append(label)
 

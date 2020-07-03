@@ -36,7 +36,7 @@ class BertQA(nn.Module):
         token = token.view(token.size()[0] * token.size()[1], token.size()[2])
         mask = mask.view(mask.size()[0] * mask.size()[1], mask.size()[2])
 
-        encode, y = self.bert.forward(text, token, mask)
+        _, y = self.bert.forward(text, token, mask)
         y = y.view(batch, -1)
         # y = self.rank_module(y)
         # y = y.view(batch, option)
