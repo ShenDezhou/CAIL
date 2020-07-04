@@ -15,6 +15,7 @@ class BertQA(nn.Module):
         # self.rank_module = nn.Linear(768 * config.getint("data", "topk"), 1)
         self.criterion = nn.CrossEntropyLoss()
         self.multi = config.getboolean("data", "multi_choice")
+        self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
         self.multi_module = nn.Linear(768, 15)
         self.softmax = nn.Softmax(dim=-1)
         self.accuracy_function = single_label_top1_accuracy
@@ -40,12 +41,17 @@ class BertQA(nn.Module):
         y = y.view(batch, -1)
         # y = self.rank_module(y)
         # y = y.view(batch, option)
+        y = self.dropout(y)
         y = self.multi_module(y)
         y = self.softmax(y)
         label = data["label"]
 
-        loss = self.criterion(y, label)
-        acc_result = self.accuracy_function(y, label, config, acc_result)
+        if mode in ['train', 'valid']:
+            loss = self.criterion(y, label)
+            acc_result = self.accuracy_function(y, label, config, acc_result)
+        else:
+            loss = None
+            acc_result = None
 
         answer = []
         predm = y.argmax(dim=1)
@@ -82,7 +88,7 @@ class BertQA(nn.Module):
             if i == 14:
                 subanswer = ['A', 'B', 'C', 'D']
             answer.append(subanswer)
-        output = [{"id": id, "answer": [answer]} for id, answer in zip(data['id'], answer)]
+        output = [{"id": id, "answer": answer} for id, answer in zip(data['id'], answer)]
 
         return {"loss": loss, "acc_result": acc_result, "output": output}
 

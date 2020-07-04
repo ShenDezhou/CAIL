@@ -90,9 +90,42 @@ class Data:
         for temp_data in data:
             idx.append(temp_data["id"])
 
-            # if mode in ['train', 'valid']:
+            if mode in ['train', 'valid']:
             #     # clean up answers.
-            temp_data["answer"] = [a for a in temp_data["answer"] if a != "。"]
+                temp_data["answer"] = [a for a in temp_data["answer"] if a != "。"]
+                label_x=0
+                if set(temp_data["answer"]) == set(['A']):
+                    label_x = 0
+                if set(temp_data["answer"]) == set(['B']):
+                    label_x = 1
+                if set(temp_data["answer"]) == set(['C']):
+                    label_x = 2
+                if set(temp_data["answer"]) == set(['D']):
+                    label_x = 3
+                if set(temp_data["answer"]) == set(['A', 'B']):
+                    label_x = 4
+                if set(temp_data["answer"]) == set(['A', 'C']):
+                    label_x = 5
+                if set(temp_data["answer"]) == set(['B', 'C']):
+                    label_x = 6
+                if set(temp_data["answer"]) == set(['A', 'B', 'C']):
+                    label_x = 7
+                if set(temp_data["answer"]) == set(['A', 'D']):
+                    label_x = 8
+                if set(temp_data["answer"]) == set(['B', 'D']):
+                    label_x = 9
+                if set(temp_data["answer"]) == set(['A', 'B', 'D']):
+                    label_x = 10
+                if set(temp_data["answer"]) == set(['C', 'D']):
+                    label_x = 11
+                if set(temp_data["answer"]) == set(['A', 'C', 'D']):
+                    label_x = 12
+                if set(temp_data["answer"]) == set(['B', 'C', 'D']):
+                    label_x = 13
+                if set(temp_data["answer"]) == set(['A', 'B', 'C', 'D']):
+                    label_x = 14
+                label.append(label_x)
+
             #     sm.append(len(temp_data["answer"])>1)
             # else:
             sm.append(1)#多选
@@ -101,39 +134,6 @@ class Data:
             #         states += temp_data["option_list"][option]
             #     isms = self.siglemulti.checkSingleMulti(states)
             #     sm.append(isms)
-
-            label_x=0
-            if set(temp_data["answer"]) == set(['A']):
-                label_x = 0
-            if set(temp_data["answer"]) == set(['B']):
-                label_x = 1
-            if set(temp_data["answer"]) == set(['C']):
-                label_x = 2
-            if set(temp_data["answer"]) == set(['D']):
-                label_x = 3
-            if set(temp_data["answer"]) == set(['A', 'B']):
-                label_x = 4
-            if set(temp_data["answer"]) == set(['A', 'C']):
-                label_x = 5
-            if set(temp_data["answer"]) == set(['B', 'C']):
-                label_x = 6
-            if set(temp_data["answer"]) == set(['A', 'B', 'C']):
-                label_x = 7
-            if set(temp_data["answer"]) == set(['A', 'D']):
-                label_x = 8
-            if set(temp_data["answer"]) == set(['B', 'D']):
-                label_x = 9
-            if set(temp_data["answer"]) == set(['A', 'B', 'D']):
-                label_x = 10
-            if set(temp_data["answer"]) == set(['C', 'D']):
-                label_x = 11
-            if set(temp_data["answer"]) == set(['A', 'C', 'D']):
-                label_x = 12
-            if set(temp_data["answer"]) == set(['B', 'C', 'D']):
-                label_x = 13
-            if set(temp_data["answer"]) == set(['A', 'B', 'C', 'D']):
-                label_x = 14
-            label.append(label_x)
 
             # temp_text = []
             # temp_mask = []

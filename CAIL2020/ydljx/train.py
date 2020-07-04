@@ -145,13 +145,15 @@ def train_batch(model, batch):
     loss_list = compute_loss(batch, start_logits, end_logits, type_logits, sp_logits, start_position, end_position)
     loss_list = list(loss_list)
     if args.gradient_accumulation_steps > 1:
-        loss_list[0] = loss_list[0] / args.gradient_accumulation_steps
+        # loss_list[0] = loss_list[0] / args.gradient_accumulation_steps
+        loss_list[3] /= args.gradient_accumulation_steps
     
     if args.fp16:
         with amp.scale_loss(loss_list[0], optimizer) as scaled_loss:
             scaled_loss.backward()
     else:
-        loss_list[0].backward()
+        # loss_list[0].backward()
+        loss_list[3].backward()
 
     if (global_step + 1) % args.gradient_accumulation_steps == 0:
         optimizer.step()
@@ -223,7 +225,7 @@ if __name__ == "__main__":
     # Initialize optimizer and criterions
     lr = args.lr
     t_total = len(Full_Loader) * args.epochs // args.gradient_accumulation_steps
-    warmup_steps = 0.1 * t_total
+    warmup_steps = args.warmup_step
     optimizer = AdamW(model.parameters(), lr=lr, eps=1e-8)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
                                                 num_training_steps=t_total)
