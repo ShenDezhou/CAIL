@@ -11,12 +11,116 @@ class BertQA(nn.Module):
         super(BertQA, self).__init__()
 
         self.bert = BertModel.from_pretrained(config.get("model", "bert_path"))
+        for param in self.bert.parameters():
+            param.requires_grad = True
+
+        # input(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
+        self.conv_module = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(1, 1), stride=(1, 1), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(128, 128), stride=(128, 128), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
+        self.conv_module2 = nn.Sequential(
+            nn.Conv2d(1,1, kernel_size=(2,3), stride=(2,3),padding=(0,0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(64, 64), stride=(64, 64),padding=(1,1))
+        )
+        # input(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
+        self.conv_module3 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(3, 4), stride=(3, 4), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(32, 32), stride=(32, 32), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
+        self.conv_module4 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(4, 6), stride=(4, 6), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(32, 32), stride=(32, 32), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
+        self.conv_module5 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(5, 7), stride=(5, 7), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
+        self.conv_module6 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(6, 9), stride=(6, 9), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        self.conv_module7 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(7, 10), stride=(7, 10), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(8, 8), stride=(8, 8), padding=(1, 1))
+        )
+        self.conv_module8 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(8, 12), stride=(8, 12), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(8, 8), stride=(8, 8), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
+        self.conv_module9 = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(9, 13), stride=(9, 13), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(8, 8), stride=(8, 8), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
+        self.conv_moduleA = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(10, 15), stride=(10, 15), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(4, 4), stride=(4, 4), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
+        self.conv_moduleB = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(11, 16), stride=(11, 16), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(4, 4), stride=(4, 4), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
+        self.conv_moduleC = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(12, 18), stride=(12, 18), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
+        self.conv_moduleD = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(13, 19), stride=(13, 19), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
+        )
+        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        self.conv_moduleE = nn.Sequential(
+            nn.Conv2d(1, 1, kernel_size=(14, 21), stride=(14, 21), padding=(0, 0)),
+            nn.BatchNorm2d(1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
+        )
+
+        #cnn feature map has a total number of 228 dimensions.
+        # 1-7: 228; 8-14: 1691
+
         # print(self.bert)
         # self.rank_module = nn.Linear(768 * config.getint("data", "topk"), 1)
         self.criterion = nn.CrossEntropyLoss()
         self.multi = config.getboolean("data", "multi_choice")
         self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
-        self.multi_module = nn.Linear(768, 15)
+        self.multi_module = nn.Linear(768+1919, 15)
         self.softmax = nn.Softmax(dim=-1)
         self.accuracy_function = single_label_top1_accuracy
 
@@ -37,11 +141,39 @@ class BertQA(nn.Module):
         token = token.view(token.size()[0] * token.size()[1], token.size()[2])
         mask = mask.view(mask.size()[0] * mask.size()[1], mask.size()[2])
 
-        _, y = self.bert.forward(text, token, mask)
-        y = y.view(batch, -1)
+        x, y = self.bert.forward(text, token, mask)
+
+        # bert_output[0]: (batch_size, sequence_length, hidden_size)
+        encoded_output = x
+        # encoded_output[0]: (batch_size, 1, sequence_length, hidden_size)
+        encoded_output = encoded_output.view(batch, 1, encoded_output.shape[1], -1)
+        cnn_feats = []
+        cnn_feats.append(self.conv_module(encoded_output))
+        cnn_feats.append(self.conv_module2(encoded_output))
+        cnn_feats.append(self.conv_module3(encoded_output))
+        cnn_feats.append(self.conv_module4(encoded_output))
+        cnn_feats.append(self.conv_module5(encoded_output))
+        cnn_feats.append(self.conv_module6(encoded_output))
+        cnn_feats.append(self.conv_module7(encoded_output))
+        cnn_feats.append(self.conv_module8(encoded_output))
+        cnn_feats.append(self.conv_module9(encoded_output))
+        cnn_feats.append(self.conv_moduleA(encoded_output))
+        cnn_feats.append(self.conv_moduleB(encoded_output))
+        cnn_feats.append(self.conv_moduleC(encoded_output))
+        cnn_feats.append(self.conv_moduleD(encoded_output))
+        cnn_feats.append(self.conv_moduleE(encoded_output))
+        for index in range(len(cnn_feats)):
+            cnn_feats[index] = cnn_feats[index].reshape((batch, -1))
+        con_cnn_feats = torch.cat(cnn_feats, dim=1)
+
+        # bert_output[1]: (batch_size, hidden_size)
+        pooled_output = y
+        # 228 + 768 ->
+        pooled_output = torch.cat([con_cnn_feats, pooled_output], dim=1)
+        # y = y.view(batch, -1)
         # y = self.rank_module(y)
         # y = y.view(batch, option)
-        y = self.dropout(y)
+        y = self.dropout(pooled_output)
         y = self.multi_module(y)
         y = self.softmax(y)
         label = data["label"]
