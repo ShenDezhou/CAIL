@@ -49,7 +49,7 @@ def cleanall(raw_html):
 
 
 def clean():
-    df = pandas.read_csv("data/hetong.csv", delimiter='\t')
+    df = pandas.read_csv("dump/hetong.csv", delimiter='\t')
     df['title'] = df['title'].apply(shortenlines)
     df['content'] = df['content'].apply(cleanhtml)
     df['content'] = df['content'].apply(cleanentity)

@@ -202,7 +202,7 @@ class Data:
         for row in data_frame.itertuples(index=False):
 
             sc_tokens = self.tokenizer.tokenize(row[1])
-            bc_tokens = self.tokenizer.tokenize(row[2])
+            bc_tokens = self.tokenizer.tokenize(str(row[2]))
             if train:
                 sc_list.append(sc_tokens)
                 bc_list.append(bc_tokens)

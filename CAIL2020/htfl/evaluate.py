@@ -95,12 +95,12 @@ def evaluate(model, data_loader, device) -> List[str]:
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
             logits = model(*batch)
-        outputs = torch.cat([outputs, logits[:, 1]])
+        outputs = torch.cat([outputs, logits[:, :]])
     answer_list = []
-    for i in range(0, len(outputs), len(LABELS)):
-        logits = outputs[i:i + len(LABELS)]
-        answer = int(torch.argmax(logits))
-        answer_list.append(LABELS[answer])
+    for i in range(len(outputs)):
+        logits = outputs[i]
+        answer = int(torch.argmax(logits, dim=-1))
+        answer_list.append(answer)
     return answer_list
 
 
