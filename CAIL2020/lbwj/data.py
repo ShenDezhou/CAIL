@@ -43,6 +43,8 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
+from summarizer import summary
+
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
@@ -115,6 +117,7 @@ class Data:
                 Otherwise, use Tokenizer as tokenizer
         """
         self.model_type = model_type
+        self.summarizer = summary()
         if self.model_type == 'bert':
             self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
         else:  # rnn
@@ -201,7 +204,32 @@ class Data:
         for row in data_frame.itertuples(index=False):
             candidates = row[3:8]
             answer = int(row[-1]) if train else None
-            sc_tokens = self.tokenizer.tokenize(row[2])
+            # STEP1: bc 相似度优化
+            if train:
+                from difflib import SequenceMatcher
+                too_close = False
+                for a in range(3, 7):
+                    for b in range(a + 1, 8):
+                        meter = SequenceMatcher(None, row[a], row[b]).ratio()
+                        if meter > 0.95:
+                            too_close = True
+                # bc option has too close value
+                if too_close:
+                    continue
+
+            # STEP2: sc 长度优化
+            if len(row[2]) > self.max_seq_len:
+                sc_filered = self.summarizer.summarize([row[2]])[0]
+                # 过滤后仍超长处理方法
+                if len(sc_filered) > self.max_seq_len:
+                    sc_filered = self.summarizer.mean_summarize([row[2]])[0]
+                #保证给bc留位置 50
+                if len(sc_filered) > self.max_seq_len:
+                    sc_filered = sc_filered[:self.max_seq_len - 50]
+                sc_tokens = self.tokenizer.tokenize(sc_filered)
+            else:
+                sc_tokens = self.tokenizer.tokenize(row[2])
+
             for i, _ in enumerate(candidates):
                 bc_tokens = self.tokenizer.tokenize(candidates[i])
                 if train:
