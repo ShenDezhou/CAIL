@@ -39,9 +39,9 @@ def set_config():
     # learning and log
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--max_seq_len", type=int, default=512)
-    parser.add_argument("--max_query_len", type=int, default=20)
+    parser.add_argument("--max_query_len", type=int, default=28)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-5)
@@ -49,7 +49,7 @@ def set_config():
     parser.add_argument('--early_stop_epoch', type=int, default=0)
     parser.add_argument("--verbose_step", default=1000, type=int)
     parser.add_argument("--warmup_step", default=1000, type=int)
-    parser.add_argument("--gradient_accumulation_steps", default=32, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=8, type=int)
     parser.add_argument("--seed", default=0, type=int)
 
     parser.add_argument('--q_update', action='store_true', help='Whether update query')

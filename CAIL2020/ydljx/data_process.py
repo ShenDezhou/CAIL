@@ -141,7 +141,10 @@ def read_examples(full_file):
             para_start_position = len(doc_tokens)  # 刚开始doc_tokens是空的
 
             for local_sent_id, sent in enumerate(sents):  # 处理段落的每个句子
-                if local_sent_id >= 20:  # 句子数量限制：一个段落最多只允许20个句子
+                #每句解析20个字，
+                if len(doc_tokens)+len(sent) > 20*local_sent_id:
+                    sent = sent[:20]
+                if local_sent_id >= 24:  # 句子数量限制：一个段落最多只允许40个句子
                     break
 
                 # Determine the global sent id for supporting facts
@@ -167,8 +170,10 @@ def read_examples(full_file):
                         prev_is_whitespace = False
                     char_to_word_offset.append(len(doc_tokens) - 1)
 
+                if len(doc_tokens) > 482:   # 如果大于382个词则break
+                    doc_tokens=doc_tokens[:482]
                 sent_end_word_id = len(doc_tokens) - 1  # 句子结尾的word位置
-                sent_start_end_position.append((sent_start_word_id, sent_end_word_id))  # 句子开始和结束的位置，以元祖形式保存
+                sent_start_end_position.append((sent_start_word_id, sent_end_word_id))  # 句子开始和结束的位置，以元组形式保存
 
                 # Answer char position
                 answer_offsets = []
@@ -196,8 +201,8 @@ def read_examples(full_file):
 
 
                 # Truncate longer document
-                #490 = 512 -2 -20
-                if len(doc_tokens) > 490:   # 如果大于382个词则break
+                #482
+                if len(doc_tokens) >= 482:   # 如果大于382个词则break
                     # 这个截断会让每个段落至少有一个句子被加入，即使整个样本已经超过382，这样后面匹配entity还能匹配上吗？
                     break
             para_end_position = len(doc_tokens) - 1
