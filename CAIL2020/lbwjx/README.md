@@ -244,5 +244,5 @@ lr=5E-5, batchsize=8*16
 36,0.9233013755731555,0.9233631511167003,0.94,0.9402539682539682
 
 
-#20200706  BERT+1-14CNN, remove BN layer, dropout rate = 0.5, 
+#20200706  BERT+1-14CNN, remove BN layer, dropout rate = 0.5, TEST F1=0.763 
 19584 filter lines with similar sequence then to 18080. 1504 filtered

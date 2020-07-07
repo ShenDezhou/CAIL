@@ -116,6 +116,7 @@ class Data:
                 If model_type == 'bert', use BertTokenizer as tokenizer
                 Otherwise, use Tokenizer as tokenizer
         """
+        self.max_query_len = 250
         self.model_type = model_type
         self.summarizer = summary()
         if self.model_type == 'bert':
@@ -218,20 +219,31 @@ class Data:
                     continue
 
             # STEP2: sc 长度优化
-            if len(row[2]) > self.max_seq_len:
+            if len(row[2]) > self.max_seq_len - self.max_query_len:
                 sc_filered = self.summarizer.summarize([row[2]])[0]
                 # 过滤后仍超长处理方法
-                if len(sc_filered) > self.max_seq_len:
+                if len(sc_filered) > self.max_seq_len - self.max_query_len:
                     sc_filered = self.summarizer.mean_summarize([row[2]])[0]
                 #保证给bc留位置 50
-                if len(sc_filered) > self.max_seq_len:
-                    sc_filered = sc_filered[:self.max_seq_len - 50]
+                if len(sc_filered) > self.max_seq_len - self.max_query_len:
+                    sc_filered = sc_filered[:self.max_seq_len - self.max_query_len]
                 sc_tokens = self.tokenizer.tokenize(sc_filered)
             else:
                 sc_tokens = self.tokenizer.tokenize(row[2])
 
             for i, _ in enumerate(candidates):
-                bc_tokens = self.tokenizer.tokenize(candidates[i])
+                # sc 长度 512- 250, bc 长度 250
+                if len(candidates[i]) > self.max_query_len:
+                    bc_tokens = self.summarizer.summarize([candidates[i]])[0]
+                    # 过滤后仍超长处理方法
+                    if len(bc_tokens) > self.max_query_len:
+                        bc_tokens = self.summarizer.mean_summarize([candidates[i]])[0]
+                    # 保证给bc留位置 50
+                    if len(bc_tokens) > self.max_query_len:
+                        bc_tokens = bc_tokens[:self.max_query_len]
+                    bc_tokens = self.tokenizer.tokenize(bc_tokens)
+                else:
+                    bc_tokens = self.tokenizer.tokenize(candidates[i])
                 if train:
                     if i + 1 == answer:
                         # Copy positive sample 4 times
