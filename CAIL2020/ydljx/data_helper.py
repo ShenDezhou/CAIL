@@ -3,7 +3,7 @@ import gzip
 import pickle
 import json
 from tqdm import tqdm
-from tools.data_iterator_pack import DataIteratorPack
+from data_iterator_pack import DataIteratorPack
 
 
 class DataHelper:

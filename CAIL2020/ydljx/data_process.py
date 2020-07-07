@@ -99,7 +99,7 @@ def read_examples(full_file):
 
 
     def is_whitespace(c):
-        if c == " " or c == "\t" or c == "\r" or c == "\n" or ord(c) == 0x202F:
+        if c.isspace() or ord(c) == 0x202F or ord(c) == 0x2000:
             return True
         return False
 
@@ -141,7 +141,7 @@ def read_examples(full_file):
             para_start_position = len(doc_tokens)  # 刚开始doc_tokens是空的
 
             for local_sent_id, sent in enumerate(sents):  # 处理段落的每个句子
-                if local_sent_id >= 100:  # 句子数量限制：一个段落最多只允许10个句子
+                if local_sent_id >= 20:  # 句子数量限制：一个段落最多只允许20个句子
                     break
 
                 # Determine the global sent id for supporting facts
@@ -156,7 +156,7 @@ def read_examples(full_file):
                 sent_start_word_id = len(doc_tokens)           # 句子开始位置的word id
                 sent_start_char_id = len(char_to_word_offset)  # 句子开始位置的char id
 
-                for c in sent:   # 遍历整个句子的字符，简历char到word之间的映射关系
+                for c in sent:   # 遍历整个句子的字符，建立char到word之间的映射关系
                     if is_whitespace(c):
                         prev_is_whitespace = True
                     else:
@@ -196,7 +196,8 @@ def read_examples(full_file):
 
 
                 # Truncate longer document
-                if len(doc_tokens) > 382:   # 如果大于382个词则break
+                #490 = 512 -2 -20
+                if len(doc_tokens) > 490:   # 如果大于382个词则break
                     # 这个截断会让每个段落至少有一个句子被加入，即使整个样本已经超过382，这样后面匹配entity还能匹配上吗？
                     break
             para_end_position = len(doc_tokens) - 1

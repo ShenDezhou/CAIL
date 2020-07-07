@@ -39,8 +39,9 @@ def set_config():
     # learning and log
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=2)
-    parser.add_argument("--max_seq_len", type=int, default=1024)
+    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--max_seq_len", type=int, default=512)
+    parser.add_argument("--max_query_len", type=int, default=20)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-5)

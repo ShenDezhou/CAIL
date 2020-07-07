@@ -32,7 +32,7 @@ class SupportNet(nn.Module):
         super(SupportNet, self).__init__()
         self.config = config  # 就是args
         # self.n_layers = config.n_layers  # 2
-        self.max_query_length = 50
+        self.max_query_length = self.config.max_query_len
         self.prediction_layer = SimplePredictionLayer(config)
 
     def forward(self, batch, debug=False):
@@ -49,7 +49,7 @@ class SimplePredictionLayer(nn.Module):
         self.sp_linear = nn.Linear(self.input_dim, 1)
         self.start_linear = nn.Linear(self.input_dim, 1)
         self.end_linear = nn.Linear(self.input_dim, 1)
-        self.type_linear = nn.Linear(self.input_dim, config.label_type_num)   # yes/no/ans
+        self.type_linear = nn.Linear(self.input_dim, config.label_type_num)   # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
