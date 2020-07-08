@@ -41,15 +41,15 @@ def set_config():
     parser.add_argument("--qat_epochs", type=int, default=0)
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--max_seq_len", type=int, default=512)
-    parser.add_argument("--max_query_len", type=int, default=28)
+    # parser.add_argument("--max_query_len", type=int, default=32)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-5)
-    parser.add_argument('--decay', type=float, default=1.0)
+    parser.add_argument('--decay', type=float, default=1)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
-    parser.add_argument("--verbose_step", default=1000, type=int)
+    parser.add_argument("--verbose_step", default=10000, type=int)
     parser.add_argument("--warmup_step", default=1000, type=int)
-    parser.add_argument("--gradient_accumulation_steps", default=8, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=16, type=int)
     parser.add_argument("--seed", default=0, type=int)
 
     parser.add_argument('--q_update', action='store_true', help='Whether update query')
@@ -61,6 +61,7 @@ def set_config():
 
     parser.add_argument("--model_gpu", default='0', type=str, help="device to place model.")
     parser.add_argument('--trained_weight',default=None)#"data_model/model.bin")
+    # parser.add_argument('--trained_weight', default="data_model/model.bin")
 
     # loss
     parser.add_argument("--type_lambda", type=float, default=1)

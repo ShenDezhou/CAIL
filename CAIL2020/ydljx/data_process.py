@@ -92,6 +92,15 @@ def check_in_full_paras(answer, paras):
     return answer in full_doc
 
 
+def dynamic_fit_bert_size(sc_col, ratio):
+    if ratio > 1:
+        sc_dest = int(len(sc_col) // ratio)
+        if len(sc_col) > sc_dest:
+            sc_col = sc_col[:sc_dest]
+        return sc_col
+    return sc_col
+
+
 def read_examples(full_file):
 
     with open(full_file, 'r', encoding='utf-8') as reader:
@@ -127,13 +136,15 @@ def read_examples(full_file):
         char_to_word_offset = []  # Accumulated along all sentences
         prev_is_whitespace = True
 
+
         # for debug
         titles = set()
         para_data=case['context']
         for paragraph in para_data:  # 选中的段落
             title = paragraph[0]
             sents = paragraph[1]   # 句子列表
-
+            ratio = (sum([len(sent) for sent in sents]) + len(case['question'])) * 1.0 / 512
+            sents = [dynamic_fit_bert_size(sent, ratio) for sent in sents]
 
             titles.add(title)  # 选中的title
             is_gold_para = 1 if title in sup_titles else 0  # 是否是gold para
@@ -141,10 +152,7 @@ def read_examples(full_file):
             para_start_position = len(doc_tokens)  # 刚开始doc_tokens是空的
 
             for local_sent_id, sent in enumerate(sents):  # 处理段落的每个句子
-                #每句解析20个字，
-                if len(doc_tokens)+len(sent) > 20*local_sent_id:
-                    sent = sent[:20]
-                if local_sent_id >= 24:  # 句子数量限制：一个段落最多只允许40个句子
+                if local_sent_id > 40:  # 句子数量限制：一个段落最多只允许40个句子
                     break
 
                 # Determine the global sent id for supporting facts
@@ -170,8 +178,6 @@ def read_examples(full_file):
                         prev_is_whitespace = False
                     char_to_word_offset.append(len(doc_tokens) - 1)
 
-                if len(doc_tokens) > 482:   # 如果大于382个词则break
-                    doc_tokens=doc_tokens[:482]
                 sent_end_word_id = len(doc_tokens) - 1  # 句子结尾的word位置
                 sent_start_end_position.append((sent_start_word_id, sent_end_word_id))  # 句子开始和结束的位置，以元组形式保存
 
@@ -198,13 +204,13 @@ def read_examples(full_file):
                         ans_start_position.append(char_to_word_offset[start_char_position])
                         ans_end_position.append(char_to_word_offset[end_char_position])
 
-
-
                 # Truncate longer document
-                #482
-                if len(doc_tokens) >= 482:   # 如果大于382个词则break
+                if len(doc_tokens) > 512:   # 如果大于382个词则break
                     # 这个截断会让每个段落至少有一个句子被加入，即使整个样本已经超过382，这样后面匹配entity还能匹配上吗？
                     break
+
+            # 问题改写
+            case['question'] = dynamic_fit_bert_size(case['question'], ratio)
             para_end_position = len(doc_tokens) - 1
             # 一个段落的开始和结束token位置（白空格分词）
             para_start_end_position.append((para_start_position, para_end_position, title, is_gold_para))  # 顺便加上开始和结束位置
@@ -462,7 +468,7 @@ if __name__ == '__main__':
     with gzip.open(args.example_output, 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=70)
     with gzip.open(args.feature_output, 'wb') as fout:
         pickle.dump(features, fout)
 
