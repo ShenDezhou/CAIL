@@ -10,14 +10,14 @@ import json
 import torch
 from torch import nn
 from transformers.optimization import AdamW, get_linear_schedule_with_warmup
-from model.model import *
+from model import *
 from tools.utils import convert_to_tokens
-from tools.data_iterator_pack import IGNORE_INDEX
+from data_iterator_pack import IGNORE_INDEX
 import numpy as np
 import queue
 import random
 from config import set_config
-from tools.data_helper import DataHelper
+from data_helper import DataHelper
 from data_process import InputFeatures,Example
 try:
     from apex import amp
@@ -182,16 +182,16 @@ if __name__ == "__main__":
     with gzip.open("data_model/train_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=args.max_query_len)
     with gzip.open("data_model/train_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 
-    tokenizer = BertTokenizer.from_pretrained(args.bert_model)
+    # tokenizer = BertTokenizer.from_pretrained(args.bert_model)
     examples = read_examples( full_file=args.rawdata)
     with gzip.open("data_model/dev_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=args.max_query_len)
     with gzip.open("data_model/dev_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 
@@ -207,9 +207,9 @@ if __name__ == "__main__":
 
 
 
-    roberta_config = BC.from_pretrained(args.bert_model)
+    # roberta_config = BC.from_pretrained(args.bert_model)
     encoder = BertModel.from_pretrained(args.bert_model)
-    args.input_dim=roberta_config.hidden_size
+    # args.input_dim=roberta_config.hidden_size
     model = BertSupportNet(config=args, encoder=encoder)
     if args.trained_weight is not None:
         model.load_state_dict(torch.load(args.trained_weight))

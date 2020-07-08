@@ -1,5 +1,6 @@
 import argparse
 import gzip
+import os
 import pickle
 from os.path import join
 from tqdm import tqdm
@@ -10,15 +11,17 @@ import json
 import torch
 from torch import nn
 from transformers.optimization import AdamW, get_linear_schedule_with_warmup
-from model.model import *
+from model import *
 from tools.utils import convert_to_tokens
-from tools.data_iterator_pack import IGNORE_INDEX
+from data_iterator_pack import IGNORE_INDEX
 import numpy as np
 import queue
 import random
 from config import set_config
-from tools.data_helper import DataHelper
+from data_helper import DataHelper
 from data_process import InputFeatures,Example
+
+
 try:
     from apex import amp
 except Exception:
@@ -26,6 +29,7 @@ except Exception:
 
 from data_process import read_examples, convert_examples_to_features
 from evaluate.evaluate import eval
+from utils import get_path,get_csv_logger
 
 def set_seed(args):
     random.seed(args.seed)
@@ -103,12 +107,12 @@ def predict(model, dataloader, example_dict, feature_dict, prediction_file, need
     test_loss_record.append(sum(total_test_loss[:3]) / len(dataloader))
 
 
-def train_epoch(data_loader, model, predict_during_train=False):
+def train_epoch(data_loader, model, logger, predict_during_train=False, epoch=1):
     model.train()
     pbar = tqdm(total=len(data_loader))
     epoch_len = len(data_loader)
     step_count = 0
-    predict_step = epoch_len // 4
+    predict_step = epoch_len // 2
     while not data_loader.empty():
         step_count += 1
         batch = next(iter(data_loader))
@@ -126,7 +130,10 @@ def train_epoch(data_loader, model, predict_during_train=False):
 
     predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
              join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)))
-    eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)), args.validdata)
+    results = eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epc)), args.validdata)
+    # Logging
+    keys='em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall'.split(',')
+    logger.info(','.join([str(epoch)] + [str(results[s]) for s in keys]))
     model_to_save = model.module if hasattr(model, 'module') else model
     torch.save(model_to_save.state_dict(), join(args.checkpoint_path, "ckpt_seed_{}_epoch_{}_99999.pkl".format(args.seed, epc)))
 
@@ -138,12 +145,14 @@ def train_batch(model, batch):
     loss_list = compute_loss(batch, start_logits, end_logits, type_logits, sp_logits, start_position, end_position)
     loss_list = list(loss_list)
     if args.gradient_accumulation_steps > 1:
-        loss_list[0] = loss_list[0] / args.gradient_accumulation_steps
+        # loss_list[0] = loss_list[0] / args.gradient_accumulation_steps
+        loss_list[0] /= args.gradient_accumulation_steps
     
     if args.fp16:
         with amp.scale_loss(loss_list[0], optimizer) as scaled_loss:
             scaled_loss.backward()
     else:
+        # loss_list[0].backward()
         loss_list[0].backward()
 
     if (global_step + 1) % args.gradient_accumulation_steps == 0:
@@ -167,6 +176,7 @@ def train_batch(model, batch):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = set_config()
+    get_path("log/")
 
     args.n_gpu = torch.cuda.device_count()
 
@@ -175,20 +185,20 @@ if __name__ == "__main__":
         set_seed(args)
 
     tokenizer = BertTokenizer.from_pretrained(args.bert_model)
-    examples = read_examples( full_file=args.rawdata)
+    examples = read_examples(full_file=args.rawdata)
     with gzip.open("data_model/train_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=args.max_query_len)
     with gzip.open("data_model/train_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 
-    tokenizer = BertTokenizer.from_pretrained(args.bert_model)
-    examples = read_examples( full_file=args.validdata)
+    # tokenizer = BertTokenizer.from_pretrained(args.bert_model)
+    examples = read_examples(full_file=args.validdata)
     with gzip.open("data_model/dev_example.pkl.gz", 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=args.max_query_len)
     with gzip.open("data_model/dev_feature.pkl.gz", 'wb') as fout:
         pickle.dump(features, fout)
 
@@ -204,9 +214,9 @@ if __name__ == "__main__":
 
 
 
-    roberta_config = BC.from_pretrained(args.bert_model)
+    # roberta_config = BC.from_pretrained(args.bert_model)
     encoder = BertModel.from_pretrained(args.bert_model)
-    args.input_dim=roberta_config.hidden_size
+    # args.input_dim=roberta_config.hidden_size
     model = BertSupportNet(config=args, encoder=encoder)
     if args.trained_weight is not None:
         model.load_state_dict(torch.load(args.trained_weight))
@@ -215,7 +225,7 @@ if __name__ == "__main__":
     # Initialize optimizer and criterions
     lr = args.lr
     t_total = len(Full_Loader) * args.epochs // args.gradient_accumulation_steps
-    warmup_steps = 0.1 * t_total
+    warmup_steps = args.warmup_step
     optimizer = AdamW(model.parameters(), lr=lr, eps=1e-8)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps,
                                                 num_training_steps=t_total)
@@ -236,6 +246,9 @@ if __name__ == "__main__":
     total_train_loss = [0] * 5
     test_loss_record = []
     VERBOSE_STEP = args.verbose_step
+
+    epoch_logger = get_csv_logger(os.path.join("log/", args.name + '-epoch.csv'),
+        title='epoch,em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall')
     while True:
         if epc == args.epochs:  # 5 + 30
             exit(0)
@@ -244,7 +257,8 @@ if __name__ == "__main__":
         Loader = Full_Loader
         Loader.refresh()
 
-        if epc > 2:
-            train_epoch(Loader, model, predict_during_train=True)
-        else:
-            train_epoch(Loader, model)
+        train_epoch(Loader, model, logger=epoch_logger, predict_during_train=False, epoch=epc)
+        # if epc > 2:
+        #
+        # else:
+        #     train_epoch(Loader, model, logger=None)

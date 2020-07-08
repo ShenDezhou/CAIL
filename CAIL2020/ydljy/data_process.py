@@ -99,7 +99,7 @@ def read_examples(full_file):
 
 
     def is_whitespace(c):
-        if c == " " or c == "\t" or c == "\r" or c == "\n" or ord(c) == 0x202F:
+        if c.isspace() or ord(c) == 0x202F or ord(c) == 0x2000:
             return True
         return False
 
@@ -141,7 +141,10 @@ def read_examples(full_file):
             para_start_position = len(doc_tokens)  # 刚开始doc_tokens是空的
 
             for local_sent_id, sent in enumerate(sents):  # 处理段落的每个句子
-                if local_sent_id >= 100:  # 句子数量限制：一个段落最多只允许10个句子
+                #每句解析20个字，
+                if len(doc_tokens)+len(sent) > 20*local_sent_id:
+                    sent = sent[:20]
+                if local_sent_id >= 24:  # 句子数量限制：一个段落最多只允许40个句子
                     break
 
                 # Determine the global sent id for supporting facts
@@ -156,7 +159,7 @@ def read_examples(full_file):
                 sent_start_word_id = len(doc_tokens)           # 句子开始位置的word id
                 sent_start_char_id = len(char_to_word_offset)  # 句子开始位置的char id
 
-                for c in sent:   # 遍历整个句子的字符，简历char到word之间的映射关系
+                for c in sent:   # 遍历整个句子的字符，建立char到word之间的映射关系
                     if is_whitespace(c):
                         prev_is_whitespace = True
                     else:
@@ -167,8 +170,10 @@ def read_examples(full_file):
                         prev_is_whitespace = False
                     char_to_word_offset.append(len(doc_tokens) - 1)
 
+                if len(doc_tokens) > 482:   # 如果大于382个词则break
+                    doc_tokens=doc_tokens[:482]
                 sent_end_word_id = len(doc_tokens) - 1  # 句子结尾的word位置
-                sent_start_end_position.append((sent_start_word_id, sent_end_word_id))  # 句子开始和结束的位置，以元祖形式保存
+                sent_start_end_position.append((sent_start_word_id, sent_end_word_id))  # 句子开始和结束的位置，以元组形式保存
 
                 # Answer char position
                 answer_offsets = []
@@ -196,7 +201,8 @@ def read_examples(full_file):
 
 
                 # Truncate longer document
-                if len(doc_tokens) > 382:   # 如果大于382个词则break
+                #482
+                if len(doc_tokens) >= 482:   # 如果大于382个词则break
                     # 这个截断会让每个段落至少有一个句子被加入，即使整个样本已经超过382，这样后面匹配entity还能匹配上吗？
                     break
             para_end_position = len(doc_tokens) - 1
@@ -447,7 +453,7 @@ if __name__ == '__main__':
                              "than this will be truncated, and sequences shorter than this will be padded.")
     parser.add_argument("--batch_size", default=15, type=int, help="Batch size for predictions.")
     parser.add_argument("--full_data", default='data/train.json', type=str, required=False)   # 原始数据集文件
-    parser.add_argument('--tokenizer_path', default='F:\\bert-base-chinese', type=str, required=False)
+    parser.add_argument('--tokenizer_path', default='/root/torchs/bert-jd-chinese', type=str, required=False)
 
 
     args = parser.parse_args()
@@ -456,7 +462,7 @@ if __name__ == '__main__':
     with gzip.open(args.example_output, 'wb') as fout:
         pickle.dump(examples, fout)
 
-    features = convert_examples_to_features(examples, tokenizer, max_seq_length=args.max_seq_len, max_query_length=50)
+    features = convert_examples_to_features(examples, tokenizer, max_seq_length=512, max_query_length=50)
     with gzip.open(args.feature_output, 'wb') as fout:
         pickle.dump(features, fout)
 
