@@ -11,6 +11,9 @@ from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
 
+class_dic = ['买卖合同', '承包合同', '技术合同', '知识产权合同', '其他类合同', '房地产合同', '代理合同', '居间合同', '转让合同', '贸易合同', '劳动合同', '托管合同',
+                 '仓储合同', '服务合同', '经营合同', '储运合同', '租赁合同', '其他合同', '运输合同', '承揽合同', '借款合同', '供用合同', '金融合同', '房产合同']
+
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
