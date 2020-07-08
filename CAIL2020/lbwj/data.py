@@ -116,7 +116,7 @@ class Data:
                 If model_type == 'bert', use BertTokenizer as tokenizer
                 Otherwise, use Tokenizer as tokenizer
         """
-        self.max_query_len = 250
+        # self.max_query_len = 250
         self.model_type = model_type
         self.summarizer = summary()
         if self.model_type == 'bert':
@@ -182,6 +182,19 @@ class Data:
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, valid_set_train, valid_set_valid
 
+    def dynamic_fit_bert_size(self, sc_col, bc_col, max_seq_len):
+        if len(sc_col) + len(sc_col) > max_seq_len:
+            ratio = (len(sc_col) + len(sc_col))*1.0 / max_seq_len
+            sc_dest = int(len(sc_col) // ratio)
+            bc_dest = int(len(bc_col) // ratio)
+            sc_summary, bc_summary = self.summarizer.summarize([sc_col, bc_col])
+            if len(sc_summary) > sc_dest:
+                sc_summary = sc_summary[:sc_dest]
+            if len(bc_summary) > bc_dest:
+                bc_summary = bc_summary[:bc_dest]
+            return sc_summary, bc_summary
+        return sc_col, bc_col
+
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
 
@@ -212,38 +225,18 @@ class Data:
                 for a in range(3, 7):
                     for b in range(a + 1, 8):
                         meter = SequenceMatcher(None, row[a], row[b]).ratio()
-                        if meter > 0.95:
+                        if meter >= 0.97:
                             too_close = True
                 # bc option has too close value
                 if too_close:
                     continue
 
-            # STEP2: sc 长度优化
-            if len(row[2]) > self.max_seq_len - self.max_query_len:
-                sc_filered = self.summarizer.summarize([row[2]])[0]
-                # 过滤后仍超长处理方法
-                if len(sc_filered) > self.max_seq_len - self.max_query_len:
-                    sc_filered = self.summarizer.mean_summarize([row[2]])[0]
-                #保证给bc留位置 50
-                if len(sc_filered) > self.max_seq_len - self.max_query_len:
-                    sc_filered = sc_filered[:self.max_seq_len - self.max_query_len]
-                sc_tokens = self.tokenizer.tokenize(sc_filered)
-            else:
-                sc_tokens = self.tokenizer.tokenize(row[2])
 
             for i, _ in enumerate(candidates):
-                # sc 长度 512- 250, bc 长度 250
-                if len(candidates[i]) > self.max_query_len:
-                    bc_tokens = self.summarizer.summarize([candidates[i]])[0]
-                    # 过滤后仍超长处理方法
-                    if len(bc_tokens) > self.max_query_len:
-                        bc_tokens = self.summarizer.mean_summarize([candidates[i]])[0]
-                    # 保证给bc留位置 50
-                    if len(bc_tokens) > self.max_query_len:
-                        bc_tokens = bc_tokens[:self.max_query_len]
-                    bc_tokens = self.tokenizer.tokenize(bc_tokens)
-                else:
-                    bc_tokens = self.tokenizer.tokenize(candidates[i])
+                sc_summary, bc_summary  = self.dynamic_fit_bert_size(row[2], candidates[i], self.max_seq_len)
+                sc_tokens = self.tokenizer.tokenize(sc_summary)
+                bc_tokens = self.tokenizer.tokenize(bc_summary)
+
                 if train:
                     if i + 1 == answer:
                         # Copy positive sample 4 times
