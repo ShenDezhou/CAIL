@@ -183,15 +183,21 @@ class Data:
         return train_set, valid_set_train, valid_set_valid
 
     def dynamic_fit_bert_size(self, sc_col, bc_col, max_seq_len):
-        if len(sc_col) + len(sc_col) > max_seq_len:
-            ratio = (len(sc_col) + len(sc_col))*1.0 / max_seq_len
-            sc_dest = int(len(sc_col) // ratio)
-            bc_dest = int(len(bc_col) // ratio)
+        if len(sc_col) > max_seq_len // 2 + 1:
+            sc_col = sc_col[:max_seq_len//2 + 1]
+        if len(bc_col) > max_seq_len // 2:
+            bc_col = bc_col[:max_seq_len//2]
+        if len(sc_col) + len(bc_col) > max_seq_len:
             sc_summary, bc_summary = self.summarizer.summarize([sc_col, bc_col])
+            ratio = (len(sc_summary) + len(bc_summary)) * 1.0 / max_seq_len
+            sc_dest = int(len(sc_summary) // ratio)
+            bc_dest = int(len(bc_summary) // ratio)
             if len(sc_summary) > sc_dest:
-                sc_summary = sc_summary[:sc_dest]
+                x = (len(sc_summary) - sc_dest//3 * 2)//2
+                sc_summary = sc_summary[:sc_dest//3] +sc_summary[x:x+sc_dest//3] + sc_summary[-sc_dest//3:]
             if len(bc_summary) > bc_dest:
-                bc_summary = bc_summary[:bc_dest]
+                x = (len(bc_summary) - sc_dest // 3 * 2) // 2
+                bc_summary = bc_summary[:bc_dest//3] + bc_summary[x:x+bc_dest//3] +  bc_summary[-bc_dest//3:]
             return sc_summary, bc_summary
         return sc_col, bc_col
 
@@ -225,7 +231,7 @@ class Data:
                 for a in range(3, 7):
                     for b in range(a + 1, 8):
                         meter = SequenceMatcher(None, row[a], row[b]).ratio()
-                        if meter >= 0.97:
+                        if meter >= 0.99:
                             too_close = True
                 # bc option has too close value
                 if too_close:
@@ -233,7 +239,7 @@ class Data:
 
 
             for i, _ in enumerate(candidates):
-                sc_summary, bc_summary  = self.dynamic_fit_bert_size(row[2], candidates[i], self.max_seq_len)
+                sc_summary, bc_summary = self.dynamic_fit_bert_size(row[2], candidates[i], self.max_seq_len)
                 sc_tokens = self.tokenizer.tokenize(sc_summary)
                 bc_tokens = self.tokenizer.tokenize(bc_summary)
 
@@ -272,20 +278,21 @@ class Data:
         """
         all_input_ids, all_input_mask, all_segment_ids = [], [], []
         for i, _ in tqdm(enumerate(s1_list), ncols=80):
+            CONST_LEN = 3 # CLS SEP SEP == 3
             tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
             segment_ids = [0] * len(tokens)
             tokens += s2_list[i] + ['[SEP]']
             segment_ids += [1] * (len(s2_list[i]) + 1)
-            if len(tokens) > 512:
-                tokens = tokens[:256] + tokens[-256:]
-                assert len(tokens) == 512
-                segment_ids = segment_ids[:256] + segment_ids[-256:]
+            if len(tokens) > self.max_seq_len + CONST_LEN:
+                tokens = tokens[:self.max_seq_len + CONST_LEN]
+                assert len(tokens) == self.max_seq_len + CONST_LEN
+                segment_ids = segment_ids[:self.max_seq_len + CONST_LEN]
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
-            input_ids += [0] * (512 - tokens_len)
-            segment_ids += [0] * (512 - tokens_len)
-            input_mask += [0] * (512 - tokens_len)
+            input_ids += [0] * (self.max_seq_len + CONST_LEN - tokens_len)
+            segment_ids += [0] * (self.max_seq_len + CONST_LEN - tokens_len)
+            input_mask += [0] * (self.max_seq_len + CONST_LEN - tokens_len)
             all_input_ids.append(input_ids)
             all_input_mask.append(input_mask)
             all_segment_ids.append(segment_ids)

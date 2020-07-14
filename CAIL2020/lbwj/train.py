@@ -204,15 +204,16 @@ class Trainer:
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
-            results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
-            self.save_model(os.path.join(
-                self.config.model_path, self.config.experiment_name,
-                self.config.model_type + '-' + str(epoch + 1) + '.bin'))
+            if epoch >= 9:
+                results = self._epoch_evaluate_update_description_log(
+                    tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
+                self.save_model(os.path.join(
+                    self.config.model_path, self.config.experiment_name,
+                    self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
-            if results[-3] > best_train_f1:
-                best_model_state_dict = deepcopy(self.model.state_dict())
-                best_train_f1 = results[-3]
+                if results[-3] > best_train_f1:
+                    best_model_state_dict = deepcopy(self.model.state_dict())
+                    best_train_f1 = results[-3]
         return best_model_state_dict
 
 

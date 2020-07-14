@@ -6,7 +6,7 @@ class summary():
     def __init__(self):
         self.cut = thulac.thulac(seg_only=False)
         # n/名词 np/人名 ns/地名 ni/机构名 nz/其它专名   u/助词,  m/数词 q/量词 mq/数量词 t/时间词 f/方位词 s/处所词
-        self.filter = ['np', 'ns', 'ni', 'nz', 'u','m','q', 'mq', 't','f', 's']
+        self.filter = ['u','m','q', 'mq', 't','f', 's']
         self.mean_filter = ['n', 'np', 'ns', 'ni', 'nz', 'u', 'm', 'q', 'mq', 't', 'f', 's']
 
     def cut_text(self, alltext):

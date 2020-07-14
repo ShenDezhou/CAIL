@@ -302,7 +302,7 @@ class BertYForClassification(nn.Module):
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         # 1-7: 228; 8-14: 1691
-        self.linear = nn.Linear(config.hidden_size + 1919, config.num_classes)
+        self.linear = nn.Linear(config.hidden_size + 1127, config.num_classes)
         #self.bn = nn.BatchNorm1d(config.num_classes)
         self.num_classes = config.num_classes
 
