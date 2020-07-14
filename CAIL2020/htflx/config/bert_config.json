@@ -9,7 +9,7 @@
 
   "batch_size": 8,
 
-  "bert_model_path": "F:/bert-base-chinese",
+  "bert_model_path": "../bert-base-chinese",
   "trained_weight":"",
   "hidden_size": 768,
   "num_classes": 24,

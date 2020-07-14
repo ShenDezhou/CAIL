@@ -1,0 +1,9 @@
+torch
+torchvision
+falcon
+falcon-cors
+waitress
+pandas
+jieba
+transformers
+scikit-learn

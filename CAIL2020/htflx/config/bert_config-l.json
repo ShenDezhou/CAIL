@@ -9,8 +9,8 @@
 
   "batch_size": 8,
 
-  "bert_model_path": "F:/bert-base-chinese",
-  "trained_weight":"",
+  "bert_model_path": "/mnt/data/torchcail/bert-base-chinese",
+  "trained_weight":"model/bert/model.bin",
   "hidden_size": 768,
   "num_classes": 24,
   "dropout": 0.50,
