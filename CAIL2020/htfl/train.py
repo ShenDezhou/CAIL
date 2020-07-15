@@ -8,12 +8,6 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
-#batch size:24->14 and max length:512-256 have negtive impact on acc, after 10 epochs drop to (train_acc: 0.490404, train_f1: 0.489924, valid_acc: 0.375000, valid_f1: 0.361930,)
-
-#for bert 2 epochs
-#train_acc: 0.873826, train_f1: 0.873886, valid_acc: 0.775000, valid_f1: 0.701429
-#rnn 2 epochs
-#train_acc: 0.552470, train_f1: 0.552839, valid_acc: 0.425000, valid_f1: 0.407884
 from typing import Dict
 import argparse
 import json

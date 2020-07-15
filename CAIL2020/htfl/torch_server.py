@@ -14,6 +14,8 @@ from model import BertForClassification
 from evaluate import evaluate
 import time
 from model import class_dic
+from dataclean import cleanall
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 logger = logging.getLogger()
 cors_allow_all = CORS(allow_all_origins=True,
@@ -70,7 +72,8 @@ class TorchResource:
         resp.set_header('Access-Control-Allow-Credentials','true')
         title = req.get_param('1', True)
         content = req.get_param('2', True)
-        resp.media = self.bert_classification(title, content)
+        clean_content = cleanall(content)
+        resp.media = self.bert_classification(title, clean_content)
         logger.info("###")
 
 

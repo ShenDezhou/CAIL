@@ -45,7 +45,13 @@ def shortenlines(raw_html):
 
 
 def cleanall(raw_html):
-    return cleanduplicationfullcharacterchinese2(cleanspaceholder(cleanentity(cleanhtml(raw_html))))
+    raw_html = shortenlines(raw_html)
+    raw_html = cleanhtml(raw_html)
+    raw_html = cleanentity(raw_html)
+    raw_html = cleanspaceholder(raw_html)
+    raw_html = cleanduplicationfullcharacterchinese2(raw_html)
+    clean_html = shortenlines(raw_html)
+    return clean_html
 
 
 def clean():
