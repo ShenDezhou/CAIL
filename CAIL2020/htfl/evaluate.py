@@ -10,7 +10,7 @@ import torch
 
 from tqdm import tqdm
 from sklearn import metrics
-from classmerge import classx_dic
+from classmerge import classx_dic, indic
 
 LABELS = [str(i) for i in range(len(classx_dic))]
 
@@ -58,7 +58,7 @@ def get_labels_from_file(filename):
         List[str]: label list
     """
     data_frame = pandas.read_csv(filename)
-    labels = data_frame['type1'].map(classx_dic.index).tolist()
+    labels = data_frame['type1'].map(indic).tolist()
     return labels
 
 def eval_file(golds_file, predicts_file):
