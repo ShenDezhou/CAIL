@@ -1,10 +1,10 @@
 import json
 import os
-import thulac
+import jieba
 
 data_path = "/input/"
-#test_path = "data"
-#output_path = "/output"
+test_path = "data"
+output_path = "/output"
 
 if __name__ == "__main__":
     os.system(
