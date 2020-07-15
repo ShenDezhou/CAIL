@@ -22,18 +22,18 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertYForClassification, RnnForSentencePairClassification
+from model import BertYForClassification, BertZForClassification, RnnForSentencePairClassification
 from utils import load_torch_model
 
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
-    'bert': BertYForClassification,
+    'bert': BertZForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
 
-def main(in_file='/input/SMP-CAIL2020-test1.csv',
+def main(in_file='/data/SMP-CAIL2020-test1.csv',
          out_file='/output/result1.csv',
          model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.
