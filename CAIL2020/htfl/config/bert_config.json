@@ -7,7 +7,7 @@
   "train_file_path": "data/train.csv",
   "valid_file_path": "data/valid.csv",
 
-  "batch_size": 1,
+  "batch_size": 8,
 
   "bert_model_path": "F:/bert-base-chinese",
   "trained_weight":"",
