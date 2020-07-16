@@ -28,3 +28,6 @@ if __name__ =="__main__":
     # merged = merge(class_dic)
     # print(len(merged), merged)
     print(indic('房地产合同', classx_dic))
+
+def match(gold, pred):
+    return SequenceMatcher(None, gold, pred).ratio() > 0.8

@@ -86,7 +86,8 @@ class TorchResource:
         resp.set_header("Cache-Control", "no-cache")
         data = req.stream.read(req.content_length)
         jsondata = json.loads(data)
-        resp.media = self.bert_classification(jsondata.title, jsondata.content)
+        clean_content = cleanall(jsondata.content)
+        resp.media = self.bert_classification(jsondata.title, clean_content)
 
 if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
