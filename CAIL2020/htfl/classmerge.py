@@ -24,10 +24,11 @@ def indic(cls, class_dic=classx_dic):
     meters = [SequenceMatcher(None, cls, c).ratio() for c in class_dic]
     return max(range(len(meters)), key=meters.__getitem__)
 
+
+def match(gold, pred):
+    return SequenceMatcher(None, gold, pred).ratio() > 0.8
+
 if __name__ =="__main__":
     # merged = merge(class_dic)
     # print(len(merged), merged)
     print(indic('房地产合同', classx_dic))
-
-def match(gold, pred):
-    return SequenceMatcher(None, gold, pred).ratio() > 0.8

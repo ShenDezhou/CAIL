@@ -14,7 +14,7 @@ from model import BertForClassification
 from evaluate import evaluate
 import time
 from model import class_dic
-from dataclean import cleanall
+from dataclean import cleanall, shortenlines
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 logger = logging.getLogger()
@@ -72,8 +72,9 @@ class TorchResource:
         resp.set_header('Access-Control-Allow-Credentials','true')
         title = req.get_param('1', True)
         content = req.get_param('2', True)
+        clean_title = shortenlines(title)
         clean_content = cleanall(content)
-        resp.media = self.bert_classification(title, clean_content)
+        resp.media = self.bert_classification(clean_title, clean_content)
         logger.info("###")
 
 
@@ -86,8 +87,9 @@ class TorchResource:
         resp.set_header("Cache-Control", "no-cache")
         data = req.stream.read(req.content_length)
         jsondata = json.loads(data)
+        clean_title = shortenlines(jsondata.title)
         clean_content = cleanall(jsondata.content)
-        resp.media = self.bert_classification(jsondata.title, clean_content)
+        resp.media = self.bert_classification(clean_title, clean_content)
 
 if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
