@@ -4,15 +4,15 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/train.csv",
-  "valid_file_path": "data/valid.csv",
+  "train_file_path": "dataset/train.csv",
+  "valid_file_path": "dataset/valid.csv",
 
   "batch_size": 8,
 
   "bert_model_path": "F:/bert-base-chinese",
   "trained_weight":"",
   "hidden_size": 768,
-  "num_classes": 22,
+  "num_classes": 17,
   "dropout": 0.05,
 
   "lr": 1e-4,

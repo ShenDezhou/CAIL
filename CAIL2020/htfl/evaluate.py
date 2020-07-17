@@ -10,9 +10,9 @@ import torch
 
 from tqdm import tqdm
 from sklearn import metrics
-from classmerge import classx_dic, indic
+from classmerge import classy_dic, indic
 
-LABELS = [str(i) for i in range(len(classx_dic))]
+LABELS = [str(i) for i in range(len(classy_dic))]
 
 
 def calculate_accuracy_f1(

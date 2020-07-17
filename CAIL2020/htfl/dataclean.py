@@ -114,6 +114,8 @@ def cleanupdev():
 
 # cleanupdev()
 df = pandas.read_csv("data/train.csv", delimiter=',')
+df = df[(df['type1'] != '居间合同') & (df['type1'] != '托管合同') & (df['type1'] != '仓储合同') & (df['type1'] != '储运合同') & (df['type1'] != '供用合同')]
 df['typeindex'] = df['type1'].map(indic)
 groupby_count1 = df.groupby(['typeindex']).count()
 print(groupby_count1)
+df.to_csv("dataset/train.csv", columns=['type1','title','content'], index=False)
