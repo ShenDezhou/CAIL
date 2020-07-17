@@ -204,7 +204,7 @@ class Trainer:
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
-            if epoch >= 4:
+            if epoch >= 2:
                 results = self._epoch_evaluate_update_description_log(
                     tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
 

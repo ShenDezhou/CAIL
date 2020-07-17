@@ -357,15 +357,15 @@ class BertYForClassification(nn.Module):
 class Attention(nn.Module):
     def __init__(self, conv_size, *args, **params):
         super(Attention, self).__init__()
-        self.hidden_size = 768
+        self.hidden_size = 1024
         self.fc = nn.Linear(conv_size, self.hidden_size)
         # self.rfc = nn.Linear(self.hidden_size, conv_size)
 
     def forward(self, x, y):
         bs = x.size()[0]
         x_ = self.fc(x) # x_ = x
-        x_ = x_.view(bs, 3, -1)
-        y = y.view(bs, 3, -1)
+        x_ = x_.view(bs, 4, -1)
+        y = y.view(bs, 4, -1)
 
         y_ = torch.transpose(y, 1, 2)
         a_ = torch.bmm(x_, y_)
@@ -498,7 +498,7 @@ class BertZForClassification(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
         )
-        self.att = Attention(11270)
+        self.att = Attention(14870)
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         # 1-7: 228; 8-14: 1691
