@@ -10,12 +10,12 @@
   "batch_size": 20,
 
   "bert_model_path": "F:\\bert-base-chinese",
-  "trained_weight":"",
+  "trained_weight":"model/bert/model.bin",
   "hidden_size": 768,
   "num_classes": 2,
   "dropout": 0.05,
 
-  "lr": 1e-5,
+  "lr": 1e-4,
   "num_epoch": 50,
   "num_warmup_steps": 2000,
   "num_training_steps": 32000,
