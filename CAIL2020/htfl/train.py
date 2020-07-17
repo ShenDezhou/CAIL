@@ -26,14 +26,15 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BertForClassification,
-    'rnn': RnnForSentencePairClassification
+    'rnn': RnnForSentencePairClassification,
+    'lr': LogisticRegression
 }
 
 
@@ -240,8 +241,8 @@ def main(config_file='config/bert_config.json'):
         valid_file=config.valid_file_path)
     train_set, valid_set_train, valid_set_valid = datasets
     if torch.cuda.is_available():
-        # device = torch.device('cuda')
-        device = torch.device('cpu')
+        device = torch.device('cuda')
+        # device = torch.device('cpu')
         # torch.distributed.init_process_group(backend="nccl")
         # sampler_train = DistributedSampler(train_set)
         sampler_train = RandomSampler(train_set)

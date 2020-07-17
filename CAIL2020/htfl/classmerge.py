@@ -33,6 +33,7 @@ def indic(cls, class_dic=classy_dic):
 
 def match(gold, pred):
     return SequenceMatcher(None, gold, pred).ratio() > 0.8
+
 def removeless():
     ylist = []
     for i in range(len(classx_dic)):
@@ -41,10 +42,11 @@ def removeless():
         ylist.append(classx_dic[i])
     print(ylist)
 
-removeless()
+
 
 if __name__ =="__main__":
     # merged = merge(class_dic)
     # print(len(merged), merged)
     # print(indic('房地产合同', classx_dic))
+    #removeless()
     pass
