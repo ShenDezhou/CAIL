@@ -422,7 +422,7 @@ class LogisticRegression(nn.Module):
         self.embedding = nn.Embedding(
             config.vocab_size, config.hidden_size, padding_idx=0)
         self.dropout = nn.Dropout(config.dropout)
-        self.fc1 = nn.Linear(config.vocab_size, config.num_labels)
+        self.fc1 = nn.Linear(config.vocab_size, config.num_classes)
 
     def forward(self, s1_ids, s2_ids, s1_lengths, s2_lengths, **kwargs):
         batch_size = s1_ids.shape[0]
