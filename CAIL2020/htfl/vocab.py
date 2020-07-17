@@ -60,7 +60,7 @@ class Vocab:
             cols = range(data_frame.shape[1])
         for row in data_frame.itertuples(index=False):
             for i in cols:
-                sentence = row[i]
+                sentence = str(row[i])
                 if self.language == 'zh':
                     words = jieba.lcut(sentence)
                 else:  # 'en'
@@ -89,7 +89,7 @@ class Vocab:
 def build_vocab(file_in, file_out):
     """Build vocab.txt for SMP-CAIL2020-Argmine."""
     vocab = Vocab('zh')
-    vocab.load_file_to_dict(file_in, list(range(2, 8)))
+    vocab.load_file_to_dict(file_in, list(range(1, 3)))
     vocab.write2file(file_out, False)
 
 

@@ -228,7 +228,7 @@ def main(config_file='config/bert_config.json'):
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
-    if config.model_type == 'rnn':  # build vocab for rnn
+    if config.model_type in ['rnn', 'lr']:  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
     # 1. Load data
@@ -240,8 +240,8 @@ def main(config_file='config/bert_config.json'):
         valid_file=config.valid_file_path)
     train_set, valid_set_train, valid_set_valid = datasets
     if torch.cuda.is_available():
-        device = torch.device('cuda')
-        #device = torch.device('cpu')
+        # device = torch.device('cuda')
+        device = torch.device('cpu')
         # torch.distributed.init_process_group(backend="nccl")
         # sampler_train = DistributedSampler(train_set)
         sampler_train = RandomSampler(train_set)

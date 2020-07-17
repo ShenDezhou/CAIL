@@ -413,3 +413,33 @@ class RnnForSentencePairClassification(nn.Module):
         logits = nn.functional.softmax(hidden, dim=-1)
         # logits: (batch_size, num_classes)
         return logits
+
+
+class LogisticRegression(nn.Module):
+
+    def __init__(self, config):
+        super().__init__()
+        self.embedding = nn.Embedding(
+            config.vocab_size, config.hidden_size, padding_idx=0)
+        self.dropout = nn.Dropout(config.dropout)
+        self.fc1 = nn.Linear(config.vocab_size, config.num_labels)
+
+    def forward(self, s1_ids, s2_ids, s1_lengths, s2_lengths, **kwargs):
+        batch_size = s1_ids.shape[0]
+        s1_embed = self.embedding(s1_ids)
+        s2_embed = self.embedding(s2_ids)
+        # embed: (batch_size, max_seq_len, hidden_size)
+        s1_packed: PackedSequence = pack_padded_sequence(
+            s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        s2_packed: PackedSequence = pack_padded_sequence(
+            s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
+        # _, s1_hidden = self.rnn(s1_packed)
+        # _, s2_hidden = self.rnn(s2_packed)
+        s1_hidden = s1_packed.view(batch_size, -1)
+        s2_hidden = s2_packed.view(batch_size, -1)
+        hidden = torch.cat([s1_hidden, s2_hidden], dim=-1)
+
+        x = torch.squeeze(hidden)  # (batch, vocab_size)
+        x = self.dropout(x)
+        logit = self.fc1(x)  # (batch, target_size)
+        return logit

@@ -1,14 +1,14 @@
 {
-  "model_type": "rnn",
+  "model_type": "lr",
   "max_seq_len": 512,
-  "model_path": "model/rnn/",
+  "model_path": "model/lr/",
   "log_path": "log/",
 
-  "train_file_path": "dataset/train.csv",
+  "train_file_path": "dataset/valid.csv",
   "valid_file_path": "dataset/valid.csv",
   "all_train_file_path": "dataset/train.csv",
 
-  "batch_size": 1,
+  "batch_size": 32,
   "trained_weight":"",
   "vocab_size": 157282,
   "hidden_size": 768,
