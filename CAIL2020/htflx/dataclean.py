@@ -1,5 +1,6 @@
 import re
 import pandas
+from classmerge import class_dic, indic
 
 def cleanhtml(raw_html):
     cleanr = re.compile('<[^>]+>')
@@ -45,11 +46,17 @@ def shortenlines(raw_html):
 
 
 def cleanall(raw_html):
-    return cleanduplicationfullcharacterchinese2(cleanspaceholder(cleanentity(cleanhtml(raw_html))))
+    #raw_html = shortenlines(raw_html)
+    raw_html = cleanhtml(raw_html)
+    raw_html = cleanentity(raw_html)
+    raw_html = cleanspaceholder(raw_html)
+    raw_html = cleanduplicationfullcharacterchinese2(raw_html)
+    clean_html = shortenlines(raw_html)
+    return clean_html
 
 
 def clean():
-    df = pandas.read_csv("dump/hetong.csv", delimiter='\t')
+    df = pandas.read_csv("data/hetong_20190218.csv", delimiter=',')
     df['title'] = df['title'].apply(shortenlines)
     df['content'] = df['content'].apply(cleanhtml)
     df['content'] = df['content'].apply(cleanentity)
@@ -63,7 +70,7 @@ def clean():
     train.to_csv("data/train.csv", index=False)
     test.to_csv("data/test.csv", index=False)
 
-clean()
+# clean()
 
 
 def enpercent(raw_html):
@@ -96,7 +103,7 @@ def sample():
     finaldf = pandas.concat(dfsample)
     finaldf.to_csv("data/dev.csv", columns=['type1','title','content'], index=False)
 
-sample()
+# sample()
 
 def cleanupdev():
     df = pandas.read_csv("data/dev.csv")
@@ -105,4 +112,10 @@ def cleanupdev():
     df['content'] = df['content'].apply(cleanduplicationfullcharacterchinese2)
     df.to_csv("data/dev_new.csv", columns=['type1','title','content'], index=False)
 
-cleanupdev()
+# cleanupdev()
+df = pandas.read_csv("data/train.csv", delimiter=',')
+df = df[(df['type1'] != '居间合同') & (df['type1'] != '托管合同') & (df['type1'] != '仓储合同') & (df['type1'] != '储运合同') & (df['type1'] != '供用合同')]
+df['typeindex'] = df['type1'].map(indic)
+groupby_count1 = df.groupby(['typeindex']).count()
+print(groupby_count1)
+df.to_csv("dataset/train.csv", columns=['type1','title','content'], index=False)

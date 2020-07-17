@@ -11,8 +11,6 @@ from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
 
-class_dic = ['买卖合同', '承包合同', '技术合同', '知识产权合同', '其他类合同', '房地产合同', '代理合同', '居间合同', '转让合同', '贸易合同', '劳动合同', '托管合同',
-                 '仓储合同', '服务合同', '经营合同', '储运合同', '租赁合同', '其他合同', '运输合同', '承揽合同', '借款合同', '供用合同', '金融合同', '房产合同']
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
@@ -82,49 +80,49 @@ class BertXForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
 
-        # input(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
+        # data(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
         self.conv_module = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(1, 1), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(128, 128), stride=(128, 128), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
+        # data(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
         self.conv_module2 = nn.Sequential(
             nn.Conv2d(1,1, kernel_size=(2,3), stride=(2,3),padding=(0,0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(64, 64), stride=(64, 64),padding=(1,1))
         )
-        # input(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
+        # data(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
         self.conv_module3 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(3, 4), stride=(3, 4), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(32, 32), stride=(32, 32), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
+        # data(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
         self.conv_module4 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(4, 6), stride=(4, 6), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(32, 32), stride=(32, 32), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
+        # data(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
         self.conv_module5 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(5, 7), stride=(5, 7), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
+        # data(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
         self.conv_module6 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(6, 9), stride=(6, 9), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        # data(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
         self.conv_module7 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(7, 10), stride=(7, 10), padding=(0, 0)),
             nn.BatchNorm2d(1),
@@ -200,49 +198,49 @@ class BertYForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
 
-        # input(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
+        # data(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
         self.conv_module = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(1, 1), stride=(1, 1), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(128, 128), stride=(128, 128), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
+        # data(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
         self.conv_module2 = nn.Sequential(
             nn.Conv2d(1,1, kernel_size=(2,3), stride=(2,3),padding=(0,0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(64, 64), stride=(64, 64),padding=(1,1))
         )
-        # input(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
+        # data(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
         self.conv_module3 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(3, 4), stride=(3, 4), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(32, 32), stride=(32, 32), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
+        # data(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
         self.conv_module4 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(4, 6), stride=(4, 6), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(32, 32), stride=(32, 32), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
+        # data(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
         self.conv_module5 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(5, 7), stride=(5, 7), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
+        # data(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
         self.conv_module6 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(6, 9), stride=(6, 9), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(16, 16), stride=(16, 16), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        # data(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
         self.conv_module7 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(7, 10), stride=(7, 10), padding=(0, 0)),
             nn.BatchNorm2d(1),
@@ -255,42 +253,42 @@ class BertYForClassification(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(8, 8), stride=(8, 8), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
+        # data(b, 512, 768) -> conv(b, 255,255) -> bn -> mp(b, 4, 4)
         self.conv_module9 = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(9, 13), stride=(9, 13), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(8, 8), stride=(8, 8), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
+        # data(b, 512, 768) -> conv(b, 169, 192) -> bn -> mp(b, 5, 6)
         self.conv_moduleA = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(10, 15), stride=(10, 15), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(4, 4), stride=(4, 4), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
+        # data(b, 512, 768) -> conv(b, 127, 127) -> bn -> mp(b, 4, 4)
         self.conv_moduleB = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(11, 16), stride=(11, 16), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(4, 4), stride=(4, 4), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
+        # data(b, 512, 768) -> conv(b, 101, 108) -> bn -> mp(b, 6, 6)
         self.conv_moduleC = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(12, 18), stride=(12, 18), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
+        # data(b, 512, 768) -> conv(b, 84, 84) -> bn -> mp(b, 5, 5)
         self.conv_moduleD = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(13, 19), stride=(13, 19), padding=(0, 0)),
             nn.BatchNorm2d(1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=(1, 1))
         )
-        # input(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
+        # data(b, 512, 768) -> conv(b, 72, 75) -> bn -> mp(b, 9, 9)
         self.conv_moduleE = nn.Sequential(
             nn.Conv2d(1, 1, kernel_size=(14, 21), stride=(14, 21), padding=(0, 0)),
             nn.BatchNorm2d(1),

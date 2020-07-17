@@ -33,7 +33,7 @@ MODEL_MAP = {
 }
 
 
-def main(in_file='/input/SMP-CAIL2020-test1.csv',
+def main(in_file='/data/SMP-CAIL2020-test1.csv',
          out_file='/output/result1.csv',
          model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.

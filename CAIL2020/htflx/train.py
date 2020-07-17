@@ -8,12 +8,6 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
-#batch size:24->14 and max length:512-256 have negtive impact on acc, after 10 epochs drop to (train_acc: 0.490404, train_f1: 0.489924, valid_acc: 0.375000, valid_f1: 0.361930,)
-
-#for bert 2 epochs
-#train_acc: 0.873826, train_f1: 0.873886, valid_acc: 0.775000, valid_f1: 0.701429
-#rnn 2 epochs
-#train_acc: 0.552470, train_f1: 0.552839, valid_acc: 0.425000, valid_f1: 0.407884
 from typing import Dict
 import argparse
 import json
@@ -210,15 +204,16 @@ class Trainer:
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
-            results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
-            self.save_model(os.path.join(
-                self.config.model_path, self.config.experiment_name,
-                self.config.model_type + '-' + str(epoch + 1) + '.bin'))
+            if epoch >= 9:
+                results = self._epoch_evaluate_update_description_log(
+                    tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
+                self.save_model(os.path.join(
+                    self.config.model_path, self.config.experiment_name,
+                    self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
-            if results[-3] > best_train_f1:
-                best_model_state_dict = deepcopy(self.model.state_dict())
-                best_train_f1 = results[-3]
+                if results[-3] > best_train_f1:
+                    best_model_state_dict = deepcopy(self.model.state_dict())
+                    best_train_f1 = results[-3]
         return best_model_state_dict
 
 
