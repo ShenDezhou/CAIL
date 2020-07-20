@@ -32,7 +32,7 @@ class SupportNet(nn.Module):
         super(SupportNet, self).__init__()
         self.config = config  # 就是args
         # self.n_layers = config.n_layers  # 2
-        self.max_query_length = self.config.max_query_len
+        self.max_query_length = 70#self.config.max_query_len
         self.prediction_layer = SimplePredictionLayer(config)
 
     def forward(self, batch, debug=False):

@@ -26,14 +26,14 @@ def set_config():
     parser.add_argument("--prediction_path", type=str, default=join(data_path, 'submissions'))
     parser.add_argument("--checkpoint_path", type=str, default=join(data_path, 'checkpoints'))
     parser.add_argument("--data_dir", type=str, default='data_model')
-    parser.add_argument("--rawdata", type=str, default='../input/data.json')
+    parser.add_argument("--rawdata", type=str, default='../data/data.json')
     parser.add_argument("--output", type=str, default='../result/result.json')
     parser.add_argument("--validdata", type=str, default='data/dev.json')
 
     parser.add_argument("--fp16", action='store_true')
 
     parser.add_argument("--ckpt_id", type=int, default=0)
-    parser.add_argument("--bert_model", type=str, default='data_model/bert/bert-base-chinese',
+    parser.add_argument("--bert_model", type=str, default='data_model/bert/roberta_wwm_ext',
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log

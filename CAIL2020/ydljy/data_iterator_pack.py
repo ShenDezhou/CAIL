@@ -34,7 +34,7 @@ class DataIteratorPack(object):
         return int(np.ceil(len(self.features)/self.bsz))
 
     def __iter__(self):
-        # BERT input
+        # BERT data
         context_idxs = torch.LongTensor(self.bsz, self.max_seq_len )
         context_mask = torch.LongTensor(self.bsz, self.max_seq_len )
         segment_idxs = torch.LongTensor(self.bsz, self.max_seq_len )
