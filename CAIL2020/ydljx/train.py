@@ -218,7 +218,7 @@ if __name__ == "__main__":
     encoder = BertModel.from_pretrained(args.bert_model)
     # args.input_dim=roberta_config.hidden_size
     model = BertSupportNet(config=args, encoder=encoder)
-    if args.trained_weight is not None:
+    if args.trained_weight:
         model.load_state_dict(torch.load(args.trained_weight))
     model.to('cuda')
 
