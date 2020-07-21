@@ -1,6 +1,6 @@
 {
   "model_type": "bert",
-  "max_seq_len": 1024,
+  "max_seq_len": 301,
   "model_path": "model/bert/",
   "log_path": "log/",
 
@@ -9,14 +9,14 @@
 
   "batch_size": 2,
 
-  "bert_model_path": "/mnt/data/torchcail/bert-base-chinese",
-  "trained_weight":"data_model/model.bin",
-  "hidden_size": 768,
+  "bert_model_path": "model/bert/roberta_wwm_large_ext",
+  "trained_weight":"model/bert/model.bin",
+  "hidden_size": 1024,
   "num_classes": 2,
-  "dropout": 0.50,
+  "dropout": 0.05,
 
   "lr": 1e-5,
-  "num_epoch": 50,
+  "num_epoch": 10,
   "num_warmup_steps": 2000,
   "num_training_steps": 32000,
   "gradient_accumulation_steps": 16,

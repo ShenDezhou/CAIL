@@ -269,3 +269,5 @@ epoch,train_acc,train_f1,valid_acc,valid_f1
 18,0.911800734993875,0.9116657893522362,0.93,0.9346875346875347
 
 ##20200714  BERT+1-14CNN, maxseqlen=161, lr=1e-5, dropout rate = 0.5, sc 262 bc 250. TEST F1=0.752
+
+#20200721 	maxseq=301   TEST F1:0.809
