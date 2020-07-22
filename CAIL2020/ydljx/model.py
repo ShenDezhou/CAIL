@@ -32,7 +32,7 @@ class SupportNet(nn.Module):
         super(SupportNet, self).__init__()
         self.config = config  # 就是args
         # self.n_layers = config.n_layers  # 2
-        self.max_query_length = 70#self.config.max_query_len
+        self.max_query_length = self.config.max_query_len
         self.prediction_layer = CNNPredictionLayer(config)
 
     def forward(self, batch, debug=False):
@@ -106,11 +106,11 @@ class CNNPredictionLayer(nn.Module):
         self.conv3 = nn.Conv1d( self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
         self.conv4 = nn.Conv1d( self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
         self.conv5 = nn.Conv1d( self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        self.conv6 = nn.Conv1d( self.cnn_hidden_size, self.cnn_output_size , kernel_size=3, padding=1)
+        self.conv6 = nn.Conv1d( self.cnn_hidden_size, self.cnn_output_size, kernel_size=3, padding=1)
 
         # cnn feature map has a total number of 228 dimensions.
         # self.dropout = nn.Dropout(0.05)
-        # self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
+        self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
         # self.fc2 = nn.Linear(self.input_dim//2, self.input_dim//3)
         # self.fc3 = nn.Linear(self.input_dim//3, self.input_dim)
 

@@ -118,7 +118,7 @@ def train_epoch(data_loader, model, logger, predict_during_train=False, epoch=1)
         batch = next(iter(data_loader))
         batch['context_mask'] = batch['context_mask'].float()
         train_batch(model, batch)
-        del batch
+        # del batch
         if predict_during_train and (step_count % predict_step == 0):
             predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
                      join(args.prediction_path, 'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epc, step_count)))

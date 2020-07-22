@@ -205,14 +205,14 @@ def read_examples(full_file):
                         ans_end_position.append(char_to_word_offset[end_char_position])
 
                 # Truncate longer document
-                if len(doc_tokens) > 440:   # 如果大于382个词则break
+                if len(doc_tokens) >= 430:   # 如果大于382个词则break
                     # 这个截断会让每个段落至少有一个句子被加入，即使整个样本已经超过382，这样后面匹配entity还能匹配上吗？
                     break
 
             # 问题改写
             # case['question'] = dynamic_fit_bert_size(case['question'], ratio)
-            if len(case['question']) > 70:
-                case['question'] = case['question'][:70]
+            if len(case['question']) > 50:
+                case['question'] = case['question'][-50:]
             para_end_position = len(doc_tokens) - 1
             # 一个段落的开始和结束token位置（白空格分词）
             para_start_end_position.append((para_start_position, para_end_position, title, is_gold_para))  # 顺便加上开始和结束位置
