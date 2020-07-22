@@ -30,7 +30,7 @@ class DataHelper:
 
     @property
     def sent_limit(self):   # 句子的个数（不是长度）
-        return 100   # 写死的东西还得套个函数
+        return 40   # 写死的东西还得套个函数
 
     @property
     def entity_limit(self):

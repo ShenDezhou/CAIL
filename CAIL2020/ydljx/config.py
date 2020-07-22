@@ -26,21 +26,28 @@ def set_config():
     parser.add_argument("--prediction_path", type=str, default=join(data_path, 'submissions'))
     parser.add_argument("--checkpoint_path", type=str, default=join(data_path, 'checkpoints'))
     parser.add_argument("--data_dir", type=str, default='data_model')
-    parser.add_argument("--rawdata", type=str, default='data2/train.json')
+    parser.add_argument("--rawdata", type=str, default='data2/trainx.json')
     parser.add_argument("--validdata", type=str, default='data2/valid.json')
     parser.add_argument("--output", type=str, default='result.txt')
 
     parser.add_argument("--fp16", action='store_true')
 
     parser.add_argument("--ckpt_id", type=int, default=0)
-    parser.add_argument("--bert_model", type=str, default='F:/roberta_wwm_ext',
+    parser.add_argument("--bert_model", type=str, default='roberta_wwm_ext',
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=8)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--max_seq_len", type=int, default=512)
+
+    #cnn
+    parser.add_argument("--cnn_hidden_size", type=int, default=128)
+    parser.add_argument("--cnn_output_size", type=int, default=32)
+    parser.add_argument("--fc_hidden_size", type=int, default=512)
+
+
     # parser.add_argument("--max_query_len", type=int, default=32)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=8)
