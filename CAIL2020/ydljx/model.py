@@ -33,7 +33,7 @@ class SupportNet(nn.Module):
         self.config = config  # 就是args
         # self.n_layers = config.n_layers  # 2
         self.max_query_length = self.config.max_query_len
-        self.prediction_layer = CNNPredictionLayer(config)
+        self.prediction_layer = DeepCNNPredictionLayer(config)
 
     def forward(self, batch, debug=False):
         context_encoding = batch['context_encoding']
@@ -203,7 +203,7 @@ class DeepCNNPredictionLayer(nn.Module):
 
         # cnn feature map has a total number of 228 dimensions.
         # self.dropout = nn.Dropout(0.05)
-        # self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
+        self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
         # self.fc2 = nn.Linear(self.input_dim//2, self.input_dim//3)
         # self.fc3 = nn.Linear(self.input_dim//3, self.input_dim)
 
