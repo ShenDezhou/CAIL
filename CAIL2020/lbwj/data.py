@@ -45,7 +45,6 @@ from tqdm import tqdm
 
 from summarizer import summary
 
-
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
 
@@ -245,8 +244,8 @@ class Data:
 
                 if train:
                     if i + 1 == answer:
-                        # Copy positive sample 4 times
-                        for _ in range(len(candidates) - 1):
+                        # Copy positive sample 4 times? is it neccesary?
+                        # for _ in range(len(candidates) - 1):
                             sc_list.append(sc_tokens)
                             bc_list.append(bc_tokens)
                             label_list.append(1)
