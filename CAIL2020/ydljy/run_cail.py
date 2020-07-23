@@ -8,7 +8,7 @@ import json
 import torch
 from torch import nn
 from transformers.optimization import AdamW, get_linear_schedule_with_warmup
-from model.model import *
+from model import *
 from tools.utils import convert_to_tokens
 from tools.data_iterator_pack import IGNORE_INDEX
 import numpy as np

@@ -46,7 +46,7 @@ def set_config():
     parser.add_argument("--cnn_hidden_size", type=int, default=128)
     parser.add_argument("--cnn_output_size", type=int, default=32)
     parser.add_argument("--fc_hidden_size", type=int, default=512)
-
+    parser.add_argument("--cnn_module_layers", type=int, default=4)
 
     parser.add_argument("--max_query_len", type=int, default=50)
     parser.add_argument("--max_bert_size", type=int, default=8)
