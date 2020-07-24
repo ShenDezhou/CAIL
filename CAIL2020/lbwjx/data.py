@@ -43,8 +43,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
-#from summarizer import summary
-
+from summarizer import summary
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
@@ -118,7 +117,7 @@ class Data:
         """
         # self.max_query_len = 250
         self.model_type = model_type
-        #self.summarizer = summary()
+        self.summarizer = summary()
         if self.model_type == 'bert':
             self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
         else:  # rnn
@@ -187,18 +186,18 @@ class Data:
             sc_col = sc_col[:max_seq_len//2 + 1]
         if len(bc_col) > max_seq_len // 2:
             bc_col = bc_col[:max_seq_len//2]
-        # if len(sc_col) + len(bc_col) > max_seq_len:
-        #     sc_summary, bc_summary = self.summarizer.summarize([sc_col, bc_col])
-        #     ratio = (len(sc_summary) + len(bc_summary)) * 1.0 / max_seq_len
-        #     sc_dest = int(len(sc_summary) // ratio)
-        #     bc_dest = int(len(bc_summary) // ratio)
-        #     if len(sc_summary) > sc_dest:
-        #         x = (len(sc_summary) - sc_dest//3 * 2)//2
-        #         sc_summary = sc_summary[:sc_dest//3] +sc_summary[x:x+sc_dest//3] + sc_summary[-sc_dest//3:]
-        #     if len(bc_summary) > bc_dest:
-        #         x = (len(bc_summary) - sc_dest // 3 * 2) // 2
-        #         bc_summary = bc_summary[:bc_dest//3] + bc_summary[x:x+bc_dest//3] +  bc_summary[-bc_dest//3:]
-        #     return sc_summary, bc_summary
+        if len(sc_col) + len(bc_col) > max_seq_len:
+            sc_summary, bc_summary = self.summarizer.summarize([sc_col, bc_col])
+            ratio = (len(sc_summary) + len(bc_summary)) * 1.0 / max_seq_len
+            sc_dest = int(len(sc_summary) // ratio)
+            bc_dest = int(len(bc_summary) // ratio)
+            if len(sc_summary) > sc_dest:
+                x = (len(sc_summary) - sc_dest//3 * 2)//2
+                sc_summary = sc_summary[:sc_dest//3] +sc_summary[x:x+sc_dest//3] + sc_summary[-sc_dest//3:]
+            if len(bc_summary) > bc_dest:
+                x = (len(bc_summary) - sc_dest // 3 * 2) // 2
+                bc_summary = bc_summary[:bc_dest//3] + bc_summary[x:x+bc_dest//3] +  bc_summary[-bc_dest//3:]
+            return sc_summary, bc_summary
         return sc_col, bc_col
 
     def _load_file(self, filename, train: bool = True):
@@ -245,7 +244,7 @@ class Data:
 
                 if train:
                     if i + 1 == answer:
-                        # Copy positive sample 4 times
+                        # Copy positive sample 4 times? is it necessary?
                         for _ in range(len(candidates) - 1):
                             sc_list.append(sc_tokens)
                             bc_list.append(bc_tokens)

@@ -26,7 +26,7 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification,BertZForClassification
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, BertZForClassification
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
@@ -252,11 +252,11 @@ def main(config_file='config/bert_config.json'):
         sampler_train = RandomSampler(train_set)
     data_loader = {
         'train': DataLoader(
-            train_set, sampler=sampler_train, batch_size=config.batch_size),
+            train_set, sampler=sampler_train, batch_size=config.batch_size, drop_last=True),
         'valid_train': DataLoader(
-            valid_set_train, batch_size=config.batch_size, shuffle=False),
+            valid_set_train, batch_size=config.batch_size, shuffle=False, drop_last=True),
         'valid_valid': DataLoader(
-            valid_set_valid, batch_size=config.batch_size, shuffle=False)}
+            valid_set_valid, batch_size=config.batch_size, shuffle=False, drop_last=True)}
     # 2. Build model
     model = MODEL_MAP[config.model_type](config)
     #load model states.
