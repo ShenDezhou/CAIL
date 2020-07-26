@@ -272,3 +272,118 @@ Metric: XrtReleaseAllocation
   Percentiles: 25%=031.367us; 50%=105.846us; 80%=001ms457.374us; 90%=002ms789.876us; 95%=002ms008.494us; 99%=002ms275.096us
 
 
+#1 core TPU 7 minutes
+#8 core TPU 5 minutes
+2020-07-25 15:29:43.136294: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2020-07-25 15:29:53.204238: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-25 15:29:53.228285: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-25 15:29:53.257802: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-25 15:29:53.292715: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-25 15:29:53.324211: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-25 15:29:53.360339: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-25 15:29:53.394303: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+Loading train records for train...
+2020-07-25 15:30:01.585279: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+Loading train records for train...
+2020-07-25 15:30:02.081152: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+Loading train records for train...
+2020-07-25 15:30:02.312634: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+2020-07-25 15:30:02.391050: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+Loading train records for train...
+2020-07-25 15:30:02.472371: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+Loading train records for train...
+Loading train records for train...
+2020-07-25 15:30:02.927869: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+2020-07-25 15:30:03.059762: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
+Loading train records for train...
+Loading train records for train...
+2400it [00:09, 250.09it/s]
+217it [00:00, 237.33it/s]2400 training records loaded.
+Loading train records for valid...
+2400it [00:09, 243.66it/s]
+2320it [00:09, 220.11it/s]2400 training records loaded.
+Loading train records for valid...
+2400it [00:09, 243.71it/s]
+2400it [00:09, 255.10it/s]
+2400it [00:09, 258.14it/s]
+2389it [00:09, 258.24it/s]2400 training records loaded.
+Loading train records for valid...
+2400it [00:09, 255.99it/s]
+2400it [00:09, 241.18it/s]
+2280it [00:09, 244.52it/s]2400 training records loaded.
+Loading train records for valid...
+2353it [00:09, 226.90it/s]2400 training records loaded.
+Loading train records for valid...
+2400it [00:09, 242.69it/s]
+2400 training records loaded.
+Loading train records for valid...
+2400 training records loaded.
+Loading train records for valid...
+2400 training records loaded.
+Loading train records for valid...
+2400it [00:09, 245.98it/s]
+2400 train records loaded.
+Loading valid records...
+2400it [00:09, 251.82it/s]
+2219it [00:08, 264.48it/s]2400 train records loaded.
+1916it [00:07, 244.02it/s]Loading valid records...
+2400it [00:09, 254.57it/s]
+2400it [00:09, 251.83it/s]
+2400it [00:09, 250.34it/s]
+2230it [00:08, 257.05it/s]2400 train records loaded.
+Loading valid records...
+2026it [00:08, 265.71it/s]2400 train records loaded.
+Loading valid records...
+2400it [00:09, 249.72it/s]
+2143it [00:08, 268.06it/s]2400 train records loaded.
+Loading valid records...
+2400it [00:09, 253.31it/s]
+2363it [00:09, 248.34it/s]2400 train records loaded.
+Loading valid records...
+2400it [00:09, 251.44it/s]
+2400 train records loaded.
+Loading valid records...
+2400 train records loaded.
+Loading valid records...
+2400it [00:09, 252.67it/s]
+2400 valid records loaded.
+2400it [00:09, 260.99it/s]
+2400it [00:09, 258.46it/s]
+2187it [00:09, 230.34it/s]2400 valid records loaded.
+2400it [00:09, 247.18it/s]
+1579it [00:06, 243.00it/s]2400 valid records loaded.
+2400it [00:10, 235.64it/s]
+1994it [00:07, 235.28it/s]2400 valid records loaded.
+1809it [00:07, 272.91it/s]2400 valid records loaded.
+2400it [00:09, 256.50it/s]
+2400it [00:08, 296.18it/s]
+2400 valid records loaded.
+2300it [00:08, 535.03it/s]2400 valid records loaded.
+2400it [00:08, 284.89it/s]
+2400 valid records loaded.
+[xla:0](0) Loss=2.83388 Rate=0.08 GlobalRate=0.08 Time=Sat Jul 25 15:39:04 2020
+[xla:1](0) Loss=2.85225 Rate=0.59 GlobalRate=0.59 Time=Sat Jul 25 15:39:43 2020
+[xla:4](0) Loss=2.82860 Rate=0.80 GlobalRate=0.80 Time=Sat Jul 25 15:39:46 2020
+[xla:5](0) Loss=2.83566 Rate=1.09 GlobalRate=1.09 Time=Sat Jul 25 15:39:46 2020
+[xla:2](0) Loss=2.84216 Rate=1.15 GlobalRate=1.15 Time=Sat Jul 25 15:39:47 2020
+[xla:3](0) Loss=2.83738 Rate=1.52 GlobalRate=1.52 Time=Sat Jul 25 15:39:48 2020
+[xla:6](0) Loss=2.82494 Rate=1.20 GlobalRate=1.20 Time=Sat Jul 25 15:39:48 2020
+[xla:7](0) Loss=2.81731 Rate=2.31 GlobalRate=2.31 Time=Sat Jul 25 15:39:49 2020
+[xla:5](100) Loss=2.92953 Rate=0.86 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
+[xla:4](100) Loss=2.92953 Rate=0.75 GlobalRate=0.71 Time=Sat Jul 25 15:44:27 2020
+[xla:1](100) Loss=2.42953 Rate=0.66 GlobalRate=0.70 Time=Sat Jul 25 15:44:27 2020
+[xla:7](100) Loss=2.92953 Rate=1.36 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
+[xla:2](100) Loss=2.42953 Rate=0.89 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
+[xla:0](100) Loss=2.92953 Rate=0.40 GlobalRate=0.58 Time=Sat Jul 25 15:44:27 2020
+[xla:3](100) Loss=2.92953 Rate=1.04 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
+[xla:6](100) Loss=2.92953 Rate=0.91 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
+Finished training epoch 1
+[xla:2] Accuracy=20.83%
+[xla:3] Accuracy=20.83%
+[xla:1] Accuracy=20.83%
+[xla:6] Accuracy=20.83%
+[xla:7] Accuracy=20.83%
+[xla:4] Accuracy=20.83%
+[xla:0] Accuracy=20.83%
+Finished test epoch 1 20.833333333333332
+[xla:5] Accuracy=20.83%

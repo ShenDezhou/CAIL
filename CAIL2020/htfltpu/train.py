@@ -223,7 +223,6 @@ class Trainer:
                             self.model.parameters(), self.config.max_grad_norm)
 
                     # after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
-                    xm.optimizer_step(self.optimizer)
                     self.optimizer.step()
                     self.scheduler.step()
                     self.optimizer.zero_grad()
@@ -253,6 +252,7 @@ def main(config_file='config/bert_config.json'):
     Args:
         config_file: in config dir
     """
+    global datasets
     # 0. Load config and mkdir
     with open(config_file) as fin:
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
@@ -267,10 +267,16 @@ def main(config_file='config/bert_config.json'):
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
-    datasets = data.load_train_and_valid_files(
-        train_file=config.train_file_path,
-        valid_file=config.valid_file_path)
 
+
+    def load_dataset():
+        datasets = data.load_train_and_valid_files(
+            train_file=config.train_file_path,
+            valid_file=config.valid_file_path)
+        return datasets
+
+
+    datasets = SERIAL_EXEC.run(load_dataset)
     train_set, valid_set_train, valid_set_valid = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -360,11 +366,12 @@ def main(config_file='config/bert_config.json'):
             output = model(*batch[:-1])  # the last one is label
             target = batch[-1]
             pred = output.max(1, keepdim=True)[1]
-            correct += pred.eq(target.view_as(pred)).sum().item()
+            # correct += pred.eq(target.view_as(pred)).sum().item()
+            correct += sum(x == y for x, y in zip(pred, target))
             total_samples += batch[-1].size()[0]
 
         accuracy = 100.0 * correct / total_samples
-        print('[xla:{}] Accuracy={:.2f}%'.format(
+        print('[xla:{}] Accuracy={:.4f}%'.format(
             xm.get_ordinal(), accuracy), flush=True)
         return accuracy, data, pred, target
 
@@ -396,17 +403,18 @@ def main(config_file='config/bert_config.json'):
 
 
 
-def _mp_fn(rank, flags, model):
-    global WRAPPED_MODEL, FLAGS
+def _mp_fn(rank, flags, model,serial):
+    global WRAPPED_MODEL, FLAGS, SERIAL_EXEC
     WRAPPED_MODEL = model
     FLAGS = flags
+    SERIAL_EXEC = serial
 
     accuracy_train, accuracy_valid = main(args.config_file)
     # Retrieve tensors that are on TPU core 0 and plot.
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE', rank, accuracy_train, accuracy_valid))
     # 4. Save model
-    if rank==0:
+    if rank == 0:
         torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
         xm.master_print('saved model.')
 
@@ -428,6 +436,7 @@ if __name__ == '__main__':
     if config.trained_weight:
         WRAPPED_MODEL.load_state_dict(torch.load(config.trained_weight))
     FLAGS = config
+    SERIAL_EXEC = xmp.MpSerialExecutor()
 
     # main(args.config_file)
-    xmp.spawn(_mp_fn, args=(FLAGS,WRAPPED_MODEL, ), nprocs=1, start_method='fork')
+    xmp.spawn(_mp_fn, args=(FLAGS,WRAPPED_MODEL,SERIAL_EXEC, ), nprocs=config.num_cores, start_method='fork')
