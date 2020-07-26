@@ -275,8 +275,11 @@ def main(config_file='config/bert_config.json'):
             valid_file=config.valid_file_path)
         return datasets
 
+    if config.serial_load:
+        datasets = SERIAL_EXEC.run(load_dataset)
+    else:
+        datasets = load_dataset()
 
-    datasets = SERIAL_EXEC.run(load_dataset)
     train_set, valid_set_train, valid_set_valid = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -339,19 +342,34 @@ def main(config_file='config/bert_config.json'):
     else:  # rnn
         optimizer = Adam(model.parameters(), lr=config.lr)
 
+    # if config.model_type == 'bert':
+    #     scheduler = get_linear_schedule_with_warmup(
+    #         optimizer,
+    #         num_warmup_steps=config.num_warmup_steps,
+    #         num_training_steps=config.num_training_steps)
+    # else:  # rnn
+    #     scheduler = get_constant_schedule(optimizer)
+
     criterion = nn.CrossEntropyLoss()
 
     def train_loop_fn(loader):
         tracker = xm.RateTracker()
         model.train()
         for x, batch in enumerate(loader):
-            optimizer.zero_grad()
             # batch = tuple(t.to(self.device) for t in batch)
             output = model(*batch[:-1])  # the last one is label
             loss = criterion(output, batch[-1])
             loss.backward()
-            xm.optimizer_step(optimizer)
+            # xm.optimizer_step(optimizer)
+            # optimizer.zero_grad()
+
             tracker.add(FLAGS.batch_size)
+            if (x + 1) % config.gradient_accumulation_steps == 0:
+                torch.nn.utils.clip_grad_norm_(
+                    model.parameters(), config.max_grad_norm)
+                # after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                xm.optimizer_step(optimizer)
+                optimizer.zero_grad()
             if x % FLAGS.log_steps == 0:
                 print('[xla:{}]({}) Loss={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
                     xm.get_ordinal(), x, loss.item(), tracker.rate(),
@@ -365,14 +383,17 @@ def main(config_file='config/bert_config.json'):
         for x, batch in enumerate(loader):
             output = model(*batch[:-1])  # the last one is label
             target = batch[-1]
-            pred = output.max(1, keepdim=True)[1]
+            # pred = output.max(1, keepdim=True)[1]
             # correct += pred.eq(target.view_as(pred)).sum().item()
-            correct += sum(x == y for x, y in zip(pred, target))
-            total_samples += batch[-1].size()[0]
+            for i in range(len(output)):
+                logits = output[i]
+                pred = int(torch.argmax(logits, dim=-1))
+                if pred == target[i]:
+                    correct += 1
+            total_samples += len(output)
 
         accuracy = 100.0 * correct / total_samples
-        print('[xla:{}] Accuracy={:.4f}%'.format(
-            xm.get_ordinal(), accuracy), flush=True)
+        print('[xla:{}] Accuracy={:.2f}%'.format(xm.get_ordinal(), accuracy), flush=True)
         return accuracy, data, pred, target
 
     # Train and eval loops
@@ -385,11 +406,11 @@ def main(config_file='config/bert_config.json'):
 
         para_loader = pl.ParallelLoader(data_loader['valid_train'], [device])
         accuracy_train, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
-        xm.master_print("Finished test epoch {} {}".format(epoch,accuracy_train))
+        xm.master_print("Finished test epoch {} {:.2f}".format(epoch,accuracy_train))
 
         para_loader = pl.ParallelLoader(data_loader['valid_valid'], [device])
         accuracy_valid, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
-        xm.master_print("Finished test epoch {} {}".format(epoch,accuracy_valid))
+        xm.master_print("Finished test epoch {} {:.2f}".format(epoch,accuracy_valid))
 
         if FLAGS.metrics_debug:
             xm.master_print(met.metrics_report())
