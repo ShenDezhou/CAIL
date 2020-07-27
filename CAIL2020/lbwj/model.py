@@ -82,14 +82,14 @@ class BertXForClassification(nn.Module):
 
         num_conv_filters = config.num_conv_filters
         output_channel = config.output_channel
-        hidden_size = config.num_conv_hidden_size
+        hidden_size = config.num_fc_hidden_size
         target_class = config.num_classes
         input_channel = config.hidden_size
         # data(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
         self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
         self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
-        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
+        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=5)
+        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=5)
         self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
         self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
 

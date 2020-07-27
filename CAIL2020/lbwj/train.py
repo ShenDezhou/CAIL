@@ -32,7 +32,7 @@ from vocab import build_vocab
 
 
 MODEL_MAP = {
-    'bert': BertYForClassification,
+    'bert': BertXForClassification,
     'rnn': RnnForSentencePairClassification
 }
 

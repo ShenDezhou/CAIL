@@ -271,3 +271,11 @@ epoch,train_acc,train_f1,valid_acc,valid_f1
 ##20200714  BERT+1-14CNN, maxseqlen=161, lr=1e-5, dropout rate = 0.5, sc 262 bc 250. TEST F1=0.752
 
 #20200721 	maxseq=301   TEST F1:0.809
+
+#20200727  ROBERTA-base	maxseq=401   TEST F1:0.813, epochs: 10,
+model:7CNN+3FC
+input dim:768
+"cnn_module_layers": 1,
+"num_conv_filters": 128,
+"output_channel": 32,
+"num_fc_hidden_size": 512,
