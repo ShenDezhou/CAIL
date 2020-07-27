@@ -1,33 +1,32 @@
 {
   "model_type": "bert",
-  "max_seq_len": 301,
+  "max_seq_len": 401,
   "model_path": "model/bert/",
   "log_path": "log/",
 
   "train_file_path": "data/train.csv",
   "valid_file_path": "data/valid.csv",
 
-  "batch_size": 4,
+  "batch_size": 8,
 
-  "bert_model_path": "model/bert/wwm_large_ext",
+  "bert_model_path": "model/bert/roberta_wwm_ext",
   "trained_weight":"model/bert/model.bin",
 
   "cnn_module_layers": 0,
-  "num_conv_filters": 16,
-  "output_channel": 128,
-  "num_conv_hidden_size": 128,
+  "num_conv_filters": 256,
+  "output_channel": 64,
+  "num_fc_hidden_size": 8,
 
 
-  "hidden_size": 1024,
+  "hidden_size": 768,
   "num_classes": 2,
   "dropout": 0.05,
 
   "lr": 1e-4,
   "num_epoch": 10,
   "num_warmup_steps": 2000,
-
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 24,
+  "gradient_accumulation_steps": 16,
   "max_grad_norm": 2e-3,
 
   "experiment_name": "BERT"

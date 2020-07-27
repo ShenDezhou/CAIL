@@ -252,11 +252,11 @@ def main(config_file='config/bert_config.json'):
         sampler_train = RandomSampler(train_set)
     data_loader = {
         'train': DataLoader(
-            train_set, sampler=sampler_train, batch_size=config.batch_size, drop_last=True),
+            train_set, sampler=sampler_train, batch_size=config.batch_size),
         'valid_train': DataLoader(
-            valid_set_train, batch_size=config.batch_size, shuffle=False, drop_last=True),
+            valid_set_train, batch_size=config.batch_size, shuffle=False),
         'valid_valid': DataLoader(
-            valid_set_valid, batch_size=config.batch_size, shuffle=False, drop_last=True)}
+            valid_set_valid, batch_size=config.batch_size, shuffle=False)}
     # 2. Build model
     model = MODEL_MAP[config.model_type](config)
     #load model states.

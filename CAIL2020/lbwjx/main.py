@@ -22,7 +22,7 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertXForClassification, BertZForClassification, RnnForSentencePairClassification
+from model import BertXForClassification, BertYForClassification, BertZForClassification, RnnForSentencePairClassification
 from utils import load_torch_model
 
 

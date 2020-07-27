@@ -82,14 +82,14 @@ class BertXForClassification(nn.Module):
 
         num_conv_filters = config.num_conv_filters
         output_channel = config.output_channel
-        hidden_size = config.num_conv_hidden_size
+        hidden_size = config.num_fc_hidden_size
         target_class = config.num_classes
         input_channel = config.hidden_size
         # data(b, 512, 768) -> conv(b, 511,767) -> bn -> mp(b, 4, 6)
         self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
         self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
-        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
+        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=5)
+        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=5)
         self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
         self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
 
@@ -186,7 +186,6 @@ class BertYForClassification(nn.Module):
         self.cnn_list = nn.ModuleList()
         for i in range(self.n_cnn):
             inner_list = nn.ModuleList()
-            self.bn = nn.BatchNorm1d(output_channel)
             conv1 = nn.Conv1d(output_channel, num_conv_filters, kernel_size=3, padding=1)
             conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
             conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
@@ -199,7 +198,7 @@ class BertYForClassification(nn.Module):
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         self.fc1 = nn.Linear(output_channel, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        # self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, target_class)
 
         self.num_classes = config.num_classes
@@ -247,7 +246,6 @@ class BertYForClassification(nn.Module):
 
 
         for innercnn in self.cnn_list:
-            x = self.bn(x)
             x = F.max_pool1d(F.relu(innercnn[0](x)), kernel_size=3, padding=1)
             x = F.max_pool1d(F.relu(innercnn[1](x)), kernel_size=3, padding=1)
             x = F.relu(innercnn[2](x))
@@ -257,8 +255,8 @@ class BertYForClassification(nn.Module):
 
         x = F.max_pool1d(x, x.size(2)).squeeze(2)
         x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        x = self.dropout(x)
-        x = F.relu(self.fc2(x))
+        # x = self.dropout(x)
+        # x = F.relu(self.fc2(x))
         x = self.dropout(x)
         logits = self.fc3(x)        # logits: (batch_size, num_classes)
         return logits
