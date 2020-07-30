@@ -269,3 +269,29 @@ epoch,train_acc,train_f1,valid_acc,valid_f1
 18,0.911800734993875,0.9116657893522362,0.93,0.9346875346875347
 
 ##20200714  BERT+1-14CNN, maxseqlen=161, lr=1e-5, dropout rate = 0.5, sc 262 bc 250. TEST F1=0.752
+
+#20200721 	maxseq=301   TEST F1:0.809
+
+#20200727  ROBERTA-base	maxseq=401   TEST F1:0.813, epochs: 10,
+model:7CNN+3FC
+input dim:768
+"cnn_module_layers": 1,
+"num_conv_filters": 128,
+"output_channel": 32,
+"num_fc_hidden_size": 512,
+
+#20200728  ROBERTA-base	maxseq=451   TEST F1:0.816, epochs: 10,
+  "cnn_module_layers": 0,
+  "num_conv_filters": 256,
+  "output_channel": 64,
+  "num_fc_hidden_size": 8,
+  
+#20200728  ROBERTA-base	maxseq=501   TEST F1:0.778, epochs: 10,
+  "num_conv_filters": 128,
+  "output_channel": 32,
+  "num_fc_hidden_size": 8,
+  
+#20200728  ROBERTA-base	maxseq=451   TEST F1:0.778, epochs: 13,
+  "num_conv_filters": 128,
+  "output_channel": 32,
+  "num_fc_hidden_size": 8,
