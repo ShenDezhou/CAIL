@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 from types import SimpleNamespace
@@ -10,10 +11,10 @@ import waitress
 from data import Data
 from torch.utils.data import DataLoader
 from utils import load_torch_model
-from model import BertForClassification
+from model import BertForClassification, CharCNN
 from evaluate import evaluate
 import time
-from model import class_dic
+from classmerge import classy_dic
 from dataclean import cleanall, shortenlines
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
@@ -24,7 +25,19 @@ cors_allow_all = CORS(allow_all_origins=True,
                       allow_all_methods=True,
                       allow_credentials_all_origins=True
                       )
-model_config='config/bert_config.json'
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-c', '--config_file', default='config/bert_config.json',
+    help='model config file')
+args = parser.parse_args()
+model_config=args.config_file
+
+MODEL_MAP = {
+    'bert': BertForClassification,
+    'cnn': CharCNN
+}
+
 
 class TorchResource:
 
@@ -34,7 +47,7 @@ class TorchResource:
         with open(model_config) as fin:
             self.config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
         if torch.cuda.is_available():
-            self.device = torch.device('cpu')
+            self.device = torch.device('gpu')
         else:
             self.device = torch.device('cpu')
         # 1. Load data
@@ -43,7 +56,7 @@ class TorchResource:
                     model_type=self.config.model_type, config=self.config)
 
         # 2. Load model
-        self.model = BertForClassification(self.config)
+        self.model = MODEL_MAP[self.config.model_type](self.config)
         self.model = load_torch_model(
             self.model, model_path=os.path.join(self.config.model_path, 'model.bin'))
         self.model.to(self.device)
@@ -61,7 +74,7 @@ class TorchResource:
             test_set, batch_size=self.config.batch_size, shuffle=False)
         # Evaluate
         answer_list = evaluate(self.model, data_loader_test, self.device)
-        answer_list = [class_dic[i] for i in answer_list]
+        answer_list = [classy_dic[i] for i in answer_list]
         return {"answer": answer_list}
 
     def on_get(self, req, resp):

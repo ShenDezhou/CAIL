@@ -13,7 +13,7 @@ def cleanentity(raw_html):
     return cleantext
 
 def cleanspaceholder(raw_html):
-    cleanr = re.compile(r'[�╳x\-­_＿—－…×*├│┤｜　┢┳┿┪┠─┼┨┏┯━┓┌┬┐┃┗┷┛└┴┘□]*')
+    cleanr = re.compile(r'[�╳x\-­_＿—－…×*├│┤｜ 　	┢┳┿┪┠─┼┨┏┯━┓┌┬┐┃┗┷┛└┴┘□]*')
     cleantext = re.sub(cleanr, '', raw_html)
     return cleantext
 
@@ -113,9 +113,10 @@ def cleanupdev():
     df.to_csv("data/dev_new.csv", columns=['type1','title','content'], index=False)
 
 # cleanupdev()
-df = pandas.read_csv("data/train.csv", delimiter=',')
-df = df[(df['type1'] != '居间合同') & (df['type1'] != '托管合同') & (df['type1'] != '仓储合同') & (df['type1'] != '储运合同') & (df['type1'] != '供用合同')]
-df['typeindex'] = df['type1'].map(indic)
-groupby_count1 = df.groupby(['typeindex']).count()
-print(groupby_count1)
-df.to_csv("dataset/train.csv", columns=['type1','title','content'], index=False)
+def cleanminor():
+    df = pandas.read_csv("data/train.csv", delimiter=',')
+    df = df[(df['type1'] != '居间合同') & (df['type1'] != '托管合同') & (df['type1'] != '仓储合同') & (df['type1'] != '储运合同') & (df['type1'] != '供用合同')]
+    df['typeindex'] = df['type1'].map(indic)
+    groupby_count1 = df.groupby(['typeindex']).count()
+    print(groupby_count1)
+    df.to_csv("dataset/train.csv", columns=['type1','title','content'], index=False)

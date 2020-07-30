@@ -22,14 +22,16 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertYForClassification, RnnForSentencePairClassification
+from model import BertYForClassification, RnnForSentencePairClassification, LogisticRegression
 from utils import load_torch_model
+
 
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
     'bert': BertYForClassification,
-    'rnn': RnnForSentencePairClassification
+    'rnn': RnnForSentencePairClassification,
+    'lr': LogisticRegression
 }
 
 
@@ -47,7 +49,8 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     with open(model_config) as fin:
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        #device = torch.device('cuda')
+        device = torch.device('cpu')
     else:
         device = torch.device('cpu')
     # 1. Load data
