@@ -42,6 +42,7 @@ from torch.utils.data import TensorDataset
 from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
+from difflib import SequenceMatcher
 
 #from summarizer import summary
 
@@ -223,18 +224,6 @@ class Data:
         for row in data_frame.itertuples(index=False):
             candidates = row[3:8]
             answer = int(row[-1]) if train else None
-            # STEP1: bc 相似度优化
-            if train:
-                from difflib import SequenceMatcher
-                too_close = False
-                for a in range(3, 7):
-                    for b in range(a + 1, 8):
-                        meter = SequenceMatcher(None, row[a], row[b]).ratio()
-                        if meter >= 0.99:
-                            too_close = True
-                # bc option has too close value
-                if too_close:
-                    continue
 
 
             for i, _ in enumerate(candidates):
@@ -243,8 +232,12 @@ class Data:
                 bc_tokens = self.tokenizer.tokenize(bc_summary)
 
                 if train:
+                    answer_line = candidates[answer - 1]
+                    if len(answer_line) > self.max_seq_len // 2:
+                        answer_line = answer_line[:self.max_seq_len // 2]
+
                     if i + 1 == answer:
-                        # Copy positive sample 4 times? is it necessary?
+                        # Copy positive sample 4 times
                         for _ in range(len(candidates) - 1):
                             sc_list.append(sc_tokens)
                             bc_list.append(bc_tokens)
@@ -252,7 +245,14 @@ class Data:
                     else:
                         sc_list.append(sc_tokens)
                         bc_list.append(bc_tokens)
-                        label_list.append(0)
+
+                        #答案相近则标记1
+                        meter = SequenceMatcher(None, answer_line, bc_summary).ratio()
+                        if meter >= 0.90:
+                            label_list.append(1)
+                        else:
+                            label_list.append(0)
+
                 else:  # test
                     sc_list.append(sc_tokens)
                     bc_list.append(bc_tokens)

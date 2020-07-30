@@ -279,3 +279,19 @@ input dim:768
 "num_conv_filters": 128,
 "output_channel": 32,
 "num_fc_hidden_size": 512,
+
+#20200728  ROBERTA-base	maxseq=451   TEST F1:0.816, epochs: 10,
+  "cnn_module_layers": 0,
+  "num_conv_filters": 256,
+  "output_channel": 64,
+  "num_fc_hidden_size": 8,
+  
+#20200728  ROBERTA-base	maxseq=501   TEST F1:0.778, epochs: 10,
+  "num_conv_filters": 128,
+  "output_channel": 32,
+  "num_fc_hidden_size": 8,
+  
+#20200728  ROBERTA-base	maxseq=451   TEST F1:0.778, epochs: 13,
+  "num_conv_filters": 128,
+  "output_channel": 32,
+  "num_fc_hidden_size": 8,

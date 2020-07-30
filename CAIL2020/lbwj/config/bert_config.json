@@ -1,22 +1,21 @@
 {
   "model_type": "bert",
-  "max_seq_len": 501,
+  "max_seq_len": 451,
   "model_path": "model/bert/",
   "log_path": "log/",
 
   "train_file_path": "data/train.csv",
   "valid_file_path": "data/valid.csv",
 
-  "batch_size": 8,
+  "batch_size": 4,
 
   "bert_model_path": "model/bert/roberta_wwm_ext",
   "trained_weight":"",
 
-  "cnn_module_layers": 1,
-  "num_conv_filters": 128,
-  "output_channel": 32,
-  "num_fc_hidden_size": 512,
-
+  "cnn_module_layers": 0,
+  "num_conv_filters": 256,
+  "output_channel": 256,
+  "num_fc_hidden_size": 256,
 
   "hidden_size": 768,
   "num_classes": 2,
