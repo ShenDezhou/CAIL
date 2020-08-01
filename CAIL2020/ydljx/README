@@ -322,3 +322,4 @@ epoch,em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_pr
 --fc_hidden_size=512
 --cnn_module_layers=4
 --max_query_len=50
+
