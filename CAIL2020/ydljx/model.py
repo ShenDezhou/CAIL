@@ -101,12 +101,12 @@ class CNNPredictionLayer(nn.Module):
         self.fc_hidden_size = config.fc_hidden_size
         self.dropout_size = config.dropout
 
-        self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=2, padding=1)
-        self.conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=2, padding=1)
-        self.conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=2, padding=1)
-        self.conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=2, padding=1)
-        self.conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=2, padding=1)
-        self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.cnn_output_size, kernel_size=2, padding=1)
+        self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.cnn_output_size, kernel_size=3, padding=1)
 
         # cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(self.dropout_size)
@@ -139,14 +139,16 @@ class CNNPredictionLayer(nn.Module):
         all_mapping = batch['all_mapping']  # (batch_size, 512, max_sent) 每个句子的token对应为1
 
         x = input_state.transpose(1, 2).type(torch.cuda.FloatTensor)
-        x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=2,stride=1, padding=1)
-        x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=2,stride=1, padding=1)
+        x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3, stride=1, padding=1)
+        x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
         x = F.relu(self.conv6(x))
         x = x.transpose(2, 1).type(torch.cuda.FloatTensor)
 
+        # x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        # x = F.relu(self.fc1(x.view(x.size(0), -1)))
         x = self.fc1(x)
         x = self.dropout(x)
         x = self.fc2(x)
