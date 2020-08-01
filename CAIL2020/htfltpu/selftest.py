@@ -5,7 +5,7 @@ import urllib3
 from classmerge import match
 from dataclean import cleanall
 
-df = pandas.read_csv("data/valid-phase1.csv")
+df = pandas.read_csv("dataset/valid-phase1.csv")
 http = urllib3.PoolManager()
 correct = 0
 for index, row in df.iterrows():
@@ -24,5 +24,5 @@ for index, row in df.iterrows():
     df.at[index, 'content'] = content
     if match(result['answer'][0], label):
         correct +=1
-df.to_csv("eval/test-cnn.csv", index=False)
+df.to_csv("eval/test-bert.csv", index=False)
 print('ACCURACY:{}%'.format(correct*100.0/len(df)))

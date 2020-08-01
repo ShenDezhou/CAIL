@@ -47,7 +47,7 @@ class TorchResource:
         with open(model_config) as fin:
             self.config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
         if torch.cuda.is_available():
-            self.device = torch.device('gpu')
+            self.device = torch.device('cuda')
         else:
             self.device = torch.device('cpu')
         # 1. Load data

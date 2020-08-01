@@ -370,16 +370,19 @@ def main(config_file='config/bert_config.json'):
                 # after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
                 xm.optimizer_step(optimizer)
                 optimizer.zero_grad()
-            if x % FLAGS.log_steps == 0:
-                print('[xla:{}]({}) Loss={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
-                    xm.get_ordinal(), x, loss.item(), tracker.rate(),
-                    tracker.global_rate(), time.asctime()), flush=True)
+
+            if xm.get_ordinal() == 0:
+                if x % FLAGS.log_steps == 0:
+                    print('[xla:{}]({}) Loss={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                        xm.get_ordinal(), x, loss.item(), tracker.rate(),
+                        tracker.global_rate(), time.asctime()), flush=True)
 
     def test_loop_fn(loader):
         total_samples = 0
         correct = 0
         model.eval()
         data, pred, target = None, None, None
+        tracker = xm.RateTracker()
         for x, batch in enumerate(loader):
             output = model(*batch[:-1])  # the last one is label
             target = batch[-1]
@@ -392,31 +395,45 @@ def main(config_file='config/bert_config.json'):
                     correct += 1
             total_samples += len(output)
 
+            if xm.get_ordinal() == 0:
+                if x % FLAGS.log_steps == 0:
+                    print('[xla:{}]({}) Acc={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                        xm.get_ordinal(), x, correct*1.0/total_samples, tracker.rate(),
+                        tracker.global_rate(), time.asctime()), flush=True)
+
         accuracy = 100.0 * correct / total_samples
-        print('[xla:{}] Accuracy={:.2f}%'.format(xm.get_ordinal(), accuracy), flush=True)
+        if xm.get_ordinal() == 0:
+            print('[xla:{}] Accuracy={:.2f}%'.format(xm.get_ordinal(), accuracy), flush=True)
         return accuracy, data, pred, target
 
     # Train and eval loops
     accuracy = 0.0
     data, pred, target = None, None, None
-    for epoch in range(1, FLAGS.num_epoch + 1):
+    for epoch in range(FLAGS.num_epoch):
         para_loader = pl.ParallelLoader(data_loader['train'], [device])
         train_loop_fn(para_loader.per_device_loader(device))
         xm.master_print("Finished training epoch {}".format(epoch))
 
-        para_loader = pl.ParallelLoader(data_loader['valid_train'], [device])
-        accuracy_train, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
-        xm.master_print("Finished test epoch {} {:.2f}".format(epoch,accuracy_train))
+        # para_loader = pl.ParallelLoader(data_loader['valid_train'], [device])
+        # accuracy_train, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
 
         para_loader = pl.ParallelLoader(data_loader['valid_valid'], [device])
         accuracy_valid, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
-        xm.master_print("Finished test epoch {} {:.2f}".format(epoch,accuracy_valid))
+        xm.master_print("Finished test epoch {}, valid={:.2f}".format(epoch, accuracy_valid))
 
         if FLAGS.metrics_debug:
             xm.master_print(met.metrics_report())
+        # 4. Save model
+        if xm.get_ordinal() == 0:
+            # if epoch==FLAGS.num_epoch-1:
+            # WRAPPED_MODEL.to('cpu')
+            torch.save(WRAPPED_MODEL.state_dict(), os.path.join(
+                config.model_path, config.experiment_name,
+                config.model_type + '-' + str(epoch + 1) + '.bin'))
+            xm.master_print('saved model.')
+            # WRAPPED_MODEL.to(device)
 
-
-    return accuracy_train, accuracy_valid
+    return accuracy_valid
     # 4. Save model
     # torch.save(best_model_state_dict,
     #            os.path.join(config.model_path, 'model.bin'))
@@ -430,12 +447,13 @@ def _mp_fn(rank, flags, model,serial):
     FLAGS = flags
     SERIAL_EXEC = serial
 
-    accuracy_train, accuracy_valid = main(args.config_file)
+    accuracy_valid = main(args.config_file)
     # Retrieve tensors that are on TPU core 0 and plot.
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
-    xm.master_print(('DONE', rank, accuracy_train, accuracy_valid))
+    xm.master_print(('DONE',  accuracy_valid))
     # 4. Save model
     if rank == 0:
+        WRAPPED_MODEL.to('cpu')
         torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
         xm.master_print('saved model.')
 
@@ -460,4 +478,4 @@ if __name__ == '__main__':
     SERIAL_EXEC = xmp.MpSerialExecutor()
 
     # main(args.config_file)
-    xmp.spawn(_mp_fn, args=(FLAGS,WRAPPED_MODEL,SERIAL_EXEC, ), nprocs=config.num_cores, start_method='fork')
+    xmp.spawn(_mp_fn, args=(FLAGS,WRAPPED_MODEL,SERIAL_EXEC,), nprocs=config.num_cores, start_method='fork')

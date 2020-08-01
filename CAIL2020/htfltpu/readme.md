@@ -13,377 +13,220 @@
 #https://colab.research.google.com/drive/1SZ62rhHlP5x3w_XwXndbvicPiCxT44IM#scrollTo=HaQK5Xa2FhbK
 
 
-Metric: CompileTime
-  TotalSamples: 6
-  Accumulator: 337ms683.150us
-  ValueRate: 002ms340.836us / second
-  Rate: 0.0417158 / second
-  Percentiles: 1%=021ms262.351us; 5%=021ms262.351us; 10%=021ms262.351us; 20%=028ms297.071us; 50%=034ms308.611us; 80%=109ms552.633us; 90%=115ms911.973us; 95%=115ms911.973us; 99%=115ms911.973us
-Metric: DeviceLockWait
-  TotalSamples: 6015
-  Accumulator: 01m21s477ms157.009us
-  ValueRate: 364ms964.691us / second
-  Rate: 31.0544 / second
-  Percentiles: 1%=001.210us; 5%=001.291us; 10%=001.369us; 20%=001.480us; 50%=591.810us; 80%=025ms678.922us; 90%=025ms106.944us; 95%=025ms432.093us; 99%=026ms817.643us
-Metric: ExecuteTime
-  TotalSamples: 6012
-  Accumulator: 04m06s157ms341.565us
-  ValueRate: 909ms005.660us / second
-  Rate: 31.0566 / second
-  Percentiles: 1%=019ms324.275us; 5%=020ms610.525us; 10%=020ms814.245us; 20%=020ms108.413us; 50%=037ms225.870us; 80%=038ms264.060us; 90%=039ms547.779us; 95%=039ms839.730us; 99%=040ms122.669us
-Metric: InboundData
-  TotalSamples: 2412
-  Accumulator: 18.80KB
-  ValueRate: 124.39B / second
-  Rate: 15.5493 / second
-  Percentiles: 1%=8.00B; 5%=8.00B; 10%=8.00B; 20%=8.00B; 50%=8.00B; 80%=8.00B; 90%=8.00B; 95%=8.00B; 99%=8.00B
-Metric: InputOutputAliasCount
-  TotalSamples: 6
-  Accumulator: 2126.00
-  ValueRate: 14.78 / second
-  Rate: 0.0417186 / second
-  Percentiles: 1%=1.00; 5%=1.00; 10%=1.00; 20%=1.00; 50%=311.00; 80%=806.00; 90%=806.00; 95%=806.00; 99%=806.00
-Metric: IrValueTensorToXlaData
-  TotalSamples: 201
-  Accumulator: 04s309ms381.931us
-  ValueRate: 01s161ms275.340us / second
-  Rate: 54.1647 / second
-  Percentiles: 1%=001ms045.810us; 5%=001ms166.480us; 10%=001ms234.870us; 20%=001ms426.260us; 50%=002ms817.440us; 80%=024ms244.831us; 90%=091ms239.791us; 95%=092ms888.341us; 99%=095ms697.152us
-Metric: OutboundData
-  TotalSamples: 2316
-  Accumulator: 474.61MB
-  ValueRate: 337.60KB / second
-  Rate: 5.26875 / second
-  Percentiles: 1%=8.00B; 5%=8.00B; 10%=8.00B; 20%=8.00B; 50%=96.06KB; 80%=96.06KB; 90%=96.06KB; 95%=96.06KB; 99%=96.06KB
-Metric: ReleaseDataHandlesTime
-  TotalSamples: 15142
-  Accumulator: 01m22s124ms749.690us
-  ValueRate: 427ms644.154us / second
-  Rate: 65.0037 / second
-  Percentiles: 1%=745.150us; 5%=891.819us; 10%=964.000us; 20%=001ms093.939us; 50%=002ms342.809us; 80%=020ms353.086us; 90%=024ms588.114us; 95%=024ms042.533us; 99%=024ms474.644us
-Metric: TensorsGraphSize
-  TotalSamples: 6013
-  Accumulator: 22527705.00
-  ValueRate: 58165.10 / second
-  Rate: 31.0545 / second
-  Percentiles: 1%=1871.00; 5%=1871.00; 10%=1871.00; 20%=1871.00; 50%=1875.00; 80%=1875.00; 90%=1875.00; 95%=1875.00; 99%=1875.00
-Metric: TransferFromServerTime
-  TotalSamples: 2412
-  Accumulator: 05s845ms940.793us
-  ValueRate: 031ms870.681us / second
-  Rate: 15.5493 / second
-  Percentiles: 1%=001ms419.011us; 5%=002ms533.969us; 10%=002ms595.859us; 20%=002ms700.479us; 50%=002ms946.480us; 80%=002ms286.568us; 90%=002ms424.219us; 95%=003ms519.859us; 99%=003ms691.409us
-Metric: TransferToServerTime
-  TotalSamples: 2316
-  Accumulator: 02m37s765ms193.337us
-  ValueRate: 213ms335.462us / second
-  Rate: 5.27013 / second
-  Percentiles: 1%=003ms708.170us; 5%=003ms951.419us; 10%=003ms150.320us; 20%=004ms183.960us; 50%=037ms174.070us; 80%=081ms687.131us; 90%=084ms031.771us; 95%=087ms272.423us; 99%=088ms196.840us
-Metric: TransferToServerTransformTime
-  TotalSamples: 2316
-  Accumulator: 02s393ms018.002us
-  ValueRate: 009ms912.598us / second
-  Rate: 5.26875 / second
-  Percentiles: 1%=094.990us; 5%=111.290us; 10%=125.849us; 20%=133.381us; 50%=002ms709.399us; 80%=003ms900.600us; 90%=003ms454.669us; 95%=004ms594.900us; 99%=006ms901.980us
-Counter: CachedCompile
-  Value: 6007
-Counter: CreateCompileHandles
-  Value: 6
-Counter: CreateDataHandles
-  Value: 1731718
-Counter: CreateXlaTensor
-  Value: 5846004
-Counter: DestroyDataHandles
-  Value: 1730895
-Counter: DestroyXlaTensor
-  Value: 5845198
-Counter: DeviceDataCacheMiss
-  Value: 15
-Counter: MarkStep
-  Value: 3603
-Counter: ReleaseDataHandles
-  Value: 1730895
-Counter: UncachedCompile
-  Value: 6
-Counter: XRTAllocateFromTensor_Empty
-  Value: 45
-Counter: XrtCompile_Empty
-  Value: 144
-Counter: XrtExecuteChained_Empty
-  Value: 144
-Counter: XrtExecute_Empty
-  Value: 144
-Counter: XrtRead_Empty
-  Value: 144
-Counter: XrtReleaseAllocationHandle_Empty
-  Value: 144
-Counter: XrtReleaseCompileHandle_Empty
-  Value: 144
-Counter: XrtSessionCount
-  Value: 11
-Counter: XrtSubTuple_Empty
-  Value: 144
-Counter: aten::_local_scalar_dense
-  Value: 2412
-Counter: xla::_log_softmax
-  Value: 1200
-Counter: xla::_log_softmax_backward_data
-  Value: 1200
-Counter: xla::_softmax
-  Value: 46800
-Counter: xla::_softmax_backward_data
-  Value: 15600
-Counter: xla::_unsafe_view
-  Value: 345600
-Counter: xla::add
-  Value: 194400
-Counter: xla::add_
-  Value: 1223799
-Counter: xla::addcdiv_
-  Value: 241200
-Counter: xla::addcmul
-  Value: 90000
-Counter: xla::addcmul_
-  Value: 241200
-Counter: xla::addmm
-  Value: 7200
-Counter: xla::arange_out
-  Value: 3600
-Counter: xla::as_strided
-  Value: 201
-Counter: xla::bernoulli_
-  Value: 45600
-Counter: xla::bmm
-  Value: 144000
-Counter: xla::copy_
-  Value: 6201
-Counter: xla::div
-  Value: 57600
-Counter: xla::div_
-  Value: 45600
-Counter: xla::embedding
-  Value: 10800
-Counter: xla::embedding_dense_backward
-  Value: 3600
-Counter: xla::empty
-  Value: 57003
-Counter: xla::empty_strided
-  Value: 201
-Counter: xla::eq
-  Value: 2400
-Counter: xla::expand
-  Value: 176400
-Counter: xla::fill_
-  Value: 1200
-Counter: xla::gelu
-  Value: 43200
-Counter: xla::gelu_backward
-  Value: 14400
-Counter: xla::index_select
-  Value: 10800
-Counter: xla::max
-  Value: 2400
-Counter: xla::mm
-  Value: 436800
-Counter: xla::mul
-  Value: 184800
-Counter: xla::mul_
-  Value: 482400
-Counter: xla::native_batch_norm
-  Value: 90000
-Counter: xla::native_batch_norm_backward
-  Value: 30000
-Counter: xla::native_layer_norm
-  Value: 90000
-Counter: xla::native_layer_norm_backward
-  Value: 30000
-Counter: xla::nll_loss_backward
-  Value: 1200
-Counter: xla::nll_loss_forward
-  Value: 1200
-Counter: xla::permute
-  Value: 230400
-Counter: xla::rsub
-  Value: 3600
-Counter: xla::select
-  Value: 4800
-Counter: xla::slice
-  Value: 12000
-Counter: xla::sqrt
-  Value: 241200
-Counter: xla::sub
-  Value: 30000
-Counter: xla::sum
-  Value: 151200
-Counter: xla::t
-  Value: 532800
-Counter: xla::tanh
-  Value: 3600
-Counter: xla::tanh_backward
-  Value: 1200
-Counter: xla::transpose
-  Value: 115200
-Counter: xla::unsqueeze
-  Value: 10800
-Counter: xla::view
-  Value: 1804800
-Counter: xla::zero_
-  Value: 243801
-Metric: XrtAllocateFromTensor
-  TotalSamples: 54498
-  Accumulator: 04m03s422ms966.466us
-  Mean: 004ms341.600us
-  StdDev: 798.823us
-  Rate: 62.7036 / second
-  Percentiles: 25%=004ms801.503us; 50%=004ms306.117us; 80%=005ms954.763us; 90%=005ms393.150us; 95%=006ms899.343us; 99%=006ms403.459us
-Metric: XrtCompile
-  TotalSamples: 30
-  Accumulator: 57s053ms885.151us
-  Mean: 02s902ms762.838us
-  StdDev: 05s236ms004.381us
-  Rate: 0.00338187 / second
-  Percentiles: 25%=013ms013.938us; 50%=053ms804.884us; 80%=237ms551.015us; 90%=08s274ms499.091us; 95%=20s138ms772.218us; 99%=21s814ms917.470us
-Metric: XrtExecute
-  TotalSamples: 16452
-  Accumulator: 14m08s175ms163.004us
-  Mean: 028ms701.718us
-  StdDev: 009ms913.179us
-  Rate: 31.0565 / second
-  Percentiles: 25%=019ms764.127us; 50%=036ms661.613us; 80%=037ms583.539us; 90%=037ms825.437us; 95%=037ms045.499us; 99%=038ms283.086us
-Metric: XrtExecutorEvict
-  TotalSamples: 0
-  Accumulator: nanB
-  Mean: nanB
-  StdDev: nanB
-  Percentiles: 
-Metric: XrtReadLiteral
-  TotalSamples: 4870
-  Accumulator: 04s294ms699.556us
-  Mean: 884.411us
-  StdDev: 254.653us
-  Rate: 15.5493 / second
-  Percentiles: 25%=685.259us; 50%=791.495us; 80%=001ms175.546us; 90%=001ms287.954us; 95%=001ms341.758us; 99%=001ms426.014us
-Metric: XrtReleaseAllocation
-  TotalSamples: 50257
-  Accumulator: 50s885ms267.790us
-  Mean: 640.177us
-  StdDev: 735.305us
-  Rate: 65.0524 / second
-  Percentiles: 25%=031.367us; 50%=105.846us; 80%=001ms457.374us; 90%=002ms789.876us; 95%=002ms008.494us; 99%=002ms275.096us
-
-
-#1 core TPU 7 minutes
-#8 core TPU 5 minutes
-2020-07-25 15:29:43.136294: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
-2020-07-25 15:29:53.204238: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
-2020-07-25 15:29:53.228285: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
-2020-07-25 15:29:53.257802: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
-2020-07-25 15:29:53.292715: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
-2020-07-25 15:29:53.324211: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
-2020-07-25 15:29:53.360339: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
-2020-07-25 15:29:53.394303: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) d8ff2e405352:56851
+2020-07-29 05:24:03.356237: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2020-07-29 05:24:14.572131: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
+2020-07-29 05:24:14.623983: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
+2020-07-29 05:24:14.677123: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
+2020-07-29 05:24:14.731273: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
+2020-07-29 05:24:14.786327: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
+2020-07-29 05:24:14.838088: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
+2020-07-29 05:24:14.890492: I tensorflow/compiler/xla/xla_client/mesh_service.cc:234] Waiting to connect to client mesh master (300 seconds) bb2a8d5e78e0:47315
 Loading train records for train...
-2020-07-25 15:30:01.585279: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-Loading train records for train...
-2020-07-25 15:30:02.081152: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-Loading train records for train...
-2020-07-25 15:30:02.312634: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-2020-07-25 15:30:02.391050: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-Loading train records for train...
-2020-07-25 15:30:02.472371: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-Loading train records for train...
-Loading train records for train...
-2020-07-25 15:30:02.927869: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-2020-07-25 15:30:03.059762: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at d8ff2e405352:56851
-Loading train records for train...
-Loading train records for train...
-2400it [00:09, 250.09it/s]
-217it [00:00, 237.33it/s]2400 training records loaded.
+2020-07-29 05:24:22.693020: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+2020-07-29 05:24:23.730192: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+2020-07-29 05:24:23.779363: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+2020-07-29 05:24:23.850297: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+2020-07-29 05:24:24.059430: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+2020-07-29 05:24:24.290321: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+2020-07-29 05:24:24.336066: I tensorflow/compiler/xla/xla_client/computation_client.cc:195] Fetching mesh configuration for worker tpu_worker:0 from mesh service at bb2a8d5e78e0:47315
+10387it [00:05, 1786.91it/s]
+10387 training records loaded.
 Loading train records for valid...
-2400it [00:09, 243.66it/s]
-2320it [00:09, 220.11it/s]2400 training records loaded.
-Loading train records for valid...
-2400it [00:09, 243.71it/s]
-2400it [00:09, 255.10it/s]
-2400it [00:09, 258.14it/s]
-2389it [00:09, 258.24it/s]2400 training records loaded.
-Loading train records for valid...
-2400it [00:09, 255.99it/s]
-2400it [00:09, 241.18it/s]
-2280it [00:09, 244.52it/s]2400 training records loaded.
-Loading train records for valid...
-2353it [00:09, 226.90it/s]2400 training records loaded.
-Loading train records for valid...
-2400it [00:09, 242.69it/s]
-2400 training records loaded.
-Loading train records for valid...
-2400 training records loaded.
-Loading train records for valid...
-2400 training records loaded.
-Loading train records for valid...
-2400it [00:09, 245.98it/s]
-2400 train records loaded.
+10387it [00:05, 2050.83it/s]
+10387 train records loaded.
 Loading valid records...
-2400it [00:09, 251.82it/s]
-2219it [00:08, 264.48it/s]2400 train records loaded.
-1916it [00:07, 244.02it/s]Loading valid records...
-2400it [00:09, 254.57it/s]
-2400it [00:09, 251.83it/s]
-2400it [00:09, 250.34it/s]
-2230it [00:08, 257.05it/s]2400 train records loaded.
+153it [00:00, 1689.31it/s]
+153 valid records loaded.
+Loading train records for train...
+[xla:0](0) Loss=2.83556 Rate=5.19 GlobalRate=5.19 Time=Wed Jul 29 05:27:42 2020
+10387it [00:05, 1779.30it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 1999.45it/s]
+10387 train records loaded.
 Loading valid records...
-2026it [00:08, 265.71it/s]2400 train records loaded.
+153it [00:00, 1669.96it/s]
+153 valid records loaded.
+Loading train records for train...
+10387it [00:05, 1757.97it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 1982.40it/s]
+10387 train records loaded.
 Loading valid records...
-2400it [00:09, 249.72it/s]
-2143it [00:08, 268.06it/s]2400 train records loaded.
+153it [00:00, 1626.62it/s]
+153 valid records loaded.
+Loading train records for train...
+10387it [00:05, 1775.07it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 2046.40it/s]
+10387 train records loaded.
 Loading valid records...
-2400it [00:09, 253.31it/s]
-2363it [00:09, 248.34it/s]2400 train records loaded.
+153it [00:00, 1656.55it/s]
+153 valid records loaded.
+Loading train records for train...
+10387it [00:05, 1781.14it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 1980.23it/s]
+10387 train records loaded.
 Loading valid records...
-2400it [00:09, 251.44it/s]
-2400 train records loaded.
+153it [00:00, 1640.68it/s]
+153 valid records loaded.
+Loading train records for train...
+10387it [00:05, 1760.30it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 2008.49it/s]
+10387 train records loaded.
 Loading valid records...
-2400 train records loaded.
+153it [00:00, 1637.44it/s]
+153 valid records loaded.
+Loading train records for train...
+10387it [00:05, 1737.88it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 1984.08it/s]
+10387 train records loaded.
 Loading valid records...
-2400it [00:09, 252.67it/s]
-2400 valid records loaded.
-2400it [00:09, 260.99it/s]
-2400it [00:09, 258.46it/s]
-2187it [00:09, 230.34it/s]2400 valid records loaded.
-2400it [00:09, 247.18it/s]
-1579it [00:06, 243.00it/s]2400 valid records loaded.
-2400it [00:10, 235.64it/s]
-1994it [00:07, 235.28it/s]2400 valid records loaded.
-1809it [00:07, 272.91it/s]2400 valid records loaded.
-2400it [00:09, 256.50it/s]
-2400it [00:08, 296.18it/s]
-2400 valid records loaded.
-2300it [00:08, 535.03it/s]2400 valid records loaded.
-2400it [00:08, 284.89it/s]
-2400 valid records loaded.
-[xla:0](0) Loss=2.83388 Rate=0.08 GlobalRate=0.08 Time=Sat Jul 25 15:39:04 2020
-[xla:1](0) Loss=2.85225 Rate=0.59 GlobalRate=0.59 Time=Sat Jul 25 15:39:43 2020
-[xla:4](0) Loss=2.82860 Rate=0.80 GlobalRate=0.80 Time=Sat Jul 25 15:39:46 2020
-[xla:5](0) Loss=2.83566 Rate=1.09 GlobalRate=1.09 Time=Sat Jul 25 15:39:46 2020
-[xla:2](0) Loss=2.84216 Rate=1.15 GlobalRate=1.15 Time=Sat Jul 25 15:39:47 2020
-[xla:3](0) Loss=2.83738 Rate=1.52 GlobalRate=1.52 Time=Sat Jul 25 15:39:48 2020
-[xla:6](0) Loss=2.82494 Rate=1.20 GlobalRate=1.20 Time=Sat Jul 25 15:39:48 2020
-[xla:7](0) Loss=2.81731 Rate=2.31 GlobalRate=2.31 Time=Sat Jul 25 15:39:49 2020
-[xla:5](100) Loss=2.92953 Rate=0.86 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
-[xla:4](100) Loss=2.92953 Rate=0.75 GlobalRate=0.71 Time=Sat Jul 25 15:44:27 2020
-[xla:1](100) Loss=2.42953 Rate=0.66 GlobalRate=0.70 Time=Sat Jul 25 15:44:27 2020
-[xla:7](100) Loss=2.92953 Rate=1.36 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
-[xla:2](100) Loss=2.42953 Rate=0.89 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
-[xla:0](100) Loss=2.92953 Rate=0.40 GlobalRate=0.58 Time=Sat Jul 25 15:44:27 2020
-[xla:3](100) Loss=2.92953 Rate=1.04 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
-[xla:6](100) Loss=2.92953 Rate=0.91 GlobalRate=0.72 Time=Sat Jul 25 15:44:27 2020
+153it [00:00, 1594.13it/s]
+153 valid records loaded.
+Loading train records for train...
+10387it [00:05, 1768.84it/s]
+10387 training records loaded.
+Loading train records for valid...
+10387it [00:05, 1999.67it/s]
+10387 train records loaded.
+Loading valid records...
+153it [00:00, 1617.48it/s]
+153 valid records loaded.
+[xla:0](100) Loss=2.77527 Rate=2.16 GlobalRate=0.14 Time=Wed Jul 29 05:51:14 2020
+[xla:0](200) Loss=1.94137 Rate=4.01 GlobalRate=0.28 Time=Wed Jul 29 05:51:52 2020
+[xla:0](300) Loss=2.42973 Rate=4.72 GlobalRate=0.40 Time=Wed Jul 29 05:52:31 2020
+[xla:0](400) Loss=1.93031 Rate=4.88 GlobalRate=0.52 Time=Wed Jul 29 05:53:11 2020
+[xla:0](500) Loss=2.41676 Rate=4.95 GlobalRate=0.64 Time=Wed Jul 29 05:53:51 2020
+[xla:0](600) Loss=2.47447 Rate=4.96 GlobalRate=0.75 Time=Wed Jul 29 05:54:31 2020
+Finished training epoch 0
+[xla:0](0) Acc=0.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 05:54:53 2020
+[xla:0] Accuracy=69.28%
+Finished test epoch 0, valid=69.28
+tcmalloc: large alloc 1182736384 bytes == 0x107f40000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+tcmalloc: large alloc 1786036224 bytes == 0x15f520000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+tcmalloc: large alloc 2690637824 bytes == 0x1f082a000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+saved model.
+[xla:0](0) Loss=2.92952 Rate=7.91 GlobalRate=7.91 Time=Wed Jul 29 05:58:22 2020
+[xla:0](100) Loss=1.93102 Rate=6.11 GlobalRate=4.93 Time=Wed Jul 29 05:59:02 2020
+[xla:0](200) Loss=1.92953 Rate=5.48 GlobalRate=4.99 Time=Wed Jul 29 05:59:42 2020
+[xla:0](300) Loss=2.42953 Rate=5.31 GlobalRate=5.06 Time=Wed Jul 29 06:00:20 2020
+[xla:0](400) Loss=1.92953 Rate=5.22 GlobalRate=5.08 Time=Wed Jul 29 06:00:59 2020
+[xla:0](500) Loss=2.41364 Rate=5.15 GlobalRate=5.09 Time=Wed Jul 29 06:01:38 2020
+[xla:0](600) Loss=2.92854 Rate=5.19 GlobalRate=5.11 Time=Wed Jul 29 06:02:17 2020
 Finished training epoch 1
-[xla:2] Accuracy=20.83%
-[xla:3] Accuracy=20.83%
-[xla:1] Accuracy=20.83%
-[xla:6] Accuracy=20.83%
-[xla:7] Accuracy=20.83%
-[xla:4] Accuracy=20.83%
-[xla:0] Accuracy=20.83%
-Finished test epoch 1 20.833333333333332
-[xla:5] Accuracy=20.83%
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:02:36 2020
+[xla:0] Accuracy=73.86%
+Finished test epoch 1, valid=73.86
+tcmalloc: large alloc 1786052608 bytes == 0x16f70c000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+tcmalloc: large alloc 2690629632 bytes == 0x1efc2a000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+saved model.
+[xla:0](0) Loss=2.92953 Rate=8.22 GlobalRate=8.22 Time=Wed Jul 29 06:03:29 2020
+[xla:0](100) Loss=2.40552 Rate=6.13 GlobalRate=4.76 Time=Wed Jul 29 06:04:12 2020
+[xla:0](200) Loss=1.92953 Rate=5.45 GlobalRate=4.87 Time=Wed Jul 29 06:04:52 2020
+[xla:0](300) Loss=2.42953 Rate=5.18 GlobalRate=4.92 Time=Wed Jul 29 06:05:32 2020
+[xla:0](400) Loss=1.92953 Rate=5.07 GlobalRate=4.94 Time=Wed Jul 29 06:06:12 2020
+[xla:0](500) Loss=1.94063 Rate=5.03 GlobalRate=4.95 Time=Wed Jul 29 06:06:52 2020
+[xla:0](600) Loss=2.92336 Rate=5.00 GlobalRate=4.95 Time=Wed Jul 29 06:07:32 2020
+Finished training epoch 2
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:07:52 2020
+[xla:0] Accuracy=73.20%
+Finished test epoch 2, valid=73.20
+tcmalloc: large alloc 2690621440 bytes == 0x1ef42a000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+saved model.
+[xla:0](0) Loss=2.45628 Rate=7.57 GlobalRate=7.57 Time=Wed Jul 29 06:09:37 2020
+[xla:0](100) Loss=1.92953 Rate=6.06 GlobalRate=5.07 Time=Wed Jul 29 06:10:16 2020
+[xla:0](200) Loss=1.92953 Rate=5.57 GlobalRate=5.15 Time=Wed Jul 29 06:10:54 2020
+[xla:0](300) Loss=2.42953 Rate=5.36 GlobalRate=5.18 Time=Wed Jul 29 06:11:33 2020
+[xla:0](400) Loss=1.92953 Rate=5.28 GlobalRate=5.19 Time=Wed Jul 29 06:12:11 2020
+[xla:0](500) Loss=2.42952 Rate=5.25 GlobalRate=5.20 Time=Wed Jul 29 06:12:49 2020
+[xla:0](600) Loss=2.45264 Rate=5.13 GlobalRate=5.17 Time=Wed Jul 29 06:13:29 2020
+Finished training epoch 3
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:13:48 2020
+[xla:0] Accuracy=75.82%
+Finished test epoch 3, valid=75.82
+tcmalloc: large alloc 2690646016 bytes == 0x1ef28a000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+saved model.
+[xla:0](0) Loss=2.42953 Rate=7.63 GlobalRate=7.63 Time=Wed Jul 29 06:14:42 2020
+[xla:0](100) Loss=1.92953 Rate=6.09 GlobalRate=5.07 Time=Wed Jul 29 06:15:22 2020
+[xla:0](200) Loss=1.92953 Rate=5.43 GlobalRate=5.03 Time=Wed Jul 29 06:16:02 2020
+[xla:0](300) Loss=2.42953 Rate=5.12 GlobalRate=4.99 Time=Wed Jul 29 06:16:43 2020
+[xla:0](400) Loss=1.92953 Rate=5.03 GlobalRate=4.99 Time=Wed Jul 29 06:17:23 2020
+[xla:0](500) Loss=2.42914 Rate=5.00 GlobalRate=4.98 Time=Wed Jul 29 06:18:03 2020
+[xla:0](600) Loss=2.42953 Rate=4.99 GlobalRate=4.99 Time=Wed Jul 29 06:18:43 2020
+Finished training epoch 4
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:19:03 2020
+[xla:0] Accuracy=77.78%
+Finished test epoch 4, valid=77.78
+tcmalloc: large alloc 2690629632 bytes == 0x2519f4000 @  0x7f1164b732a4 0x591d67 0x4dd6a7 0x4dd77e 0x4e1d6d 0x4e1eab 0x4e0cf0 0x4e279b 0x4e210a 0x4e0d98 0x4e251b 0x4e2072 0x4e0cf0 0x4e251b 0x5eb622 0x4e0f43 0x4e251b 0x4e3386 0x5eb3d2 0x50a35c 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90 0x50a48d 0x50bfb4 0x507d64 0x509a90
+saved model.
+[xla:0](0) Loss=2.42964 Rate=5.77 GlobalRate=5.77 Time=Wed Jul 29 06:20:54 2020
+[xla:0](100) Loss=1.92953 Rate=5.19 GlobalRate=4.81 Time=Wed Jul 29 06:21:36 2020
+[xla:0](200) Loss=1.92953 Rate=5.21 GlobalRate=5.00 Time=Wed Jul 29 06:22:14 2020
+[xla:0](300) Loss=2.42953 Rate=5.20 GlobalRate=5.07 Time=Wed Jul 29 06:22:53 2020
+[xla:0](400) Loss=1.92953 Rate=5.21 GlobalRate=5.10 Time=Wed Jul 29 06:23:31 2020
+[xla:0](500) Loss=1.93907 Rate=5.10 GlobalRate=5.09 Time=Wed Jul 29 06:24:11 2020
+[xla:0](600) Loss=2.42977 Rate=5.02 GlobalRate=5.07 Time=Wed Jul 29 06:24:51 2020
+Finished training epoch 5
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:25:11 2020
+[xla:0] Accuracy=76.47%
+Finished test epoch 5, valid=76.47
+saved model.
+[xla:0](0) Loss=2.43029 Rate=5.88 GlobalRate=5.88 Time=Wed Jul 29 06:28:09 2020
+[xla:0](100) Loss=1.92953 Rate=5.25 GlobalRate=4.83 Time=Wed Jul 29 06:28:50 2020
+[xla:0](200) Loss=1.92953 Rate=5.20 GlobalRate=5.00 Time=Wed Jul 29 06:29:29 2020
+[xla:0](300) Loss=2.42953 Rate=5.19 GlobalRate=5.06 Time=Wed Jul 29 06:30:08 2020
+[xla:0](400) Loss=1.92953 Rate=5.20 GlobalRate=5.10 Time=Wed Jul 29 06:30:46 2020
+[xla:0](500) Loss=1.92954 Rate=5.20 GlobalRate=5.11 Time=Wed Jul 29 06:31:24 2020
+[xla:0](600) Loss=2.42953 Rate=5.20 GlobalRate=5.13 Time=Wed Jul 29 06:32:03 2020
+Finished training epoch 6
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:32:22 2020
+[xla:0] Accuracy=73.86%
+Finished test epoch 6, valid=73.86
+saved model.
+[xla:0](0) Loss=2.42953 Rate=7.07 GlobalRate=7.07 Time=Wed Jul 29 06:35:29 2020
+[xla:0](100) Loss=1.92953 Rate=5.71 GlobalRate=4.81 Time=Wed Jul 29 06:36:11 2020
+[xla:0](200) Loss=1.92953 Rate=5.28 GlobalRate=4.90 Time=Wed Jul 29 06:36:51 2020
+[xla:0](300) Loss=2.43158 Rate=5.11 GlobalRate=4.93 Time=Wed Jul 29 06:37:31 2020
+[xla:0](400) Loss=1.92953 Rate=5.08 GlobalRate=4.96 Time=Wed Jul 29 06:38:11 2020
+[xla:0](500) Loss=1.92953 Rate=5.14 GlobalRate=5.01 Time=Wed Jul 29 06:38:49 2020
+[xla:0](600) Loss=2.42953 Rate=5.17 GlobalRate=5.04 Time=Wed Jul 29 06:39:28 2020
+Finished training epoch 7
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:39:47 2020
+[xla:0] Accuracy=74.51%
+Finished test epoch 7, valid=74.51
+saved model.
+[xla:0](0) Loss=2.42914 Rate=4.59 GlobalRate=4.59 Time=Wed Jul 29 06:40:42 2020
+[xla:0](100) Loss=1.92953 Rate=4.87 GlobalRate=5.05 Time=Wed Jul 29 06:41:21 2020
+[xla:0](200) Loss=1.92953 Rate=5.07 GlobalRate=5.13 Time=Wed Jul 29 06:42:00 2020
+[xla:0](300) Loss=2.42953 Rate=5.13 GlobalRate=5.14 Time=Wed Jul 29 06:42:38 2020
+[xla:0](400) Loss=1.92953 Rate=5.03 GlobalRate=5.09 Time=Wed Jul 29 06:43:19 2020
+[xla:0](500) Loss=1.92953 Rate=4.97 GlobalRate=5.06 Time=Wed Jul 29 06:43:59 2020
+[xla:0](600) Loss=2.51508 Rate=4.99 GlobalRate=5.05 Time=Wed Jul 29 06:44:39 2020
+Finished training epoch 8
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:44:59 2020
+[xla:0] Accuracy=73.20%
+Finished test epoch 8, valid=73.20
+saved model.
+[xla:0](0) Loss=1.95194 Rate=8.11 GlobalRate=8.11 Time=Wed Jul 29 06:47:48 2020
+[xla:0](100) Loss=1.92953 Rate=6.27 GlobalRate=5.06 Time=Wed Jul 29 06:48:27 2020
+[xla:0](200) Loss=1.92953 Rate=5.65 GlobalRate=5.15 Time=Wed Jul 29 06:49:06 2020
+[xla:0](300) Loss=2.42953 Rate=5.39 GlobalRate=5.17 Time=Wed Jul 29 06:49:44 2020
+[xla:0](400) Loss=1.92953 Rate=5.29 GlobalRate=5.19 Time=Wed Jul 29 06:50:22 2020
+[xla:0](500) Loss=1.92953 Rate=5.25 GlobalRate=5.19 Time=Wed Jul 29 06:51:00 2020
+[xla:0](600) Loss=2.42953 Rate=5.24 GlobalRate=5.20 Time=Wed Jul 29 06:51:39 2020
+Finished training epoch 9
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Wed Jul 29 06:51:58 2020
+[xla:0] Accuracy=75.16%
+Finished test epoch 9, valid=75.16
+saved model.
+('DONE', 0, 75.16339869281046)
+saved model.

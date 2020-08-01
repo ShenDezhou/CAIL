@@ -4,7 +4,7 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "dataset/train-phase2.csv",
+  "train_file_path": "dataset/train-phase3.csv",
   "valid_file_path": "dataset/valid-phase1.csv",
 
   "batch_size": 2,
@@ -16,7 +16,7 @@
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
+  "num_epoch": 17,
   "log_steps": 100,
   "serial_load": true,
   "metrics_debug": false,

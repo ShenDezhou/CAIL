@@ -85,7 +85,7 @@ def cleanfile(filename=rawfile):
     df['content'] = df['content'].apply(shortenlines)
     df.to_csv(filename, index=False)
 
-cleanfile("dataset/train-phase2.csv")
+#cleanfile("dataset/train-phase2.csv")
 
 def enpercent(raw_html):
     cleanr = re.compile('[a-zA-Z]*')
