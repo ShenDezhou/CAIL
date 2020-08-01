@@ -43,9 +43,9 @@ def set_config():
     parser.add_argument("--max_seq_len", type=int, default=512)
 
     #cnn
-    parser.add_argument("--cnn_hidden_size", type=int, default=256)
-    parser.add_argument("--cnn_output_size", type=int, default=256)
-    parser.add_argument("--fc_hidden_size", type=int, default=256)
+    parser.add_argument("--cnn_hidden_size", type=int, default=512)
+    parser.add_argument("--cnn_output_size", type=int, default=512)
+    parser.add_argument("--fc_hidden_size", type=int, default=512)
     parser.add_argument("--cnn_module_layers", type=int, default=4)
     parser.add_argument("--dropout", type=float, default=0.05)
 
