@@ -35,6 +35,7 @@ model_config=args.config_file
 
 MODEL_MAP = {
     'bert': BertForClassification,
+    'lbert': BertForClassification,
     'cnn': CharCNN
 }
 
@@ -47,10 +48,11 @@ class TorchResource:
         with open(model_config) as fin:
             self.config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
         if torch.cuda.is_available():
-            self.device = torch.device('gpu')
+            self.device = torch.device('cuda')
         else:
             self.device = torch.device('cpu')
         # 1. Load data
+
         self.data = Data(vocab_file=os.path.join(self.config.model_path, 'vocab.txt'),
                     max_seq_len=self.config.max_seq_len,
                     model_type=self.config.model_type, config=self.config)
