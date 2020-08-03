@@ -26,7 +26,7 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
@@ -34,7 +34,8 @@ from vocab import build_vocab
 MODEL_MAP = {
     'bert': BertForClassification,
     'rnn': RnnForSentencePairClassification,
-    'lr': LogisticRegression
+    'lr': LogisticRegression,
+    'cnn': CharCNN
 }
 
 
@@ -181,7 +182,7 @@ class Trainer:
         trange_obj = trange(self.config.num_epoch, desc='Epoch', ncols=120)
         # self._epoch_evaluate_update_description_log(
         #     tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
-        best_model_state_dict, best_train_f1, global_step = None, 0, 0
+        best_model_state_dict, best_valid_f1, global_step = None, 0, 0
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
             tqdm_obj = tqdm(self.data_loader['train'], ncols=80)
@@ -205,16 +206,16 @@ class Trainer:
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
-            if epoch >= 9:
-                results = self._epoch_evaluate_update_description_log(
-                    tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
-                self.save_model(os.path.join(
-                    self.config.model_path, self.config.experiment_name,
-                    self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
-                if results[-3] > best_train_f1:
-                    best_model_state_dict = deepcopy(self.model.state_dict())
-                    best_train_f1 = results[-3]
+            results = self._epoch_evaluate_update_description_log(
+                tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
+            self.save_model(os.path.join(
+                self.config.model_path, self.config.experiment_name,
+                self.config.model_type + '-' + str(epoch + 1) + '.bin'))
+
+            if results[-1] > best_valid_f1:
+                best_model_state_dict = deepcopy(self.model.state_dict())
+                best_valid_f1 = results[-1]
         return best_model_state_dict
 
 
@@ -229,7 +230,7 @@ def main(config_file='config/bert_config.json'):
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
-    if config.model_type in ['rnn', 'lr']:  # build vocab for rnn
+    if config.model_type in ['rnn', 'lr','cnn']:  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
     # 1. Load data
@@ -249,6 +250,7 @@ def main(config_file='config/bert_config.json'):
     else:
         device = torch.device('cpu')
         sampler_train = RandomSampler(train_set)
+
     data_loader = {
         'train': DataLoader(
             train_set, sampler=sampler_train, batch_size=config.batch_size),

@@ -7,10 +7,9 @@ Used for SMP-CAIL2020-Argmine.
 import torch
 
 from torch import nn
-from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
-
+import torch.nn.functional as F
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
@@ -31,7 +30,6 @@ class BertForClassification(nn.Module):
             param.requires_grad = True
         self.dropout = nn.Dropout(config.dropout)
         self.linear = nn.Linear(config.hidden_size, config.num_classes)
-        #self.bn = nn.BatchNorm1d(config.num_classes)
         self.num_classes = config.num_classes
 
     def forward(self, input_ids, attention_mask, token_type_ids):
@@ -57,7 +55,6 @@ class BertForClassification(nn.Module):
         pooled_output = bert_output[1]
         pooled_output = self.dropout(pooled_output)
         logits = self.linear(pooled_output).view(batch_size, self.num_classes)
-        #logits = self.bn(logits)
         logits = nn.functional.softmax(logits, dim=-1)
         # logits: (batch_size, num_classes)
         return logits
@@ -429,17 +426,76 @@ class LogisticRegression(nn.Module):
         s1_embed = self.embedding(s1_ids)
         s2_embed = self.embedding(s2_ids)
         # embed: (batch_size, max_seq_len, hidden_size)
-        s1_packed: PackedSequence = pack_padded_sequence(
-            s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
-        s2_packed: PackedSequence = pack_padded_sequence(
-            s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
+        # s1_packed: PackedSequence = pack_padded_sequence(
+        #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        # s2_packed: PackedSequence = pack_padded_sequence(
+        #     s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
         # _, s1_hidden = self.rnn(s1_packed)
         # _, s2_hidden = self.rnn(s2_packed)
-        s1_hidden = s1_packed.view(batch_size, -1)
-        s2_hidden = s2_packed.view(batch_size, -1)
+        s1_hidden = s1_embed.view(batch_size, -1)
+        s2_hidden = s2_embed.view(batch_size, -1)
         hidden = torch.cat([s1_hidden, s2_hidden], dim=-1)
 
-        x = torch.squeeze(hidden)  # (batch, vocab_size)
-        x = self.dropout(x)
+        # x = torch.squeeze(hidden)  # (batch, vocab_size)
+        x = self.dropout(hidden)
         logit = self.fc1(x)  # (batch, target_size)
         return logit
+
+
+
+class CharCNN(nn.Module):
+
+    def __init__(self, config):
+        super().__init__()
+        # self.is_cuda_enabled = config.cuda
+
+        num_conv_filters = config.num_conv_filters
+        output_channel = config.output_channel
+        hidden_size = config.hidden_size
+        target_class = config.num_classes
+        input_channel = config.hidden_size
+
+        self.embedding = nn.Embedding(
+            config.vocab_size, config.hidden_size, padding_idx=0)
+
+        self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
+        self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
+        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
+        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
+        self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
+        self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
+
+        self.dropout = nn.Dropout(config.dropout)
+        self.fc1 = nn.Linear(output_channel, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, target_class)
+
+    def forward(self, s1_ids, s2_ids, s1_lengths, s2_lengths):
+        batch_size = s1_ids.shape[0]
+        # ids: (batch_size, max_seq_len)
+        s1_embed = self.embedding(s1_ids)
+        s2_embed = self.embedding(s2_ids)
+
+        embed = torch.cat([s1_embed, s2_embed], dim=1)
+        # embed: (batch_size, max_seq_len, hidden_size)
+        # s1_packed: PackedSequence = pack_padded_sequence(
+        #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        if torch.cuda.is_available():
+            x = embed.transpose(1, 2).type(torch.cuda.FloatTensor)
+            # x = embed.transpose(1, 2).type(torch.FloatTensor)
+        else:
+            x = embed.transpose(1, 2).type(torch.FloatTensor)
+
+        x = F.max_pool1d(F.relu(self.conv1(x)), 3)
+        x = F.max_pool1d(F.relu(self.conv2(x)), 3)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+
+        x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        x = F.relu(self.fc1(x.view(x.size(0), -1)))
+        x = self.dropout(x)
+        x = F.relu(self.fc2(x))
+        x = self.dropout(x)
+        return self.fc3(x)

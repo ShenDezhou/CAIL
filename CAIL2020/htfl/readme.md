@@ -4,5 +4,15 @@
 
 训练过程如图1所示： 
 
-![ALT](config/htfl-train.svg)
+![ALT](science/htfl-train.svg)
+
+
+#BERT ACC:79.73%
+#CNN  ACC:32.67%
+
+#https://colab.research.google.com/drive/1SZ62rhHlP5x3w_XwXndbvicPiCxT44IM#scrollTo=HaQK5Xa2FhbK
+
+
+#BERT ACC:71.89%
+#BERT LARGE:75.16%
 
