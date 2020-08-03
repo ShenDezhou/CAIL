@@ -423,14 +423,17 @@ def main(config_file='config/bert_config.json'):
 
         if FLAGS.metrics_debug:
             xm.master_print(met.metrics_report())
+
+        if accuracy_valid > 0.777:
+            break
         # 4. Save model
-        if xm.get_ordinal() == 0:
-            # if epoch==FLAGS.num_epoch-1:
-            # WRAPPED_MODEL.to('cpu')
-            torch.save(WRAPPED_MODEL.state_dict(), os.path.join(
-                config.model_path, config.experiment_name,
-                config.model_type + '-' + str(epoch + 1) + '.bin'))
-            xm.master_print('saved model.')
+        # if xm.get_ordinal() == 0:
+        #     # if epoch==FLAGS.num_epoch-1:
+        #     # WRAPPED_MODEL.to('cpu')
+        #     torch.save(WRAPPED_MODEL.state_dict(), os.path.join(
+        #         config.model_path, config.experiment_name,
+        #         config.model_type + '-' + str(epoch + 1) + '.bin'))
+        #     xm.master_print('saved model.')
             # WRAPPED_MODEL.to(device)
 
     return accuracy_valid
