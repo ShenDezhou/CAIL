@@ -111,9 +111,10 @@ class CNNPredictionLayer(nn.Module):
         # cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(self.dropout_size)
         self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
-        self.fc2 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
+        self.fc2 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
         self.fc3 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
-
+        self.fc4 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
+        self.fc5 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
 
         self.sp_linear = nn.Linear(config.fc_hidden_size, 1)
         self.start_linear = nn.Linear(config.fc_hidden_size, 1)
@@ -145,22 +146,22 @@ class CNNPredictionLayer(nn.Module):
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
         x = F.relu(self.conv6(x))
-        x = x.transpose(2, 1).type(torch.cuda.FloatTensor)
+        cnn = x.transpose(2, 1).type(torch.cuda.FloatTensor)
 
         # x = F.max_pool1d(x, x.size(2)).squeeze(2)
         # x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        x = self.fc1(x)
-        x = self.dropout(x)
-        x = self.fc2(x)
-        x = self.dropout(x)
-        input_state = self.fc3(x)
+        x, y = self.fc1(cnn), self.fc2(cnn)
+        x, y = self.dropout(x), self.dropout(y)
+        x, y, z = self.fc3(x), self.fc4(y), self.fc5(cnn)
+        input_state, support_state, type_state = self.dropout(x), self.dropout(y), self.dropout(z)
+
 
         start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
         end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
-        sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x sent x 512 x 300
+        sp_state = all_mapping.unsqueeze(3) * support_state.unsqueeze(2)  # N x sent x 512 x 300
         sp_state = sp_state.max(1)[0]
         sp_logits = self.sp_linear(sp_state)
-        type_state = torch.max(input_state, dim=1)[0]
+        type_state = torch.max(type_state, dim=1)[0]
         type_logits = self.type_linear(type_state)
 
         # 找结束位置用的开始和结束位置概率之和
