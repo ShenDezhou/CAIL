@@ -150,6 +150,7 @@ class BertXForClassification(nn.Module):
         logits = self.fc3(x)        # logits: (batch_size, num_classes)
         return logits
 
+from resnet import resnet18, wide_resnet101_2
 class BertYForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
@@ -168,39 +169,14 @@ class BertYForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
 
-        num_conv_filters = config.num_conv_filters
-        output_channel = config.output_channel
         hidden_size = config.num_fc_hidden_size
         target_class = config.num_classes
-        input_channel = config.hidden_size
-
-        self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
-        self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
-        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
-
-
-        self.n_cnn = config.cnn_module_layers
-        self.cnn_list = nn.ModuleList()
-        for i in range(self.n_cnn):
-            inner_list = nn.ModuleList()
-            conv1 = nn.Conv1d(output_channel, num_conv_filters, kernel_size=3, padding=1)
-            conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3, padding=1)
-            inner_list.extend([conv1, conv2, conv3, conv4, conv5,conv6])
-            self.cnn_list.append(inner_list)
+        # self.resnet = resnet18(num_classes=hidden_size)
+        self.resnet = wide_resnet101_2(num_classes=hidden_size)
 
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
-        self.fc1 = nn.Linear(output_channel, hidden_size)
-        # self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, target_class)
-
+        self.fc1 = nn.Linear(hidden_size, target_class)
         self.num_classes = config.num_classes
 
     def forward(self, input_ids, attention_mask, token_type_ids):
@@ -237,28 +213,9 @@ class BertYForClassification(nn.Module):
         else:
             x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
 
-        x = F.max_pool1d(F.relu(self.conv1(x)), 3)
-        x = F.max_pool1d(F.relu(self.conv2(x)), 3)
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = F.relu(self.conv5(x))
-        x = F.relu(self.conv6(x))
-
-
-        for innercnn in self.cnn_list:
-            x = F.max_pool1d(F.relu(innercnn[0](x)), kernel_size=3, padding=1)
-            x = F.max_pool1d(F.relu(innercnn[1](x)), kernel_size=3, padding=1)
-            x = F.relu(innercnn[2](x))
-            x = F.relu(innercnn[3](x))
-            x = F.relu(innercnn[4](x))
-            x = F.relu(innercnn[5](x))
-
-        x = F.max_pool1d(x, x.size(2)).squeeze(2)
-        x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        # x = self.dropout(x)
-        # x = F.relu(self.fc2(x))
+        x = self.resnet(x)
         x = self.dropout(x)
-        logits = self.fc3(x)        # logits: (batch_size, num_classes)
+        logits = self.fc1(x)        # logits: (batch_size, num_classes)
         return logits
 
 class Attention(nn.Module):

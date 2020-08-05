@@ -248,7 +248,7 @@ class Data:
 
                         #答案相近则标记1
                         meter = SequenceMatcher(None, answer_line, bc_summary).ratio()
-                        if meter >= 0.90:
+                        if meter >= 0.91:
                             label_list.append(1)
                         else:
                             label_list.append(0)

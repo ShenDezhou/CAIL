@@ -9,13 +9,9 @@
 
   "batch_size": 2,
 
-  "bert_model_path": "model/bert/roberta_wwm_large_ext",
+  "bert_model_path": "F:/wwm_large_ext",
   "trained_weight":"",
-
-  "cnn_module_layers": 0,
-  "num_conv_filters": 256,
-  "output_channel": 256,
-  "num_fc_hidden_size": 256,
+  "num_fc_hidden_size": 1024,
 
   "hidden_size": 1024,
   "num_classes": 2,
@@ -23,10 +19,10 @@
 
   "lr": 1e-4,
   "num_epoch": 10,
-  "num_warmup_steps": 2000,
+  "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 32,
-  "max_grad_norm": 4e-3,
+  "gradient_accumulation_steps": 64,
+  "max_grad_norm": 7e-3,
 
   "experiment_name": "BERT"
 }

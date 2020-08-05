@@ -32,7 +32,7 @@ from vocab import build_vocab
 
 
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
@@ -279,7 +279,7 @@ def main(config_file='config/bert_config.json'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config_file', default='config/bert_config.json',
+        '-c', '--config_file', default='config/lbert_config.json',
         help='model config file')
 
     parser.add_argument(
