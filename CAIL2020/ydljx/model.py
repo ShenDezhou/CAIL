@@ -189,10 +189,10 @@ class DeepCNNPredictionLayer(nn.Module):
         self.resnet = wide_resnet101_2()
         self.dropout = nn.Dropout(self.dropout_size)
 
-        self.sp_linear = nn.Linear(config.fc_hidden_size * 2, 1)
-        self.start_linear = nn.Linear(config.fc_hidden_size * 2, 1)
-        self.end_linear = nn.Linear(config.fc_hidden_size * 2, 1)
-        self.type_linear = nn.Linear(config.fc_hidden_size * 2, config.label_type_num)  # yes/no/ans/unknown
+        self.sp_linear = nn.Linear(config.input_dim * 2, 1)
+        self.start_linear = nn.Linear(config.input_dim * 2, 1)
+        self.end_linear = nn.Linear(config.input_dim * 2, 1)
+        self.type_linear = nn.Linear(config.input_dim * 2, config.label_type_num)  # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
