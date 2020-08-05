@@ -37,7 +37,7 @@ def set_config():
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
-    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--qat_epochs", type=int, default=0)
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--max_seq_len", type=int, default=512)
@@ -52,7 +52,7 @@ def set_config():
     parser.add_argument("--max_query_len", type=int, default=50)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--eval_batch_size", type=int, default=2)
-    parser.add_argument("--lr", type=float, default=2e-5)
+    parser.add_argument("--lr", type=float, default=5e-5)
     parser.add_argument('--decay', type=float, default=0.99)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
     parser.add_argument("--verbose_step", default=100000, type=int)
@@ -69,11 +69,11 @@ def set_config():
 
     parser.add_argument("--model_gpu", default='0', type=str, help="device to place model.")
     # parser.add_argument('--trained_weight',default=None)
-    parser.add_argument('--trained_weight', default="")
+    parser.add_argument('--trained_weight', default="model/model.bin")
 
     # loss
     parser.add_argument("--type_lambda", type=float, default=1)
-    parser.add_argument("--sp_lambda", type=float, default=5)
+    parser.add_argument("--sp_lambda", type=float, default=2.5)
     parser.add_argument("--sp_threshold", type=float, default=0.5)
     parser.add_argument('--label_type_num', default=4, type=int)#yes/no/unknown/span
 
