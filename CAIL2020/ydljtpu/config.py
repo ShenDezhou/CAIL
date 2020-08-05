@@ -26,7 +26,7 @@ def set_config():
     parser.add_argument("--prediction_path", type=str, default=join(data_path, 'submissions'))
     parser.add_argument("--checkpoint_path", type=str, default=join(data_path, 'checkpoints'))
     parser.add_argument("--data_dir", type=str, default='data_model')
-    parser.add_argument("--rawdata", type=str, default='data2/valid.json')
+    parser.add_argument("--rawdata", type=str, default='data2/trainx.json')
     parser.add_argument("--validdata", type=str, default='data2/valid.json')
     parser.add_argument("--output", type=str, default='result.txt')
 
@@ -37,27 +37,28 @@ def set_config():
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
-    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=2)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--max_seq_len", type=int, default=512)
 
     #cnn
-    parser.add_argument("--cnn_module_layers", type=int, default=16)
-    parser.add_argument("--cnn_hidden_size", type=int, default=128)
-    parser.add_argument("--cnn_output_size", type=int, default=32)
-    # parser.add_argument("--fc_hidden_size", type=int, default=512)
-
+    # parser.add_argument("--cnn_hidden_size", type=int, default=512)
+    # parser.add_argument("--cnn_output_size", type=int, default=512)
+    # parser.add_argument("--fc_hidden_size", type=int, default=1024)
+    # parser.add_argument("--cnn_module_layers", type=int, default=4)
+    parser.add_argument("--dropout", type=float, default=0.05)
+    parser.add_argument("--resnet_type", type=int, default=8)
 
     parser.add_argument("--max_query_len", type=int, default=50)
     parser.add_argument("--max_bert_size", type=int, default=8)
-    parser.add_argument("--eval_batch_size", type=int, default=2)
+    parser.add_argument("--eval_batch_size", type=int, default=1)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument('--decay', type=float, default=0.99)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
     parser.add_argument("--verbose_step", default=100000, type=int)
     parser.add_argument("--warmup_step", default=1000, type=int)
-    parser.add_argument("--gradient_accumulation_steps", default=16, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=64, type=int)
     parser.add_argument("--seed", default=0, type=int)
 
     parser.add_argument('--q_update', action='store_true', help='Whether update query')
@@ -77,7 +78,7 @@ def set_config():
     parser.add_argument("--sp_threshold", type=float, default=0.5)
     parser.add_argument('--label_type_num', default=4, type=int)#yes/no/unknown/span
 
-    parser.add_argument('--num_cores', default=1, type=int)
+    parser.add_argument('--num_cores', default=8, type=int)
 
     args = parser.parse_args()
 

@@ -170,9 +170,9 @@ def train_batch(model, optimizer, scheduler,criterion,sp_loss_fct, batch, global
     start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(batch)
     loss_list = compute_loss(batch, criterion,sp_loss_fct, start_logits, end_logits, type_logits, sp_logits, start_position, end_position)
     loss_list = list(loss_list)
-    if args.gradient_accumulation_steps > 1:
-        # loss_list[0] = loss_list[0] / args.gradient_accumulation_steps
-        loss_list[0] /= args.gradient_accumulation_steps
+    # if args.gradient_accumulation_steps > 1:
+    #     # loss_list[0] = loss_list[0] / args.gradient_accumulation_steps
+    #     loss_list[0] /= args.gradient_accumulation_steps
 
     if args.fp16:
         with amp.scale_loss(loss_list[0], optimizer) as scaled_loss:
@@ -183,9 +183,9 @@ def train_batch(model, optimizer, scheduler,criterion,sp_loss_fct, batch, global
 
     if (global_step + 1) % args.gradient_accumulation_steps == 0:
         # optimizer.step()
-        scheduler.step()
         torch.nn.utils.clip_grad_norm_(
             model.parameters(), config.max_grad_norm)
+        scheduler.step()
         xm.optimizer_step(optimizer)
         optimizer.zero_grad()
 
@@ -295,17 +295,17 @@ def main(args):
             train_batch(model, optimizer, scheduler, criterion, sp_loss_fct, batch, global_step)
             global_step += 1
             # del batch
-            if predict_during_train and (step_count % predict_step == 0):
-                predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
-                        join(args.prediction_path,
-                             'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epoch, step_count)))
-                eval(join(args.prediction_path,
-                          'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epoch, step_count)), args.validdata)
-                model_to_save = model.module if hasattr(model, 'module') else model
-                torch.save(model_to_save.state_dict(), join(args.checkpoint_path,
-                                                            "ckpt_seed_{}_epoch_{}_{}.pkl".format(args.seed, epoch,
-                                                                                                  step_count)))
-                model.train()
+            # if predict_during_train and (step_count % predict_step == 0):
+            #     predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
+            #             join(args.prediction_path,
+            #                  'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epoch, step_count)))
+            #     eval(join(args.prediction_path,
+            #               'pred_seed_{}_epoch_{}_{}.json'.format(args.seed, epoch, step_count)), args.validdata)
+            #     model_to_save = model.module if hasattr(model, 'module') else model
+            #     torch.save(model_to_save.state_dict(), join(args.checkpoint_path,
+            #                                                 "ckpt_seed_{}_epoch_{}_{}.pkl".format(args.seed, epoch,
+            #                                                                                       step_count)))
+            #     model.train()
             pbar.update(1)
 
     def test_fn(eval_dataset, dev_example_dict, dev_feature_dict, model, optimizer, scheduler,
@@ -363,6 +363,7 @@ def _mp_fn(rank, flags, model,serial):
     xm.master_print(('DONE', rank))
     # 4. Save model
     if rank == 0:
+        WRAPPED_MODEL.to('cpu')
         torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
         xm.master_print('saved model.')
 

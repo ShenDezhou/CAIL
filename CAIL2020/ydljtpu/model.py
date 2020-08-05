@@ -99,7 +99,7 @@ class CNNPredictionLayer(nn.Module):
         self.cnn_hidden_size = config.cnn_hidden_size
         self.cnn_output_size = config.cnn_output_size
         self.fc_hidden_size = config.fc_hidden_size
-
+        self.dropout_size = config.dropout
 
         self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)
         self.conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
@@ -109,11 +109,12 @@ class CNNPredictionLayer(nn.Module):
         self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.cnn_output_size, kernel_size=3, padding=1)
 
         # cnn feature map has a total number of 228 dimensions.
-        # self.dropout = nn.Dropout(0.05)
+        self.dropout = nn.Dropout(self.dropout_size)
         self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
-        # self.fc2 = nn.Linear(self.input_dim//2, self.input_dim//3)
-        # self.fc3 = nn.Linear(self.input_dim//3, self.input_dim)
-
+        self.fc2 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
+        self.fc3 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
+        self.fc4 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
+        self.fc5 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
 
         self.sp_linear = nn.Linear(config.fc_hidden_size, 1)
         self.start_linear = nn.Linear(config.fc_hidden_size, 1)
@@ -139,21 +140,28 @@ class CNNPredictionLayer(nn.Module):
         all_mapping = batch['all_mapping']  # (batch_size, 512, max_sent) 每个句子的token对应为1
 
         x = input_state.transpose(1, 2).type(torch.cuda.FloatTensor)
-        x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3,stride=1, padding=1)
-        x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3,stride=1, padding=1)
+        x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3, stride=1, padding=1)
+        x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
         x = F.relu(self.conv6(x))
-        input_state = x.transpose(2, 1).type(torch.cuda.FloatTensor)
+        cnn = x.transpose(2, 1).type(torch.cuda.FloatTensor)
 
-        input_state = self.fc1(input_state)
+        # x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        # x = F.relu(self.fc1(x.view(x.size(0), -1)))
+        x, y = self.fc1(cnn), self.fc2(cnn)
+        x, y = self.dropout(x), self.dropout(y)
+        x, y, z = self.fc3(x), self.fc4(y), self.fc5(cnn)
+        input_state, support_state, type_state = self.dropout(x), self.dropout(y), self.dropout(z)
+
+
         start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
         end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
-        sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x sent x 512 x 300
+        sp_state = all_mapping.unsqueeze(3) * support_state.unsqueeze(2)  # N x sent x 512 x 300
         sp_state = sp_state.max(1)[0]
         sp_logits = self.sp_linear(sp_state)
-        type_state = torch.max(input_state, dim=1)[0]
+        type_state = torch.max(type_state, dim=1)[0]
         type_logits = self.type_linear(type_state)
 
         # 找结束位置用的开始和结束位置概率之和
@@ -169,49 +177,25 @@ class CNNPredictionLayer(nn.Module):
         end_position = outer.max(dim=1)[0].max(dim=1)[1]
         return start_logits, end_logits, type_logits, sp_logits.squeeze(2), start_position, end_position
 
+from resnet import resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
+
+resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
 
 class DeepCNNPredictionLayer(nn.Module):
     def __init__(self, config):
         super(DeepCNNPredictionLayer, self).__init__()
         self.input_dim = config.input_dim
 
-        self.cnn_hidden_size = config.cnn_hidden_size
-        self.cnn_output_size = config.cnn_output_size
         # self.fc_hidden_size = config.fc_hidden_size
+        self.dropout_size = config.dropout
 
+        self.resnet = resnet_pool[config.resnet_type]()
+        self.dropout = nn.Dropout(self.dropout_size)
 
-        self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=7, padding=1)
-        self.conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=7, padding=1)
-        self.conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=5, padding=1)
-        self.conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=5, padding=1)
-        self.conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.cnn_output_size, kernel_size=3, padding=1)
-
-
-        self.n_cnn = config.cnn_module_layers
-        self.cnn_list = nn.ModuleList()
-        for i in range(self.n_cnn):
-            inner_list = nn.ModuleList()
-            conv1 = nn.Conv1d(self.cnn_output_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-            conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-            conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-            conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-            conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-            conv6 = nn.Conv1d(self.cnn_hidden_size, self.cnn_output_size, kernel_size=3, padding=1)
-            inner_list.extend([conv1, conv2, conv3, conv4, conv5,conv6])
-            self.cnn_list.append(inner_list)
-
-        # cnn feature map has a total number of 228 dimensions.
-        # self.dropout = nn.Dropout(0.05)
-        # self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
-        # self.fc2 = nn.Linear(self.input_dim//2, self.input_dim//3)
-        # self.fc3 = nn.Linear(self.input_dim//3, self.input_dim)
-
-
-        self.start_linear = nn.Linear(self.cnn_output_size, 1)
-        self.end_linear = nn.Linear(self.cnn_output_size, 1)
-        self.type_linear = nn.Linear(self.cnn_output_size, config.label_type_num)   # yes/no/ans/unknown
-        self.sp_linear = nn.Linear(self.input_dim, 1)
+        self.sp_linear = nn.Linear(config.input_dim * 2, 1)
+        self.start_linear = nn.Linear(config.input_dim * 2, 1)
+        self.end_linear = nn.Linear(config.input_dim * 2, 1)
+        self.type_linear = nn.Linear(config.input_dim * 2, config.label_type_num)  # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
@@ -231,32 +215,18 @@ class DeepCNNPredictionLayer(nn.Module):
         context_mask = batch['context_mask']  # bert里实际有输入的位置
         all_mapping = batch['all_mapping']  # (batch_size, 512, max_sent) 每个句子的token对应为1
 
-        x = input_state.transpose(1, 2)
-        x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3,stride=1, padding=1)
-        x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3,stride=1, padding=1)
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = F.relu(self.conv5(x))
-        x = F.relu(self.conv6(x))
+        x = input_state.transpose(1, 2).type(torch.cuda.FloatTensor)
+        cnn = self.resnet(x)
+        cnn = cnn.transpose(2, 1).type(torch.cuda.FloatTensor)
 
+        input_state, support_state, type_state = self.dropout(cnn), self.dropout(cnn), self.dropout(cnn)
 
-
-        for innercnn in self.cnn_list:
-            x = F.max_pool1d(F.relu(innercnn[0](x)), kernel_size=3, padding=1)
-            x = F.max_pool1d(F.relu(innercnn[1](x)), kernel_size=3, padding=1)
-            x = F.relu(innercnn[2](x))
-            x = F.relu(innercnn[3](x))
-            x = F.relu(innercnn[4](x))
-            x = F.relu(innercnn[5](x))
-        encode_state = x.transpose(2, 1)
-
-        # input_state = x
-        start_logits = self.start_linear(encode_state).squeeze(2) - 1e30 * (1 - context_mask)
-        end_logits = self.end_linear(encode_state).squeeze(2) - 1e30 * (1 - context_mask)
-        sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x sent x 512 x 300
+        start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
+        end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
+        sp_state = all_mapping.unsqueeze(3) * support_state.unsqueeze(2)  # N x sent x 512 x 300
         sp_state = sp_state.max(1)[0]
         sp_logits = self.sp_linear(sp_state)
-        type_state = torch.max(encode_state, dim=1)[0]
+        type_state = torch.max(type_state, dim=1)[0]
         type_logits = self.type_linear(type_state)
 
         # 找结束位置用的开始和结束位置概率之和
@@ -264,8 +234,8 @@ class DeepCNNPredictionLayer(nn.Module):
         outer = start_logits[:, :, None] + end_logits[:, None]
         outer_mask = self.get_output_mask(outer)
         outer = outer - 1e30 * (1 - outer_mask[None].expand_as(outer))
-        if query_mapping is not None:   # 这个是query_mapping (batch, 512)
-            outer = outer - 1e30 * query_mapping[:, :, None]    # 不允许预测query的内容
+        if query_mapping is not None:  # 这个是query_mapping (batch, 512)
+            outer = outer - 1e30 * query_mapping[:, :, None]  # 不允许预测query的内容
 
         # 这两句相当于找到了outer中最大值的i和j坐标
         start_position = outer.max(dim=2)[0].max(dim=1)[1]
