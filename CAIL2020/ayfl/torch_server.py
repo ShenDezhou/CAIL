@@ -14,7 +14,7 @@ from utils import load_torch_model
 from model import BertForClassification, CharCNN
 from evaluate import evaluate
 import time
-from classmerge import classy_dic
+from classmerge import class_case
 from dataclean import cleanall, shortenlines
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
@@ -67,14 +67,14 @@ class TorchResource:
         logger.info('1:{}, 2:{}'.format(title, content))
         row = {'type1': '/', 'title': title, 'content': content}
         df = pandas.DataFrame().append(row, ignore_index=True)
-        filename = "data/{}.csv".format(time.time())
+        filename = "datalog/{}.csv".format(time.time())
         df.to_csv(filename, index=False, columns=['type1', 'title', 'content'])
         test_set = self.data.load_file(filename, train=False)
         data_loader_test = DataLoader(
             test_set, batch_size=self.config.batch_size, shuffle=False)
         # Evaluate
         answer_list = evaluate(self.model, data_loader_test, self.device)
-        answer_list = [classy_dic[i] for i in answer_list]
+        answer_list = [class_case[i] for i in answer_list]
         return {"answer": answer_list}
 
     def on_get(self, req, resp):

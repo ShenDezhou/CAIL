@@ -171,11 +171,12 @@ class Data:
         print('Loading train records for train...')
         train_set = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
-        print('Loading train records for valid...')
-        valid_set_train = self.load_file(train_file, False)
-        print(len(valid_set_train), 'train records loaded.')
+        # print('Loading train records for valid...')
+        # valid_set_train = self.load_file(train_file, True)
+        # print(len(valid_set_train), 'train records loaded.')
+        valid_set_train = None
         print('Loading valid records...')
-        valid_set_valid = self.load_file(valid_file, False)
+        valid_set_valid = self.load_file(valid_file, True)
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, valid_set_train, valid_set_valid
 
