@@ -37,7 +37,7 @@ def set_config():
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
-    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--qat_epochs", type=int, default=0)
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--max_seq_len", type=int, default=512)
@@ -45,10 +45,10 @@ def set_config():
     #cnn
     # parser.add_argument("--cnn_hidden_size", type=int, default=512)
     # parser.add_argument("--cnn_output_size", type=int, default=512)
-    # parser.add_argument("--fc_hidden_size", type=int, default=1024)
     # parser.add_argument("--cnn_module_layers", type=int, default=4)
+    parser.add_argument("--fc_hidden_size", type=int, default=64)
     parser.add_argument("--dropout", type=float, default=0.05)
-    parser.add_argument("--resnet_type", type=int, default=8)
+    parser.add_argument("--resnet_type", type=int, default=0)
 
     parser.add_argument("--max_query_len", type=int, default=50)
     parser.add_argument("--max_bert_size", type=int, default=8)
