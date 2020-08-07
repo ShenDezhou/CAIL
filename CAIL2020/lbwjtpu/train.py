@@ -279,6 +279,7 @@ def main(config_file='config/bert_config.json'):
         datasets = load_dataset()
 
     train_set, valid_set_train, valid_set_valid = datasets
+
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -304,7 +305,6 @@ def main(config_file='config/bert_config.json'):
         'valid_valid': DataLoader(
             valid_set_valid, batch_size=config.batch_size, shuffle=False)}
 
-
     # 2. Build model
     # model = MODEL_MAP[config.model_type](config)
     model = WRAPPED_MODEL
@@ -316,6 +316,9 @@ def main(config_file='config/bert_config.json'):
         model = model
         # model = torch.nn.parallel.DistributedDataParallel(
         #     model, find_unused_parameters=True)
+
+
+
 
     # 3. Train
     trainer = Trainer(model=model, data_loader=data_loader,
@@ -422,22 +425,12 @@ def main(config_file='config/bert_config.json'):
         if FLAGS.metrics_debug:
             xm.master_print(met.metrics_report())
 
-        if accuracy_valid >= 0.9514:
-            break
         # 4. Save model
-        # if xm.get_ordinal() == 0:
-        #     # if epoch==FLAGS.num_epoch-1:
-        #     # WRAPPED_MODEL.to('cpu')
-        #     torch.save(WRAPPED_MODEL.state_dict(), os.path.join(
-        #         config.model_path, config.experiment_name,
-        #         config.model_type + '-' + str(epoch + 1) + '.bin'))
-        #     xm.master_print('saved model.')
-            # WRAPPED_MODEL.to(device)
-
+        if xm.get_ordinal() == 0:
+            WRAPPED_MODEL.to('cpu')
+            torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
+            xm.master_print('saved model.')
     return accuracy_valid
-    # 4. Save model
-    # torch.save(best_model_state_dict,
-    #            os.path.join(config.model_path, 'model.bin'))
 
 
 
@@ -453,10 +446,10 @@ def _mp_fn(rank, flags, model,serial):
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE',  accuracy_valid))
     # 4. Save model
-    if rank == 0:
-        WRAPPED_MODEL.to('cpu')
-        torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
-        xm.master_print('saved model.')
+    # if xm.get_ordinal() == 0:
+    #     WRAPPED_MODEL.to('cpu')
+    #     torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
+    #     xm.master_print('saved model.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -175,7 +175,7 @@ class BertYForClassification(nn.Module):
         hidden_size = config.num_fc_hidden_size
         target_class = config.num_classes
         # self.resnet = resnet18(num_classes=hidden_size)
-        self.resnet = resnet_pool[config.resnet_type](num_classes=hidden_size)
+        self.resnet = resnet18(num_classes=hidden_size)
 
 
         #cnn feature map has a total number of 228 dimensions.
