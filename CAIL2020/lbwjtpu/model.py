@@ -150,7 +150,7 @@ class BertXForClassification(nn.Module):
         logits = self.fc3(x)        # logits: (batch_size, num_classes)
         return logits
 
-from resnet import resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
+from resnet import ResNet,BasicBlock,Bottleneck, resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
 
 resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
 
@@ -175,7 +175,7 @@ class BertYForClassification(nn.Module):
         hidden_size = config.num_fc_hidden_size
         target_class = config.num_classes
         # self.resnet = resnet18(num_classes=hidden_size)
-        self.resnet = resnet18(num_classes=hidden_size)
+        self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
 
 
         #cnn feature map has a total number of 228 dimensions.

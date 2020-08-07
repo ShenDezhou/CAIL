@@ -425,11 +425,11 @@ def main(config_file='config/bert_config.json'):
         if FLAGS.metrics_debug:
             xm.master_print(met.metrics_report())
 
-        # 4. Save model
-        if xm.get_ordinal() == 0:
-            WRAPPED_MODEL.to('cpu')
-            torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
-            xm.master_print('saved model.')
+    # 4. Save model
+    # if xm.get_ordinal() == 0:
+    #     model.to('cpu')
+    #     torch.save(model.state_dict(), os.path.join(config.model_path, 'model.bin'))
+    #     xm.master_print('saved model.')
     return accuracy_valid
 
 
@@ -446,10 +446,10 @@ def _mp_fn(rank, flags, model,serial):
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE',  accuracy_valid))
     # 4. Save model
-    # if xm.get_ordinal() == 0:
-    #     WRAPPED_MODEL.to('cpu')
-    #     torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
-    #     xm.master_print('saved model.')
+    if xm.get_ordinal() == 0:
+        WRAPPED_MODEL.to('cpu')
+        torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
+        xm.master_print('saved model.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

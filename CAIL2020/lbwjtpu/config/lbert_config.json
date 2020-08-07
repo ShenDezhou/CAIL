@@ -20,10 +20,10 @@
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
+  "num_epoch": 1,
   "num_warmup_steps": 20,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 32,
+  "gradient_accumulation_steps": 2,
   "max_grad_norm": 7e-3,
   "num_cores": 8,
   "serial_load": true,
