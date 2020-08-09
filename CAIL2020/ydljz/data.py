@@ -248,11 +248,11 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (s1_ids, s2_ids, s1_length, s2_length)
         """
-        features_list, example_list = self._load_file1(file_path, train)
+        features_list = self._load_file1(file_path, train)
 
         # if self.model_type == 'bert':
         dataset = self._convert_sentence_pair_to_bert_dataset(
-            features_list, example_list)
+            features_list)
         # else:  # rnn
         #     dataset = self._convert_sentence_pair_to_rnn_dataset(
         #         sc_list, bc_list, label_list)
@@ -476,7 +476,7 @@ class Data:
             examples.append(example)
 
         features_list = self.convert_examples_to_features(examples, self.tokenizer, 512, 50)
-        return features_list, examples
+        return features_list
 
     def convert_examples_to_features(self, examples, tokenizer, max_seq_length, max_query_length):
         # max_query_length = 50
@@ -640,7 +640,7 @@ class Data:
         return features
 
     def _convert_sentence_pair_to_bert_dataset(
-            self, features_list, example_list):
+            self, features_list):
         """Convert sentence pairs to dataset for BERT model.
 
         Args:
@@ -656,223 +656,67 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (input_ids, input_mask, segment_ids)
         """
-        # all_example_list = []
-        #
-        # elenum = len(example_list)
-        # # BERT data
-        # context_idxs = torch.LongTensor(self.bsz, self.max_seq_len).to(self.device)
-        # context_mask = torch.LongTensor(self.bsz, self.max_seq_len).to(self.device)
-        # segment_idxs = torch.LongTensor(self.bsz, self.max_seq_len).to(self.device)
-        #
-        # # Graph and Mappings   注意这些是在gpu里的，可能是因为训练的过程中要用到
-        #
-        # query_mapping = torch.Tensor(self.bsz, self.max_seq_len).to(self.device)
-        # start_mapping = torch.Tensor(self.bsz, self.sent_limit, self.max_seq_len).to(self.device)
-        # all_mapping = torch.Tensor(self.bsz, self.max_seq_len, self.sent_limit).to(self.device)
-        #
-        # # Label tensor
-        # y1 = torch.LongTensor(self.bsz).to(self.device)  # 之前不是一个answer对应好几个span吗？
-        # y2 = torch.LongTensor(self.bsz).to(self.device)
-        # q_type = torch.LongTensor(self.bsz).to(self.device)  # 这个应该是answer_type而不是question type
-        # is_support = torch.FloatTensor(self.bsz, self.sent_limit).to(self.device)
-        #
-        # # bfs_mask = torch.FloatTensor(self.bsz, self.n_layers, self.entity_limit).to(self.device)  # (batch, 2, 80)
-        #
-        # while True:
-        #     if self.example_ptr >= len(self.features):
-        #         break
-        #     start_id = self.example_ptr  # 这个example_ptr是干啥用的
-        #     cur_bsz = min(self.bsz, len(self.features) - start_id)  # 用来处理剩余样本不足一个batch的情况
-        #     cur_batch = self.features[start_id: start_id + cur_bsz]  # 一个batch大小的feature
-        #     cur_batch.sort(key=lambda x: sum(x.doc_input_mask), reverse=True)  # 输入长的在前面？有啥用？
-        #
-        #     ids = []
-        #     max_sent_cnt = 0
-        #     max_entity_cnt = 0
-        #     for mapping in [start_mapping, all_mapping, query_mapping]:
-        #         mapping.zero_()  # 把几个mapping都初始化为0
-        #     # 为啥要用-100填充
-        #     is_support.fill_(0)
-        #     # is_support.fill_(0)  # BCE
-        #
-        #     for i in range(len(cur_batch)):  # 遍历当前batch，把每个样本的bert输入填进去
-        #         case = cur_batch[i]  # 一个feature
-        #         # print(f'all_doc_tokens is {case.doc_tokens}')
-        #         context_idxs[i].copy_(torch.Tensor(case.doc_input_ids))
-        #         context_mask[i].copy_(torch.Tensor(case.doc_input_mask))
-        #         segment_idxs[i].copy_(torch.Tensor(case.doc_segment_ids))
-        #         # print(case)
-        #         # print(case.sent_spans)
-        #         # query 对应的token位置为1
-        #         for j in range(case.sent_spans[0][0] - 1):
-        #             query_mapping[i, j] = 1
-        #
-        #         # adj = torch.from_numpy(tem_graph['adj'])
-        #         # start_entities = torch.from_numpy(tem_graph['start_entities'])
-        #         # for l in range(self.n_layers):
-        #         #     bfs_mask[i][l].copy_(start_entities)  # 每一层的mask都是实体的起点
-        #         #     start_entities = bfs_step(start_entities, adj)  # 返回第l步能到达的实体，l为0和1
-        #
-        #         if case.ans_type == 0:
-        #             if len(case.end_position) == 0:
-        #                 y1[i] = y2[i] = 0  # 如果结束位置是0，span的标签就为0
-        #             elif case.end_position[0] < self.max_seq_len:
-        #                 y1[i] = case.start_position[0]  # 只用第一个找到的span
-        #                 y2[i] = case.end_position[0]
-        #             else:
-        #                 y1[i] = y2[i] = 0
-        #             q_type[i] = 0
-        #         elif case.ans_type == 1:
-        #             y1[i] = IGNORE_INDEX  # span是-100
-        #             y2[i] = IGNORE_INDEX
-        #             q_type[i] = 1  # 这个明明是answer_type，非要叫q_type
-        #         elif case.ans_type == 2:
-        #             y1[i] = IGNORE_INDEX
-        #             y2[i] = IGNORE_INDEX
-        #             q_type[i] = 2
-        #         elif case.ans_type == 3:
-        #             y1[i] = IGNORE_INDEX
-        #             y2[i] = IGNORE_INDEX
-        #             q_type[i] = 3
-        #
-        #         for j, sent_span in enumerate(case.sent_spans[:self.sent_limit]):  # 句子序号，span
-        #             is_sp_flag = j in case.sup_fact_ids  # 这个代码写的真几把烂#我也觉得
-        #             start, end = sent_span
-        #             if start < end:  # 还有start大于end的时候？
-        #                 is_support[i, j] = int(is_sp_flag)  # 样本i的第j个句子是否是sp
-        #                 all_mapping[i, start:end + 1, j] = 1  # （batch_size, max_seq_len, 20) 第j个句子开始和结束全为1
-        #                 start_mapping[i, j, start] = 1  # （batch_size, 20, max_seq_len)
-        #
-        #         ids.append(case.qas_id)
-        #         max_sent_cnt = max(max_sent_cnt, len(case.sent_spans))
-        #
-        #     input_lengths = (context_mask[:cur_bsz] > 0).long().sum(dim=1)
-        #     max_c_len = int(input_lengths.max())
-        #
-        #     self.example_ptr += cur_bsz
-        #
-        #     yield {
-        #         'context_idxs': context_idxs[:cur_bsz, :max_c_len],  # used
-        #         'context_mask': context_mask[:cur_bsz, :max_c_len],  # used
-        #         'segment_idxs': segment_idxs[:cur_bsz, :max_c_len],  # used
-        #         'query_mapping': query_mapping[:cur_bsz, :max_c_len],  # used
-        #         'y1': y1[:cur_bsz],  # uesed
-        #         'y2': y2[:cur_bsz],  # uesed
-        #         'ids': ids,  # used
-        #         'q_type': q_type[:cur_bsz],  # uesed
-        #         'start_mapping': start_mapping[:cur_bsz, :max_sent_cnt, :max_c_len],  # used
-        #         'all_mapping': all_mapping[:cur_bsz, :max_c_len, :max_sent_cnt],  # used
-        #         # 'bfs_mask': bfs_mask[:cur_bsz, :, :max_entity_cnt],
-        #         'is_support': is_support[:cur_bsz, :max_sent_cnt],
-        #     }
-        # qas_id = example.qas_id,
-        # doc_tokens = all_doc_tokens,
-        # doc_input_ids = doc_input_ids,
-        # doc_input_mask = doc_input_mask,
-        # doc_segment_ids = doc_segment_ids,
-        # query_tokens = query_tokens,
-        # query_input_ids = query_input_ids,
-        # query_input_mask = query_input_mask,
-        # query_segment_ids = query_segment_ids,
-        # sent_spans = sentence_spans,
-        # sup_fact_ids = sup_fact_ids,
-        # ans_type = ans_type,
-        # token_to_orig_map = tok_to_orig_index,
-        # start_position = ans_start_position,
-        # end_position = ans_end_position
         IGNORE_INDEX = -100
         max_seq_len = 512
+        sent_limit = 40
 
-        doc_input_ids, doc_input_mask, doc_segment_ids, query_mapping = [[]] * 4
+        doc_input_ids, doc_input_mask, doc_segment_ids, query_mapping = [],[],[],[]
         # context_idxs, context_mask, segment_idxs= [[]] * 3
-        start_mapping, all_mapping, is_support = [[]] * 3
-
+        start_mapping, all_mapping, is_support = [], [], []
+        y1, y2, ids, q_type = [], [], [], []
         for i, features in tqdm(enumerate(features_list), ncols=80):
             doc_input_ids.append(features.doc_input_ids)
             doc_input_mask.append(features.doc_input_mask)
             doc_segment_ids.append(features.doc_segment_ids)
-            query_mapping_ = [0]*max_seq_len
+            query_mapping_ = torch.Tensor(max_seq_len)
             for j in range(features.sent_spans[0][0] - 1):
                 query_mapping_[j] = 1
-            query_mapping.append(query_mapping_)
+            query_mapping.append(query_mapping_.unsqueeze(dim=0))
 
-            start_mapping_ = [[0] * 40] * max_seq_len
-            all_mapping_ = [[0] * max_seq_len] * 40
+            start_mapping_ = torch.Tensor(sent_limit, max_seq_len)
+            all_mapping_ = torch.Tensor(max_seq_len, sent_limit)
             is_support_ = [0] * 40
             for j, sent_span in enumerate(features.sent_spans[:40]):  # 句子序号，span
                 is_sp_flag = j in features.sup_fact_ids  # 这个代码写的真几把烂#我也觉得
                 start, end = sent_span
-                if start < end:  # 还有start大于end的时候？
-                    is_support_[j] = int(is_sp_flag)  # 样本i的第j个句子是否是sp
-                    all_mapping_[start:end + 1][j] = 1  # （batch_size, max_seq_len, 20) 第j个句子开始和结束全为1
-                    start_mapping_[j][start] = 1  # （batch_siz
+                # if start < end:  # 还有start大于end的时候？
+                is_support_[j] = int(is_sp_flag)  # 样本i的第j个句子是否是sp
+                all_mapping_[start:end + 1, j] = 1 # （batch_size, max_seq_len, 20) 第j个句子开始和结束全为1
+                start_mapping_[j, start] = 1    # （batch_size, 20, max_seq_len)
             is_support.append(is_support_)
-            start_mapping.append(start_mapping_)
-            all_mapping.append(all_mapping_)
+            start_mapping.append(start_mapping_.unsqueeze(dim=0))
+            all_mapping.append(all_mapping_.unsqueeze(dim=0))
 
-        doc_input_ids = torch.tensor(doc_input_ids, dtype=torch.long)
-        doc_input_mask = torch.tensor(doc_input_mask, dtype=torch.long)
-        doc_segment_ids = torch.tensor(doc_segment_ids, dtype=torch.long)
-        query_mapping = torch.tensor(query_mapping, dtype=torch.long)
-        query_mapping = torch.tensor(query_mapping, dtype=torch.int)
-        start_mapping = torch.tensor(start_mapping, dtype=torch.int)
-        all_mapping = torch.tensor(all_mapping, dtype=torch.int)
-        is_support = torch.tensor(is_support, dtype=torch.long)
-
-        y1,y2,ids,q_type= [[]]*4
-        # 'context_idxs': context_idxs[:cur_bsz, :max_c_len],  # used
-        # 'context_mask': context_mask[:cur_bsz, :max_c_len],  # used
-        # 'segment_idxs': segment_idxs[:cur_bsz, :max_c_len],  # used
-        # 'query_mapping': query_mapping[:cur_bsz, :max_c_len],  # used
-        # 'y1': y1[:cur_bsz],  # uesed
-        # 'y2': y2[:cur_bsz],  # uesed
-        # 'ids': ids,  # used
-        # 'q_type': q_type[:cur_bsz],  # uesed
-        # 'start_mapping': start_mapping[:cur_bsz, :max_sent_cnt, :max_c_len],  # used
-        # 'all_mapping': all_mapping[:cur_bsz, :max_c_len, :max_sent_cnt],  # used
-        # # 'bfs_mask': bfs_mask[:cur_bsz, :, :max_entity_cnt],
-        # 'is_support': is_support[:cur_bsz, :max_sent_cnt],
-        for i, example in tqdm(enumerate(example_list), ncols=80):
-            # context_idxs.append(example.doc_input_idxs)
-            # context_mask.append(example.doc_input_mask)
-            # segment_idxs.append(example.doc_segment_idxs)
-            if example.ans_type == 0:
-                if len(example.end_position) == 0:
+            if features.ans_type == 0:
+                if len(features.end_position) == 0:
                     y1.append(0)
                     y2.append(0)  # 如果结束位置是0，span的标签就为0
-                elif example.end_position[0] < max_seq_len:
-                    y1.append(example.start_position[0])  # 只用第一个找到的span
-                    y2.append(example.end_position[0])
+                elif features.end_position[0] < max_seq_len:
+                    y1.append(features.start_position[0])  # 只用第一个找到的span
+                    y2.append(features.end_position[0])
                 else:
                     y1.append(0)
                     y2.append(0)
             else:
                 y1.append(IGNORE_INDEX)  # span是-100
                 y2.append(IGNORE_INDEX)
-            q_type.append(example.ans_type)  # 这个明明是answer_type，非要叫q_type
-            ids.append(example.qas_id)
+            q_type.append(features.ans_type)  # 这个明明是answer_type，非要叫q_type
+            ids.append(features.qas_id)
 
 
-        # context_idxs, context_mask, segment_idxs, query_mapping = [] * 4
-        # y1, y2, ids, q_type, start_mapping, all_mapping, is_support = [] * 7
+        doc_input_ids = torch.tensor(doc_input_ids, dtype=torch.long)
+        doc_input_mask = torch.tensor(doc_input_mask, dtype=torch.long)
+        doc_segment_ids = torch.tensor(doc_segment_ids, dtype=torch.long)
 
-        # context_idxs = torch.tensor(context_idxs, dtype=torch.long)
-        # context_mask = torch.tensor(context_mask, dtype=torch.long)
-        # segment_idxs = torch.tensor(segment_idxs, dtype=torch.long)
+        query_mapping = torch.cat(query_mapping, dim=0)
+        start_mapping = torch.cat(start_mapping, dim=0)
+        all_mapping = torch.cat(all_mapping, dim=0)
+        is_support = torch.tensor(is_support, dtype=torch.long)
 
-        # context_idxs = torch.tensor(context_idxs, dtype=torch.long)
-        # context_mask = torch.tensor(context_mask, dtype=torch.long)
-        # segment_idxs = torch.tensor(segment_idxs, dtype=torch.long)
         y1 = torch.tensor(y1, dtype=torch.long)
         y2 = torch.tensor(y2, dtype=torch.long)
         q_type = torch.tensor(q_type, dtype=torch.long)
 
-
-        # if label_list:  # train
-        #     all_label_ids = torch.tensor(label_list, dtype=torch.long)
-        #     return TensorDataset(
-        #         all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
-        # test
         return TensorDataset(
             doc_input_ids, doc_input_mask, doc_segment_ids,
            query_mapping, start_mapping, all_mapping,

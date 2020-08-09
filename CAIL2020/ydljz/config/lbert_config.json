@@ -1,0 +1,34 @@
+{
+  "model_type": "bert",
+  "max_seq_len": 451,
+  "max_query_len": 50,
+  "model_path": "model/bert/",
+  "log_path": "log/",
+
+  "train_file_path": "data2/valid.json",
+  "valid_file_path": "data2/valid.json",
+
+  "batch_size": 1,
+
+  "bert_model_path": "J:\\wwm_large_ext",
+  "trained_weight":"",
+
+  "num_fc_hidden_size": 64,
+
+  "hidden_size": 1024,
+  "num_classes": 4,
+  "dropout": 0.05,
+
+  "lr": 1e-4,
+  "num_epoch": 10,
+  "num_warmup_steps": 0,
+  "num_training_steps": 32000,
+  "gradient_accumulation_steps": 64,
+  "max_grad_norm": 7e-3,
+
+  "type_lambda": 1,
+  "sp_lambda": 5,
+  "sp_threshold": 0.5,
+
+  "experiment_name": "BERT"
+}
