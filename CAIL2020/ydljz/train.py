@@ -43,7 +43,7 @@ from utils import get_csv_logger, get_path
 #from vocab import build_vocab
 
 
-DEBUG = False
+
 try:
     from apex import amp
 except Exception:
@@ -280,36 +280,35 @@ class Trainer:
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
             tqdm_obj = tqdm(self.data_loader['train'], ncols=80)
-            if DEBUG:
-                for step, batch in enumerate(tqdm_obj):
-                    batch = tuple(t.to(self.device) for t in batch)
-                    # loss = self.criterion(logits, batch[-1])
-                    start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
-                    loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
-                    loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
+            for step, batch in enumerate(tqdm_obj):
+                batch = tuple(t.to(self.device) for t in batch)
+                # loss = self.criterion(logits, batch[-1])
+                start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
+                loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
+                loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
 
-                    sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
-                    sent_num_in_batch = batch[-7].sum()
-                    loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
+                sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
+                sent_num_in_batch = batch[-7].sum()
+                loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
 
-                    loss = loss1 + loss2 + loss3
+                loss = loss1 + loss2 + loss3
 
-                    # if self.config.gradient_accumulation_steps > 1:
-                    #     loss = loss / self.config.gradient_accumulation_steps
-                    # self.optimizer.zero_grad()
-                    # loss.backward()
-                    loss.backward()
+                # if self.config.gradient_accumulation_steps > 1:
+                #     loss = loss / self.config.gradient_accumulation_steps
+                # self.optimizer.zero_grad()
+                # loss.backward()
+                loss.backward()
 
-                    if (step + 1) % self.config.gradient_accumulation_steps == 0:
-                        torch.nn.utils.clip_grad_norm_(
-                            self.model.parameters(), self.config.max_grad_norm)
-                        #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
-                        self.optimizer.step()
-                        self.scheduler.step()
-                        self.optimizer.zero_grad()
-                        global_step += 1
-                        tqdm_obj.set_description('loss: {:.6f} {:.6f} {:.6f}'.format(loss1.item(), loss2.item(), loss3.item()))
-                        step_logger.info(str(global_step) + ',' + str(loss.item()))
+                if (step + 1) % self.config.gradient_accumulation_steps == 0:
+                    torch.nn.utils.clip_grad_norm_(
+                        self.model.parameters(), self.config.max_grad_norm)
+                    #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                    self.optimizer.step()
+                    self.scheduler.step()
+                    self.optimizer.zero_grad()
+                    global_step += 1
+                    tqdm_obj.set_description('loss: {:.6f} {:.6f} {:.6f}'.format(loss1.item(), loss2.item(), loss3.item()))
+                    step_logger.info(str(global_step) + ',' + str(loss.item()))
 
             train_results = self._epoch_evaluate_update_description_log(
                 tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'] )
@@ -319,6 +318,12 @@ class Trainer:
                 exam=self.data_loader['valid_exam'])
 
             results = (train_results['f1'],train_results['sp_f1'],train_results['joint_f1'],valid_results['f1'],valid_results['sp_f1'],valid_results['joint_f1'])
+            tqdm_obj.set_description(
+                'Epoch: {:d}, train_f1: {:.6f}, train_sup_f1: {:.6f}, train_joint_f1: {:.6f}, '
+                'valid_f1: {:.6f}, valid_sup_f1: {:.6f}, valid_joint_f1: {:.6f} '.format(
+                    epoch, results[0], results[1],results[2]), results[3], results[4], results[5])
+            # Logging
+            epoch_logger.info(','.join([str(epoch)] + [str(s) for s in results]))
             self.save_model(os.path.join(
                 self.config.model_path, self.config.experiment_name,
                 self.config.model_type + '-' + str(epoch + 1) + '.bin'))

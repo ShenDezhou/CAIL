@@ -107,7 +107,7 @@ def convert_to_tokens(features, ids, y1, y2, q_type):
     for i, qid in enumerate(ids):   # article id
         answer_text = ''
         if q_type[i] == 0:
-            doc_tokens = features[i][0]
+            doc_tokens = features[i][0].data.cpu().numpy().tolist()
             tok_tokens = doc_tokens[y1[i]: y2[i] + 1]
             tok_to_orig_map = features[i][6]
             if y2[i] < len(tok_to_orig_map):   # end位置合法

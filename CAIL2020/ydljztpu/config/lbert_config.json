@@ -5,7 +5,7 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data2/valid.json",
+  "train_file_path": "data2/trainx.json",
   "valid_file_path": "data2/valid.json",
 
   "batch_size": 32,
@@ -33,6 +33,7 @@
   "sp_lambda": 5,
   "sp_threshold": 0.5,
   "num_cores": 8,
+  "log_steps": 2000,
 
   "experiment_name": "BERT"
 }

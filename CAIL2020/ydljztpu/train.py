@@ -655,7 +655,7 @@ def _mp_fn(rank, flags, model,serial):
     SERIAL_EXEC = serial
     torch.set_default_tensor_type('torch.FloatTensor')
 
-    main(flags.config_file)
+    main(args.config_file)
     # Retrieve tensors that are on TPU core 0 and plot.
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE', rank))
