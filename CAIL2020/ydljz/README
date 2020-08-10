@@ -1,5 +1,3 @@
-#Rewrite dataloader code. 2020-8-9
-
 Two steps to run baseline system
 
 First step:Data process to get the data for trainning

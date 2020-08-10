@@ -8,9 +8,9 @@
   "train_file_path": "data2/valid.json",
   "valid_file_path": "data2/valid.json",
 
-  "batch_size": 1,
+  "batch_size": 2,
 
-  "bert_model_path": "J:\\wwm_large_ext",
+  "bert_model_path": "D:\\lbwj\\model\\bert\\roberta_wwm_large_ext",
   "trained_weight":"",
 
   "num_fc_hidden_size": 64,
@@ -23,8 +23,11 @@
   "num_epoch": 10,
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 64,
-  "max_grad_norm": 7e-3,
+  "gradient_accumulation_steps": 1,
+  "max_grad_norm": 1e-3,
+
+  "prediction_path":"output/submissions",
+  "checkpoint_path":"output/checkpoints",
 
   "type_lambda": 1,
   "sp_lambda": 5,

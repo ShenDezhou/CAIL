@@ -43,13 +43,13 @@ from utils import get_csv_logger, get_path
 #from vocab import build_vocab
 
 
-
+DEBUG = False
 try:
     from apex import amp
 except Exception:
     print('Apex not import!')
 
-from data_process import read_examples, convert_examples_to_features
+#from data_process import read_examples, convert_examples_to_features
 from evaluate.evaluate import eval
 from utils import get_path,get_csv_logger
 
@@ -153,7 +153,7 @@ class Trainer:
         return train_acc, train_f1, valid_acc, valid_f1
 
     def _epoch_evaluate_update_description_log(
-            self, tqdm_obj, logger, epoch):
+            self, tqdm_obj, logger, epoch, exam):
         """Evaluate model and update logs for epoch.
 
         Args:
@@ -165,16 +165,22 @@ class Trainer:
             train_acc, train_f1, valid_acc, valid_f1
         """
         # Evaluate model for train and valid set
-        results = self._evaluate_for_train_valid()
-        train_acc, train_f1, valid_acc, valid_f1 = results
+        # results = self._evaluate_for_train_valid()
+        # train_acc, train_f1, valid_acc, valid_f1 = results
+        # step_count = 999
+        self.predict(self.model, tqdm_obj, exam,
+                join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)))
+        results = eval(join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)),
+             self.config.valid_file_path)
+
         # Update tqdm description for command line
-        tqdm_obj.set_description(
-            'Epoch: {:d}, train_acc: {:.6f}, train_f1: {:.6f}, '
-            'valid_acc: {:.6f}, valid_f1: {:.6f}, '.format(
-                epoch, train_acc, train_f1, valid_acc, valid_f1))
-        # Logging
-        logger.info(','.join([str(epoch)] + [str(s) for s in results]))
-        return train_acc, train_f1, valid_acc, valid_f1
+        # tqdm_obj.set_description(
+        #     'Epoch: {:d}, train_acc: {:.6f}, train_f1: {:.6f}, '
+        #     'valid_acc: {:.6f}, valid_f1: {:.6f}, '.format(
+        #         epoch, train_acc, train_f1, valid_acc, valid_f1))
+        # # Logging
+        # logger.info(','.join([str(epoch)] + [str(s) for s in results]))
+        return results
 
     def save_model(self, filename):
         """Save model to file.
@@ -193,6 +199,65 @@ class Trainer:
         loss = loss1 + loss2 + loss3
         return loss, loss1, loss2, loss3
 
+    @torch.no_grad()
+    def predict(self, model, dataloader, exam, prediction_file, need_sp_logit_file=False):
+
+        model.eval()
+        answer_dict = {}
+        sp_dict = {}
+        # dataloader.refresh()
+        total_test_loss = [0] * 5
+
+        tqdm_obj = tqdm(dataloader, ncols=80)
+        for step, batch in enumerate(tqdm_obj):
+            batch = tuple(t.to(self.device) for t in batch)
+            # batch['context_mask'] = batch['context_mask'].float()
+            start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
+            loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
+            loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
+
+            sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
+            sent_num_in_batch = batch[-7].sum()
+            loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
+
+            loss = loss1 + loss2 + loss3
+            loss_list = [loss, loss1, loss2, loss3]
+
+            for i, l in enumerate(loss_list):
+                if not isinstance(l, int):
+                    total_test_loss[i] += l.item()
+
+            answer_dict_ = convert_to_tokens(batch, batch[-5], start_position.data.cpu().numpy().tolist(),
+                                             end_position.data.cpu().numpy().tolist(),
+                                             np.argmax(type_logits.data.cpu().numpy(), 1))
+            answer_dict.update(answer_dict_)
+
+            predict_support_np = torch.sigmoid(sp_logits).data.cpu().numpy()
+            for i in range(predict_support_np.shape[0]):
+                cur_sp_pred = []
+                cur_id = str(batch[-5][i])
+                exam_ = exam[step]
+                cur_sp_logit_pred = []  # for sp logit output
+                for j in range(predict_support_np.shape[1]):
+                    if j >= len(exam_.sent_names):
+                        break
+                    if need_sp_logit_file:
+                        temp_title, temp_id = exam_.sent_names[j]
+                        cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
+                    if not predict_support_np[i, j].is_nan() and predict_support_np[i, j] > self.config.sp_threshold:
+                        cur_sp_pred.append(exam_.sent_names[j])
+                sp_dict.update({cur_id: cur_sp_pred})
+
+        new_answer_dict = {}
+        for key, value in answer_dict.items():
+            new_answer_dict[key] = value.replace(" ", "")
+        prediction = {'answer': new_answer_dict, 'sp': sp_dict}
+        with open(prediction_file, 'w', encoding='utf8') as f:
+            json.dump(prediction, f, indent=4, ensure_ascii=False)
+
+        for i, l in enumerate(total_test_loss):
+            print("Test Loss{}: {}".format(i, l / len(dataloader)))
+        #test_loss_record.append(sum(total_test_loss[:3]) / len(dataloader))
 
     def train(self):
         """Train model on train set and evaluate on train and valid set.
@@ -218,46 +283,56 @@ class Trainer:
             # doc_input_ids, doc_input_mask, doc_segment_ids,
             # query_mapping, start_mapping, all_mapping,
             # y1, y2, q_type, is_support
-            for step, batch in enumerate(tqdm_obj):
-                batch = tuple(t.to(self.device) for t in batch)
-                # loss = self.criterion(logits, batch[-1])
-                start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
-                loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
-                loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
-                sent_num_in_batch = batch[-6].sum()
-                loss3 = self.config.sp_lambda * self.sp_loss_fct(sp_logits.view(-1),
-                                                          batch[-1].float().view(
-                                                              -1)).sum() / sent_num_in_batch
-                loss = loss1 + loss2 + loss3
+            if DEBUG:
+                for step, batch in enumerate(tqdm_obj):
+                    batch = tuple(t.to(self.device) for t in batch)
+                    # loss = self.criterion(logits, batch[-1])
+                    start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
+                    loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
+                    loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
 
-                # if self.config.gradient_accumulation_steps > 1:
-                #     loss = loss / self.config.gradient_accumulation_steps
-                # self.optimizer.zero_grad()
-                # loss.backward()
-                loss.backward()
+                    sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
+                    sent_num_in_batch = batch[-6].sum()
+                    loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
 
-                if (step + 1) % self.config.gradient_accumulation_steps == 0:
-                    torch.nn.utils.clip_grad_norm_(
-                        self.model.parameters(), self.config.max_grad_norm)
-                    #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
-                    self.optimizer.step()
-                    self.scheduler.step()
-                    self.optimizer.zero_grad()
-                    global_step += 1
-                    tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
-                    step_logger.info(str(global_step) + ',' + str(loss.item()))
+                    loss = loss1 + loss2 + loss3
+
+                    # if self.config.gradient_accumulation_steps > 1:
+                    #     loss = loss / self.config.gradient_accumulation_steps
+                    # self.optimizer.zero_grad()
+                    # loss.backward()
+                    loss.backward()
+
+                    if (step + 1) % self.config.gradient_accumulation_steps == 0:
+                        torch.nn.utils.clip_grad_norm_(
+                            self.model.parameters(), self.config.max_grad_norm)
+                        #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                        self.optimizer.step()
+                        self.scheduler.step()
+                        self.optimizer.zero_grad()
+                        global_step += 1
+                        tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
+                        step_logger.info(str(global_step) + ',' + str(loss.item()))
 
             # if epoch >= 2:
-            results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
+            # {'em': 0, 'f1': 0, 'prec': 0, 'recall': 0,
+            #  'sp_em': 0, 'sp_f1': 0, 'sp_prec': 0, 'sp_recall': 0,
+            #  'joint_em': 0, 'joint_f1': 0, 'joint_prec': 0, 'joint_recall': 0}
+            train_results = self._epoch_evaluate_update_description_log(
+                tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'] )
 
+            valid_results = self._epoch_evaluate_update_description_log(
+                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1,
+                exam=self.data_loader['valid_exam'])
+
+            results = (train_results['f1'],train_results['sp_f1'],train_results['joint_f1'],valid_results['f1'],valid_results['sp_f1'],valid_results['joint_f1'])
             self.save_model(os.path.join(
                 self.config.model_path, self.config.experiment_name,
                 self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
-            if results[-3] > best_train_f1:
+            if results[-4] > best_train_f1:
                 best_model_state_dict = deepcopy(self.model.state_dict())
-                best_train_f1 = results[-3]
+                best_train_f1 = results[-4]
 
         return best_model_state_dict
 
@@ -286,57 +361,6 @@ def compute_loss(batch, start_logits, end_logits, type_logits, sp_logits, start_
     return loss, loss1, loss2, loss3
 
 
-@torch.no_grad()
-def predict(model, dataloader, example_dict, feature_dict, prediction_file, need_sp_logit_file=False):
-
-    model.eval()
-    answer_dict = {}
-    sp_dict = {}
-    dataloader.refresh()
-    total_test_loss = [0] * 5
-
-    for batch in tqdm(dataloader):
-
-        batch['context_mask'] = batch['context_mask'].float()
-        start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(batch)
-
-        loss_list = compute_loss(batch, start_logits, end_logits, type_logits, sp_logits, start_position, end_position)
-
-        for i, l in enumerate(loss_list):
-            if not isinstance(l, int):
-                total_test_loss[i] += l.item()
-
-
-        answer_dict_ = convert_to_tokens(example_dict, feature_dict, batch['ids'], start_position.data.cpu().numpy().tolist(),
-                                         end_position.data.cpu().numpy().tolist(), np.argmax(type_logits.data.cpu().numpy(), 1))
-        answer_dict.update(answer_dict_)
-
-        predict_support_np = torch.sigmoid(sp_logits).data.cpu().numpy()
-        for i in range(predict_support_np.shape[0]):
-            cur_sp_pred = []
-            cur_id = batch['ids'][i]
-
-            cur_sp_logit_pred = []  # for sp logit output
-            for j in range(predict_support_np.shape[1]):
-                if j >= len(example_dict[cur_id].sent_names):
-                    break
-                if need_sp_logit_file:
-                    temp_title, temp_id = example_dict[cur_id].sent_names[j]
-                    cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
-                if predict_support_np[i, j] > args.sp_threshold:
-                    cur_sp_pred.append(example_dict[cur_id].sent_names[j])
-            sp_dict.update({cur_id: cur_sp_pred})
-
-    new_answer_dict={}
-    for key,value in answer_dict.items():
-        new_answer_dict[key]=value.replace(" ","")
-    prediction = {'answer': new_answer_dict, 'sp': sp_dict}
-    with open(prediction_file, 'w',encoding='utf8') as f:
-        json.dump(prediction, f,indent=4,ensure_ascii=False)
-
-    for i, l in enumerate(total_test_loss):
-        print("Test Loss{}: {}".format(i, l / len(dataloader)))
-    test_loss_record.append(sum(total_test_loss[:3]) / len(dataloader))
 
 
 def train_epoch(data_loader, model, logger, predict_during_train=False, epoch=1):
@@ -416,6 +440,8 @@ def main(config_file='config/bert_config.json'):
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
+    get_path(config.prediction_path)
+    get_path(config.checkpoint_path)
     if config.model_type == 'rnn':  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
@@ -426,7 +452,7 @@ def main(config_file='config/bert_config.json'):
     datasets = data.load_train_and_valid_files(
         train_file=config.train_file_path,
         valid_file=config.valid_file_path)
-    train_set, valid_set_train, valid_set_valid = datasets
+    train_set, valid_set_train, valid_set_valid, train_exam, valid_exam = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -442,7 +468,10 @@ def main(config_file='config/bert_config.json'):
         'valid_train': DataLoader(
             valid_set_train, batch_size=config.batch_size, shuffle=False),
         'valid_valid': DataLoader(
-            valid_set_valid, batch_size=config.batch_size, shuffle=False)}
+            valid_set_valid, batch_size=config.batch_size, shuffle=False),
+        'train_exam': train_exam,
+        'valid_exam': valid_exam
+    }
     # 2. Build model
     model = MODEL_MAP[config.model_type](config)
     #load model states.

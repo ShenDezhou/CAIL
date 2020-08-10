@@ -248,7 +248,7 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (s1_ids, s2_ids, s1_length, s2_length)
         """
-        features_list = self._load_file1(file_path, train)
+        examples, features_list = self._load_file1(file_path, train)
 
         # if self.model_type == 'bert':
         dataset = self._convert_sentence_pair_to_bert_dataset(
@@ -256,7 +256,7 @@ class Data:
         # else:  # rnn
         #     dataset = self._convert_sentence_pair_to_rnn_dataset(
         #         sc_list, bc_list, label_list)
-        return dataset
+        return examples, dataset
 
     def load_train_and_valid_files(self, train_file, valid_file):
         """Load all files for SMP-CAIL2020-Argmine.
@@ -269,15 +269,15 @@ class Data:
             all are torch.utils.data.TensorDataset
         """
         print('Loading train records for train...')
-        train_set = self.load_file(train_file, True)
+        train_exam, train_set = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
         print('Loading train records for valid...')
-        valid_set_train = self.load_file(train_file, False)
+        train_exam, valid_set_train = self.load_file(train_file, False)
         print(len(valid_set_train), 'train records loaded.')
         print('Loading valid records...')
-        valid_set_valid = self.load_file(valid_file, False)
+        valid_exam, valid_set_valid = self.load_file(valid_file, False)
         print(len(valid_set_valid), 'valid records loaded.')
-        return train_set, valid_set_train, valid_set_valid
+        return train_set, valid_set_train, valid_set_valid, train_exam, valid_exam
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -476,7 +476,7 @@ class Data:
             examples.append(example)
 
         features_list = self.convert_examples_to_features(examples, self.tokenizer, 512, 50)
-        return features_list
+        return examples, features_list
 
     def convert_examples_to_features(self, examples, tokenizer, max_seq_length, max_query_length):
         # max_query_length = 50
@@ -659,16 +659,24 @@ class Data:
         IGNORE_INDEX = -100
         max_seq_len = 512
         sent_limit = 40
+        max_query_len  = 50
 
         doc_input_ids, doc_input_mask, doc_segment_ids, query_mapping = [],[],[],[]
         # context_idxs, context_mask, segment_idxs= [[]] * 3
         start_mapping, all_mapping, is_support = [], [], []
         y1, y2, ids, q_type = [], [], [], []
+        tok_to_orig_index = []
         for i, features in tqdm(enumerate(features_list), ncols=80):
             doc_input_ids.append(features.doc_input_ids)
             doc_input_mask.append(features.doc_input_mask)
             doc_segment_ids.append(features.doc_segment_ids)
             query_mapping_ = torch.Tensor(max_seq_len)
+
+            if len(features.token_to_orig_map) <= 512:
+                features.token_to_orig_map = features.token_to_orig_map + [0]*(512-len(features.token_to_orig_map))
+            features.token_to_orig_map = features.token_to_orig_map[:512]
+            tok_to_orig_index.append(features.token_to_orig_map)
+
             for j in range(features.sent_spans[0][0] - 1):
                 query_mapping_[j] = 1
             query_mapping.append(query_mapping_.unsqueeze(dim=0))
@@ -707,20 +715,24 @@ class Data:
         doc_input_ids = torch.tensor(doc_input_ids, dtype=torch.long)
         doc_input_mask = torch.tensor(doc_input_mask, dtype=torch.long)
         doc_segment_ids = torch.tensor(doc_segment_ids, dtype=torch.long)
+        tok_to_orig_index = torch.tensor(tok_to_orig_index, dtype=torch.long)
 
         query_mapping = torch.cat(query_mapping, dim=0)
         start_mapping = torch.cat(start_mapping, dim=0)
         all_mapping = torch.cat(all_mapping, dim=0)
-        is_support = torch.tensor(is_support, dtype=torch.long)
 
+        ids = torch.tensor(ids, dtype=torch.long)
         y1 = torch.tensor(y1, dtype=torch.long)
         y2 = torch.tensor(y2, dtype=torch.long)
         q_type = torch.tensor(q_type, dtype=torch.long)
+        is_support = torch.tensor(is_support, dtype=torch.long)
+
 
         return TensorDataset(
             doc_input_ids, doc_input_mask, doc_segment_ids,
            query_mapping, start_mapping, all_mapping,
-            y1, y2, q_type, is_support
+            tok_to_orig_index,
+            ids, y1, y2, q_type, is_support
         )
 
     def _convert_sentence_pair_to_rnn_dataset(

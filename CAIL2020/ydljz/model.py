@@ -47,10 +47,10 @@ class BertSupportNetX(nn.Module):
         self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=self.fc_hidden_size)
         self.dropout = nn.Dropout(self.dropout_size)
 
-        self.sp_linear = nn.Linear(self.fc_hidden_size, 1)
-        self.start_linear = nn.Linear(self.fc_hidden_size, 1)
-        self.end_linear = nn.Linear(self.fc_hidden_size, 1)
-        self.type_linear = nn.Linear(self.fc_hidden_size, config.num_classes)  # yes/no/ans/unknown
+        self.sp_linear = nn.Linear(self.input_dim, 1)
+        self.start_linear = nn.Linear(self.input_dim, 1)
+        self.end_linear = nn.Linear(self.input_dim, 1)
+        self.type_linear = nn.Linear(self.input_dim, config.num_classes)  # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
@@ -66,8 +66,8 @@ class BertSupportNetX(nn.Module):
         return Variable(self.cache_mask, requires_grad=False)
 
     def forward(self, doc_input_ids, doc_input_mask, doc_segment_ids,
-           query_mapping, start_mapping, all_mapping,
-            y1, y2, q_type, is_support):
+           query_mapping, start_mapping, all_mapping,tok_to_orig_index,
+            ids, y1, y2, q_type, is_support):
         # doc_ids, doc_mask, segment_ids = batch['context_idxs'], batch['context_mask'], batch['segment_idxs']
         # roberta不可以输入token_type_ids
         context_encoding = self.encoder(input_ids=doc_input_ids,
@@ -84,9 +84,10 @@ class BertSupportNetX(nn.Module):
         # context_mask = batch['context_mask']  # bert里实际有输入的位置
         # all_mapping = batch['all_mapping']  # (batch_size, 512, max_sent) 每个句子的token对应为1
 
-        x = context_encoding.transpose(1, 2)  # .type(torch.cuda.FloatTensor)
-        x = self.resnet(x)
-        cnn = x.transpose(2, 1)  # .type(torch.cuda.FloatTensor)
+        # x = context_encoding.transpose(1, 2)  # .type(torch.cuda.FloatTensor)
+        # x = self.resnet(x)
+        # cnn = x.transpose(2, 1)  # .type(torch.cuda.FloatTensor)
+        cnn = context_encoding
 
         input_state, support_state, type_state = self.dropout(cnn), self.dropout(cnn), self.dropout(cnn)
 
