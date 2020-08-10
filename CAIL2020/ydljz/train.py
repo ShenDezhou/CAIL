@@ -244,7 +244,7 @@ class Trainer:
                     if need_sp_logit_file:
                         temp_title, temp_id = exam_.sent_names[j]
                         cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
-                    if not predict_support_np[i, j].is_nan() and predict_support_np[i, j] > self.config.sp_threshold:
+                    if predict_support_np[i, j] > self.config.sp_threshold:
                         cur_sp_pred.append(exam_.sent_names[j])
                 sp_dict.update({cur_id: cur_sp_pred})
 
@@ -280,9 +280,6 @@ class Trainer:
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
             tqdm_obj = tqdm(self.data_loader['train'], ncols=80)
-            # doc_input_ids, doc_input_mask, doc_segment_ids,
-            # query_mapping, start_mapping, all_mapping,
-            # y1, y2, q_type, is_support
             if DEBUG:
                 for step, batch in enumerate(tqdm_obj):
                     batch = tuple(t.to(self.device) for t in batch)
@@ -292,7 +289,7 @@ class Trainer:
                     loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
 
                     sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
-                    sent_num_in_batch = batch[-6].sum()
+                    sent_num_in_batch = batch[-7].sum()
                     loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
 
                     loss = loss1 + loss2 + loss3
@@ -311,13 +308,9 @@ class Trainer:
                         self.scheduler.step()
                         self.optimizer.zero_grad()
                         global_step += 1
-                        tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
+                        tqdm_obj.set_description('loss: {:.6f} {:.6f} {:.6f}'.format(loss1.item(), loss2.item(), loss3.item()))
                         step_logger.info(str(global_step) + ',' + str(loss.item()))
 
-            # if epoch >= 2:
-            # {'em': 0, 'f1': 0, 'prec': 0, 'recall': 0,
-            #  'sp_em': 0, 'sp_f1': 0, 'sp_prec': 0, 'sp_recall': 0,
-            #  'joint_em': 0, 'joint_f1': 0, 'joint_prec': 0, 'joint_recall': 0}
             train_results = self._epoch_evaluate_update_description_log(
                 tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'] )
 
