@@ -40,7 +40,7 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm1d
-        if groups != 1 or base_width != 64:
+        if groups != 1 or base_width != 1024:
             raise ValueError('BasicBlock only supports groups=1 and base_width=64')
         if dilation > 1:
             raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
@@ -124,14 +124,14 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
-                 groups=1, width_per_group=64, replace_stride_with_dilation=None,
+                 groups=1, width_per_group=1024, replace_stride_with_dilation=None,
                  norm_layer=None):
         super(ResNet, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm1d
         self._norm_layer = norm_layer
 
-        self.inplanes = 64
+        self.inplanes = 1024
         self.dilation = 1
         if replace_stride_with_dilation is None:
             # each element in the tuple indicates if we should replace
@@ -142,11 +142,11 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv1d(1024, self.inplanes, kernel_size=7, stride=2, padding=3,
+        self.conv1 = nn.Conv1d(1024, self.inplanes, kernel_size=1, stride=2, padding=0,
                                bias=False)
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
-        self.maxpool = nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
+        self.maxpool = nn.MaxPool1d(kernel_size=1, stride=2, padding=0)
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
                                        dilate=replace_stride_with_dilation[0])
@@ -236,7 +236,9 @@ def resnet18(pretrained=False, progress=True, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress,
+    # planes = [2, 2, 2, 2]
+    planes = [1, 1, 1, 1]
+    return _resnet('resnet18', BasicBlock, planes, pretrained, progress,
                    **kwargs)
 
 

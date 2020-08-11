@@ -10,6 +10,7 @@ from torch import nn
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
+import torch_xla.core.xla_model as xm
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
@@ -150,7 +151,10 @@ class BertXForClassification(nn.Module):
         logits = self.fc3(x)        # logits: (batch_size, num_classes)
         return logits
 
-from resnet import resnet18, wide_resnet101_2
+from resnet import resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
+
+resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
+
 class BertYForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
@@ -172,7 +176,7 @@ class BertYForClassification(nn.Module):
         hidden_size = config.num_fc_hidden_size
         target_class = config.num_classes
         # self.resnet = resnet18(num_classes=hidden_size)
-        self.resnet = wide_resnet101_2(num_classes=hidden_size)
+        self.resnet = resnet_pool[config.resnet_type](num_classes=hidden_size)
 
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)

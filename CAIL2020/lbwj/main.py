@@ -28,7 +28,7 @@ from utils import load_torch_model
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
