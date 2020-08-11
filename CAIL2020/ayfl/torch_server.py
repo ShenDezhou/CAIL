@@ -67,7 +67,7 @@ class TorchResource:
         logger.info('1:{}, 2:{}'.format(title, content))
         row = {'type1': '/', 'title': title, 'content': content}
         df = pandas.DataFrame().append(row, ignore_index=True)
-        filename = "datalog/{}.csv".format(time.time())
+        filename = "data/{}.csv".format(time.time())
         df.to_csv(filename, index=False, columns=['type1', 'title', 'content'])
         test_set = self.data.load_file(filename, train=False)
         data_loader_test = DataLoader(
@@ -108,4 +108,4 @@ if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
     api.req_options.auto_parse_form_urlencoded = True
     api.add_route('/z', TorchResource())
-    waitress.serve(api, port=58080, threads=48, url_scheme='http')
+    waitress.serve(api, port=58081, threads=48, url_scheme='http')
