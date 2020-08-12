@@ -33,7 +33,7 @@ class SupportNet(nn.Module):
         self.config = config  # 就是args
         # self.n_layers = config.n_layers  # 2
         self.max_query_length = self.config.max_query_len
-        self.prediction_layer = DeepCNNPredictionLayer(config)
+        self.prediction_layer = CNNPredictionLayer(config)
 
     def forward(self, batch, debug=False):
         context_encoding = batch['context_encoding']
@@ -106,15 +106,15 @@ class CNNPredictionLayer(nn.Module):
         self.conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
         self.conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
         self.conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.cnn_output_size, kernel_size=3, padding=1)
+        self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.fc_hidden_size, kernel_size=3, padding=1)
 
         # cnn feature map has a total number of 228 dimensions.
-        self.dropout = nn.Dropout(self.dropout_size)
-        self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
-        self.fc2 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
-        self.fc3 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
-        self.fc4 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
-        self.fc5 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
+        # self.dropout = nn.Dropout(self.dropout_size)
+        # self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
+        # self.fc2 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
+        # self.fc3 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
+        # self.fc4 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
+        # self.fc5 = nn.Linear(config.fc_hidden_size, config.fc_hidden_size)
 
         self.sp_linear = nn.Linear(config.fc_hidden_size, 1)
         self.start_linear = nn.Linear(config.fc_hidden_size, 1)
@@ -146,22 +146,22 @@ class CNNPredictionLayer(nn.Module):
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
         x = F.relu(self.conv6(x))
-        cnn = x.transpose(2, 1).type(torch.cuda.FloatTensor)
+        input_state = x.transpose(2, 1).type(torch.cuda.FloatTensor)
 
-        # x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        # input_state = F.max_pool1d(x, x.size(2), stride=1, padding=1).squeeze(2)
         # x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        x, y = self.fc1(cnn), self.fc2(cnn)
-        x, y = self.dropout(x), self.dropout(y)
-        x, y, z = self.fc3(x), self.fc4(y), self.fc5(cnn)
-        input_state, support_state, type_state = self.dropout(x), self.dropout(y), self.dropout(z)
+        # x, y = self.fc1(cnn), self.fc2(cnn)
+        # x, y = self.dropout(x), self.dropout(y)
+        #x, y, z = F.relu(self.fc1(cnn.view(cnn.size(0), -1))),F.relu(self.fc2(cnn.view(cnn.size(0), -1))),F.relu(self.fc3(cnn.view(cnn.size(0), -1)))
+        #input_state, support_state, type_state = self.dropout(x), self.dropout(y), self.dropout(z)
 
 
         start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
         end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
-        sp_state = all_mapping.unsqueeze(3) * support_state.unsqueeze(2)  # N x sent x 512 x 300
+        sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x sent x 512 x 300
         sp_state = sp_state.max(1)[0]
         sp_logits = self.sp_linear(sp_state)
-        type_state = torch.max(type_state, dim=1)[0]
+        type_state = torch.max(input_state, dim=1)[0]
         type_logits = self.type_linear(type_state)
 
         # 找结束位置用的开始和结束位置概率之和

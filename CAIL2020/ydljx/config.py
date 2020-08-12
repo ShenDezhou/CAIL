@@ -33,19 +33,19 @@ def set_config():
     parser.add_argument("--fp16", action='store_true')
 
     parser.add_argument("--ckpt_id", type=int, default=0)
-    parser.add_argument("--bert_model", type=str, default='../wwm_large_ext',
+    parser.add_argument("--bert_model", type=str, default=r'D:\lbwj\model\bert\roberta_wwm_ext',
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
-    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--qat_epochs", type=int, default=0)
-    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--max_seq_len", type=int, default=512)
 
     #cnn
-    # parser.add_argument("--cnn_hidden_size", type=int, default=512)
-    # parser.add_argument("--cnn_output_size", type=int, default=512)
-    # parser.add_argument("--fc_hidden_size", type=int, default=1024)
+    parser.add_argument("--cnn_hidden_size", type=int, default=512)
+    parser.add_argument("--cnn_output_size", type=int, default=512)
+    parser.add_argument("--fc_hidden_size", type=int, default=64)
     # parser.add_argument("--cnn_module_layers", type=int, default=4)
     parser.add_argument("--dropout", type=float, default=0.05)
     parser.add_argument("--resnet_type", type=int, default=8)
@@ -66,7 +66,7 @@ def set_config():
     parser.add_argument("--trans_drop", type=float, default=0.5)
     parser.add_argument("--trans_heads", type=int, default=3)
 
-    parser.add_argument("--input_dim", type=int, default=1024, help="bert-base=768, bert-large=1024")
+    parser.add_argument("--input_dim", type=int, default=768, help="bert-base=768, bert-large=1024")
 
     parser.add_argument("--model_gpu", default='0', type=str, help="device to place model.")
     # parser.add_argument('--trained_weight',default=None)
