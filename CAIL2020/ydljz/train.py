@@ -1,60 +1,36 @@
-import argparse
-import gzip
+try:
+    from apex import amp
+except Exception:
+    print('Apex not import!')
 import os
-import pickle
 from os.path import join
-from tqdm import tqdm
-from transformers import BertModel, BertTokenizer
-from transformers import BertConfig as BC
-import json
-
-import torch
-from torch import nn
-from transformers.optimization import AdamW, get_linear_schedule_with_warmup
-from model import *
-from tools.utils import convert_to_tokens
-from data_iterator_pack import IGNORE_INDEX
-import numpy as np
-import queue
-import random
-from config import set_config
-from data_helper import DataHelper
-from data_process import InputFeatures,Example
-from typing import Dict
-import argparse
-import json
-import os
 from copy import deepcopy
 from types import SimpleNamespace
+import argparse
+import random
+from typing import Dict
+
+import json
+import numpy as np
+from tqdm import tqdm, trange
 
 import torch
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, RandomSampler
-from torch.utils.data.distributed import DistributedSampler
-from tqdm import tqdm, trange
+
 from transformers.optimization import (
     AdamW, get_linear_schedule_with_warmup, get_constant_schedule)
 
 from data import Data
-#from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
+from data_iterator_pack import IGNORE_INDEX
 from model import BertSupportNetX
-from utils import get_csv_logger, get_path
-#from vocab import build_vocab
-
-
-
-try:
-    from apex import amp
-except Exception:
-    print('Apex not import!')
-
-#from data_process import read_examples, convert_examples_to_features
+from tools.utils import convert_to_tokens
 from evaluate.evaluate import eval
 from utils import get_path,get_csv_logger
 
 MODEL_MAP={
-    "bert":BertSupportNetX
+    "bert": BertSupportNetX
 }
 
 class Trainer:
@@ -227,7 +203,8 @@ class Trainer:
                 if not isinstance(l, int):
                     total_test_loss[i] += l.item()
 
-            answer_dict_ = convert_to_tokens(batch, batch[-5], start_position.data.cpu().numpy().tolist(),
+            batchsize = batch[0].size(0)
+            answer_dict_ = convert_to_tokens(batch, exam[step*batchsize:step*batchsize + batchsize], batch[-5], start_position.data.cpu().numpy().tolist(),
                                              end_position.data.cpu().numpy().tolist(),
                                              np.argmax(type_logits.data.cpu().numpy(), 1))
             answer_dict.update(answer_dict_)
@@ -276,6 +253,10 @@ class Trainer:
         trange_obj = trange(self.config.num_epoch, desc='Epoch', ncols=120)
         # self._epoch_evaluate_update_description_log(
         #     tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
+        # doc_input_ids, doc_input_mask, doc_segment_ids,
+        # query_mapping, start_mapping, all_mapping,
+        # tok_to_orig_index,
+        # ids, y1, y2, q_type, is_support
         best_model_state_dict, best_train_f1, global_step = None, 0, 0
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
@@ -286,11 +267,9 @@ class Trainer:
                 start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
                 loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
                 loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
-
                 sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
-                sent_num_in_batch = batch[-7].sum()
+                sent_num_in_batch = batch[-8].sum()
                 loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
-
                 loss = loss1 + loss2 + loss3
 
                 # if self.config.gradient_accumulation_steps > 1:
@@ -302,7 +281,7 @@ class Trainer:
                 if (step + 1) % self.config.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(
                         self.model.parameters(), self.config.max_grad_norm)
-                    #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                    #梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
                     self.optimizer.step()
                     self.scheduler.step()
                     self.optimizer.zero_grad()
@@ -314,14 +293,13 @@ class Trainer:
                 tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'] )
 
             valid_results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1,
-                exam=self.data_loader['valid_exam'])
+                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1, exam=self.data_loader['valid_exam'])
 
             results = (train_results['f1'],train_results['sp_f1'],train_results['joint_f1'],valid_results['f1'],valid_results['sp_f1'],valid_results['joint_f1'])
             tqdm_obj.set_description(
                 'Epoch: {:d}, train_f1: {:.6f}, train_sup_f1: {:.6f}, train_joint_f1: {:.6f}, '
                 'valid_f1: {:.6f}, valid_sup_f1: {:.6f}, valid_joint_f1: {:.6f} '.format(
-                    epoch, results[0], results[1],results[2]), results[3], results[4], results[5])
+                    epoch, results[0], results[1],results[2], results[3], results[4], results[5]))
             # Logging
             epoch_logger.info(','.join([str(epoch)] + [str(s) for s in results]))
             self.save_model(os.path.join(
@@ -439,7 +417,7 @@ def main(config_file='config/bert_config.json'):
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
     get_path(config.prediction_path)
-    get_path(config.checkpoint_path)
+
     if config.model_type == 'rnn':  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
@@ -453,7 +431,6 @@ def main(config_file='config/bert_config.json'):
     train_set, valid_set_train, valid_set_valid, train_exam, valid_exam = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
-        # device = torch.device('cpu')
         # torch.distributed.init_process_group(backend="nccl")
         # sampler_train = DistributedSampler(train_set)
         sampler_train = RandomSampler(train_set)
@@ -492,7 +469,7 @@ def main(config_file='config/bert_config.json'):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config_file', default='config/lbert_config.json',
+        '-c', '--config_file', default='config/bert_config.json',
         help='model config file')
 
     parser.add_argument(

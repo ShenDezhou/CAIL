@@ -101,15 +101,15 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     return output_text
 
 
-def convert_to_tokens(features, ids, y1, y2, q_type):
+def convert_to_tokens(features, exam, ids, y1, y2, q_type):
     answer_dict = dict()
     # 一次迭代一个batch的数据
     for i, qid in enumerate(ids):   # article id
         answer_text = ''
-        if q_type[i] == 0:
-            doc_tokens = features[i][0].data.cpu().numpy().tolist()
+        if q_type[i] > 0:
+            doc_tokens = exam[i].doc_tokens.data.cpu().numpy().tolist()
             tok_tokens = doc_tokens[y1[i]: y2[i] + 1]
-            tok_to_orig_map = features[i][6]
+            tok_to_orig_map = features[6][i]
             if y2[i] < len(tok_to_orig_map):   # end位置合法
                 orig_doc_start = tok_to_orig_map[y1[i]]
                 orig_doc_end = tok_to_orig_map[y2[i]]

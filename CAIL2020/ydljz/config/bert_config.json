@@ -1,32 +1,40 @@
 {
   "model_type": "bert",
-  "max_seq_len": 451,
+  "max_seq_len": 512,
+  "max_query_len": 50,
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/train.csv",
-  "valid_file_path": "data/valid.csv",
+  "train_file_path": "data2/trainx.json",
+  "valid_file_path": "data2/valid.json",
 
   "batch_size": 4,
 
-  "bert_model_path": "model/bert/roberta_wwm_ext",
+  "bert_model_path": "F:/roberta_wwm_ext",
   "trained_weight":"",
 
-  "cnn_module_layers": 0,
-  "num_conv_filters": 256,
-  "output_channel": 256,
-  "num_fc_hidden_size": 256,
+  "cnn_hidden_size": 512,
+  "cnn_output_size": 512,
+  "fc_hidden_size": 64,
 
   "hidden_size": 768,
-  "num_classes": 2,
+  "num_classes": 4,
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
-  "num_warmup_steps": 2000,
+  "num_epoch": 20,
+  "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 16,
-  "max_grad_norm": 2e-3,
+  "gradient_accumulation_steps": 64,
+  "max_grad_norm": 1e-3,
+
+  "prediction_path":"output/submissions",
+
+
+  "type_lambda": 1,
+  "sp_lambda": 5,
+  "sp_threshold": 0.5,
+  "log_steps": 2000,
 
   "experiment_name": "BERT"
 }
