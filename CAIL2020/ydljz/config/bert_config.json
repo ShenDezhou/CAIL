@@ -5,12 +5,12 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data2/trainx.json",
+  "train_file_path": "data2/valid.json",
   "valid_file_path": "data2/valid.json",
 
-  "batch_size": 4,
+  "batch_size": 8,
 
-  "bert_model_path": "F:/roberta_wwm_ext",
+  "bert_model_path": "D:/lbwj/model/bert/roberta_wwm_ext",
   "trained_weight":"",
 
   "cnn_hidden_size": 512,
@@ -26,7 +26,7 @@
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
   "gradient_accumulation_steps": 64,
-  "max_grad_norm": 1e-3,
+  "max_grad_norm": 1e-2,
 
   "prediction_path":"output/submissions",
 
