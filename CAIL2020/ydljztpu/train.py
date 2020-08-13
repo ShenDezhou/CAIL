@@ -489,7 +489,7 @@ def main(config_file='config/bert_config.json'):
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
     get_path(config.prediction_path)
-    get_path(config.checkpoint_path)
+    # get_path(config.checkpoint_path)
     if config.model_type == 'rnn':  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
@@ -607,34 +607,73 @@ def main(config_file='config/bert_config.json'):
                         xm.get_ordinal(), x, loss.item(), tracker.rate(),
                         tracker.global_rate(), time.asctime()), flush=True)
 
-    def test_loop_fn(loader):
-        total_samples = 0
-        correct = 0
-        model.eval()
-        data, pred, target = None, None, None
-        tracker = xm.RateTracker()
-        for x, batch in enumerate(loader):
-            output = model(*batch[:-1])  # the last one is label
-            target = batch[-1]
-            # pred = output.max(1, keepdim=True)[1]
-            # correct += pred.eq(target.view_as(pred)).sum().item()
-            for i in range(len(output)):
-                logits = output[i]
-                pred = int(torch.argmax(logits, dim=-1))
-                if pred == target[i]:
-                    correct += 1
-            total_samples += len(output)
-
-            if xm.get_ordinal() == 0:
-                if x % FLAGS.log_steps == 0:
-                    print('[xla:{}]({}) Acc={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
-                        xm.get_ordinal(), x, correct*1.0/total_samples, tracker.rate(),
-                        tracker.global_rate(), time.asctime()), flush=True)
-
-        accuracy = 100.0 * correct / total_samples
-        if xm.get_ordinal() == 0:
-            print('[xla:{}] Accuracy={:.2f}%'.format(xm.get_ordinal(), accuracy), flush=True)
-        return accuracy, data, pred, target
+    # def test_loop_fn(loader):
+    #     total_samples = 0
+    #     correct = 0
+    #     model.eval()
+    #     data, pred, target = None, None, None
+    #     tracker = xm.RateTracker()
+    #     for x, batch in enumerate(loader):
+    #         start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
+    #         loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7])#y1,y2
+    #         loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])#q_type
+    #         sent_num_in_batch = batch[9].sum()  # start_mapping
+    #         sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
+    #         if sent_num_in_batch != 0:
+    #             loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
+    #         else:
+    #             loss3 = self.config.sp_lambda * sp_value * 1e30
+    #
+    #         loss = loss1 + loss2 + loss3
+    #         loss_list = [loss, loss1, loss2, loss3]
+    #
+    #         for i, l in enumerate(loss_list):
+    #             if not isinstance(l, int):
+    #                 total_test_loss[i] += l.item()
+    #
+    #         batchsize = batch[0].size(0)
+    #         # ids
+    #         answer_dict_ = convert_to_tokens(exam, feats, batch[5], start_position.data.cpu().numpy().tolist(),
+    #                                          end_position.data.cpu().numpy().tolist(),
+    #                                          np.argmax(type_logits.data.cpu().numpy(), 1))
+    #         answer_dict.update(answer_dict_)
+    #
+    #         predict_support_np = torch.sigmoid(sp_logits).data.cpu().numpy()
+    #         for i in range(predict_support_np.shape[0]):
+    #             cur_sp_pred = []
+    #             cur_id = batch[5][i].item()
+    #
+    #             cur_sp_logit_pred = []  # for sp logit output
+    #             for j in range(predict_support_np.shape[1]):
+    #                 if j >= len(exam[cur_id].sent_names):
+    #                     break
+    #                 if need_sp_logit_file:
+    #                     temp_title, temp_id = exam[cur_id].sent_names[j]
+    #                     cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
+    #                 if predict_support_np[i, j] > self.config.sp_threshold:
+    #                     cur_sp_pred.append(exam[cur_id].sent_names[j])
+    #             sp_dict.update({cur_id: cur_sp_pred})
+    #
+    #     new_answer_dict = {}
+    #     for key, value in answer_dict.items():
+    #         new_answer_dict[key] = value.replace(" ", "")
+    #     prediction = {'answer': new_answer_dict, 'sp': sp_dict}
+    #     with open(prediction_file, 'w', encoding='utf8') as f:
+    #         json.dump(prediction, f, indent=4, ensure_ascii=False)
+    #
+    #     for i, l in enumerate(total_test_loss):
+    #         print("Test Loss{}: {}".format(i, l / len(dataloader)))
+    #
+    #     if xm.get_ordinal() == 0:
+    #             if x % FLAGS.log_steps == 0:
+    #                 print('[xla:{}]({}) Acc={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+    #                     xm.get_ordinal(), x, correct*1.0/total_samples, tracker.rate(),
+    #                     tracker.global_rate(), time.asctime()), flush=True)
+    #
+    #     accuracy = 100.0 * correct / total_samples
+    #     if xm.get_ordinal() == 0:
+    #         print('[xla:{}] Accuracy={:.2f}%'.format(xm.get_ordinal(), accuracy), flush=True)
+    #     return accuracy, data, pred, target
 
     # Train and eval loops
     accuracy = 0.0
