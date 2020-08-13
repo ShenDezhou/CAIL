@@ -101,19 +101,19 @@ def get_final_text(pred_text, orig_text, do_lower_case, verbose_logging=False):
     return output_text
 
 
-def convert_to_tokens(features, ids, y1, y2, q_type):
+def convert_to_tokens(example, features, ids, y1, y2, q_type):
     answer_dict = dict()
     # 一次迭代一个batch的数据
     for i, qid in enumerate(ids):   # article id
         answer_text = ''
         if q_type[i] == 0:
-            doc_tokens = features[i][0]
+            doc_tokens = features[qid].doc_tokens
             tok_tokens = doc_tokens[y1[i]: y2[i] + 1]
-            tok_to_orig_map = features[i][6]
+            tok_to_orig_map = features[qid].token_to_orig_map
             if y2[i] < len(tok_to_orig_map):   # end位置合法
                 orig_doc_start = tok_to_orig_map[y1[i]]
                 orig_doc_end = tok_to_orig_map[y2[i]]
-                orig_tokens = doc_tokens[orig_doc_start:(orig_doc_end + 1)]  # 这个才是对应的原文中的答案吧
+                orig_tokens = example[qid].doc_tokens[orig_doc_start:(orig_doc_end + 1)]  # 这个才是对应的原文中的答案吧
                 tok_text = " ".join(tok_tokens)
 
                 # De-tokenize WordPieces that have been split off.

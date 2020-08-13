@@ -164,7 +164,7 @@ class Trainer:
         return train_acc, train_f1, valid_acc, valid_f1
 
     def _epoch_evaluate_update_description_log(
-            self, tqdm_obj, logger, epoch, exam):
+            self, tqdm_obj, logger, epoch, exam, feats):
         """Evaluate model and update logs for epoch.
 
         Args:
@@ -179,7 +179,7 @@ class Trainer:
         # results = self._evaluate_for_train_valid()
         # train_acc, train_f1, valid_acc, valid_f1 = results
         # step_count = 999
-        self.predict(self.model, tqdm_obj, exam,
+        self.predict(self.model, tqdm_obj, exam, feats,
                 join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)))
         results = eval(join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)),
              self.config.valid_file_path)
@@ -211,25 +211,31 @@ class Trainer:
         return loss, loss1, loss2, loss3
 
     @torch.no_grad()
-    def predict(self, model, dataloader, exam, prediction_file, need_sp_logit_file=False):
+    def predict(self, model, dataloader, exam, feats, prediction_file, need_sp_logit_file=False):
 
         model.eval()
         answer_dict = {}
         sp_dict = {}
         # dataloader.refresh()
         total_test_loss = [0] * 5
-
+        # context_idxs, context_mask, segment_idxs,
+        # query_mapping, all_mapping,
+        # ids, y1, y2, q_type,
+        # start_mapping,
+        # is_support
         tqdm_obj = tqdm(dataloader, ncols=80)
         for step, batch in enumerate(tqdm_obj):
             batch = tuple(t.to(self.device) for t in batch)
             # batch['context_mask'] = batch['context_mask'].float()
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-            loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
-            loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
-
-            sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
-            sent_num_in_batch = batch[-7].sum()
-            loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
+            loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7])#y1,y2
+            loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])#q_type
+            sent_num_in_batch = batch[9].sum()  # start_mapping
+            sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
+            if sent_num_in_batch != 0:
+                loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
+            else:
+                loss3 = self.config.sp_lambda * sp_value * 1e30
 
             loss = loss1 + loss2 + loss3
             loss_list = [loss, loss1, loss2, loss3]
@@ -238,7 +244,9 @@ class Trainer:
                 if not isinstance(l, int):
                     total_test_loss[i] += l.item()
 
-            answer_dict_ = convert_to_tokens(batch, batch[-5], start_position.data.cpu().numpy().tolist(),
+            batchsize = batch[0].size(0)
+            #ids
+            answer_dict_ = convert_to_tokens(exam, feats, batch[5], start_position.data.cpu().numpy().tolist(),
                                              end_position.data.cpu().numpy().tolist(),
                                              np.argmax(type_logits.data.cpu().numpy(), 1))
             answer_dict.update(answer_dict_)
@@ -246,17 +254,17 @@ class Trainer:
             predict_support_np = torch.sigmoid(sp_logits).data.cpu().numpy()
             for i in range(predict_support_np.shape[0]):
                 cur_sp_pred = []
-                cur_id = str(batch[-5][i])
-                exam_ = exam[step]
+                cur_id = batch[5][i].item()
+
                 cur_sp_logit_pred = []  # for sp logit output
                 for j in range(predict_support_np.shape[1]):
-                    if j >= len(exam_.sent_names):
+                    if j >= len(exam[cur_id].sent_names):
                         break
                     if need_sp_logit_file:
-                        temp_title, temp_id = exam_.sent_names[j]
+                        temp_title, temp_id = exam[cur_id].sent_names[j]
                         cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
                     if predict_support_np[i, j] > self.config.sp_threshold:
-                        cur_sp_pred.append(exam_.sent_names[j])
+                        cur_sp_pred.append(exam[cur_id].sent_names[j])
                 sp_dict.update({cur_id: cur_sp_pred})
 
         new_answer_dict = {}
@@ -295,13 +303,14 @@ class Trainer:
                 batch = tuple(t.to(self.device) for t in batch)
                 # loss = self.criterion(logits, batch[-1])
                 start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
-                loss1 = self.criterion(start_logits, batch[-4]) + self.criterion(end_logits, batch[-3])
-                loss2 = self.config.type_lambda * self.criterion(type_logits, batch[-2])
-
-                sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
-                sent_num_in_batch = batch[-7].sum()
-                loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
-
+                loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7]) #y1, y2
+                loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])# q_type
+                sent_num_in_batch = batch[9].sum()  # is_support
+                sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
+                if sent_num_in_batch != 0:
+                    loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
+                else:
+                    loss3 = self.config.sp_lambda * sp_value * 1e30
                 loss = loss1 + loss2 + loss3
 
                 # if self.config.gradient_accumulation_steps > 1:
@@ -321,12 +330,12 @@ class Trainer:
                     tqdm_obj.set_description('loss: {:.6f} {:.6f} {:.6f}'.format(loss1.item(), loss2.item(), loss3.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
+
             train_results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'] )
+                tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'], feats=self.data_loader['train_feat'] )
 
             valid_results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1,
-                exam=self.data_loader['valid_exam'])
+                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1, exam=self.data_loader['valid_exam'], feats=self.data_loader['valid_feat'] )
 
             results = (train_results['f1'],train_results['sp_f1'],train_results['joint_f1'],valid_results['f1'],valid_results['sp_f1'],valid_results['joint_f1'])
             self.save_model(os.path.join(
@@ -358,14 +367,13 @@ class Trainer:
         # #     tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
         # best_model_state_dict, best_train_f1, global_step = None, 0, 0
 
-
         train_results = self._epoch_evaluate_update_description_log(
             tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=-1 + 1,
-            exam=self.data_loader['train_exam'])
+            exam=self.data_loader['train_exam'], feats=self.data_loader['train_feat'])
 
         valid_results = self._epoch_evaluate_update_description_log(
             tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=-1 + 1,
-            exam=self.data_loader['valid_exam'])
+            exam=self.data_loader['valid_exam'], feats=self.data_loader['valid_feat'])
 
         results = (train_results['f1'], train_results['sp_f1'], train_results['joint_f1'], valid_results['f1'],
                    valid_results['sp_f1'], valid_results['joint_f1'])
@@ -492,7 +500,7 @@ def main(config_file='config/bert_config.json'):
     datasets = data.load_train_and_valid_files(
         train_file=config.train_file_path,
         valid_file=config.valid_file_path)
-    train_set, valid_set_train, valid_set_valid, train_exam, valid_exam = datasets
+    train_set, valid_set_train, valid_set_valid, train_exam, valid_exam, train_feat, valid_feat = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -519,7 +527,9 @@ def main(config_file='config/bert_config.json'):
         'valid_valid': DataLoader(
             valid_set_valid, batch_size=config.batch_size, shuffle=False),
         'train_exam': train_exam,
-        'valid_exam': valid_exam
+        'valid_exam': valid_exam,
+        'train_feat': train_feat,
+        'valid_feat': valid_feat
     }
     # 2. Build model
     # TPU
@@ -571,12 +581,14 @@ def main(config_file='config/bert_config.json'):
             # batch = tuple(t.to(device) for t in batch)
             # loss = self.criterion(logits, batch[-1])
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-            loss1 = criterion(start_logits, batch[-4]) + criterion(end_logits, batch[-3])
-            loss2 = config.type_lambda * criterion(type_logits, batch[-2])
-
-            sp_value = sp_loss_fct(sp_logits.view(-1), batch[-1].float().view(-1)).sum()
-            sent_num_in_batch = batch[-7].sum()
-            loss3 = config.sp_lambda * sp_value / sent_num_in_batch
+            loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
+            loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
+            sent_num_in_batch = batch[9].sum()  # is_support
+            sp_value = sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
+            if sent_num_in_batch != 0:
+                loss3 = config.sp_lambda * sp_value / sent_num_in_batch
+            else:
+                loss3 = config.sp_lambda * sp_value * 1e30
 
             loss = loss1 + loss2 + loss3
             loss.backward()
