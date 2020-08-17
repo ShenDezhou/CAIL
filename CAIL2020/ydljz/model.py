@@ -21,13 +21,13 @@ class BertSupportNetX(nn.Module):
         # self.prediction_layer = DeepCNNPredictionLayer(config)
         # deep cnn parts
         self.input_dim = config.hidden_size
-        self.cnn_hidden_size = config.cnn_hidden_size
-        self.cnn_output_size = config.cnn_output_size
+        # self.cnn_hidden_size = config.cnn_hidden_size
+        # self.cnn_output_size = config.cnn_output_size
         self.fc_hidden_size = config.fc_hidden_size
         self.dropout_size = config.dropout
 
 
-        self.resnet = ResNet(block=BasicBlock, layers=[0,0,0,0], num_classes=self.fc_hidden_size)
+        self.resnet = ResNet(block=BasicBlock, layers=[2,2,2,2], num_classes=self.fc_hidden_size)
         # self.dropout = nn.Dropout(self.dropout_size)
         #
         # self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)
@@ -46,7 +46,7 @@ class BertSupportNetX(nn.Module):
         self.sp_linear = nn.Linear(self.input_dim, 1)
         self.start_linear = nn.Linear(self.input_dim, 1)
         self.end_linear = nn.Linear(self.input_dim, 1)
-        self.type_linear = nn.Linear(self.input_dim, config.num_classes)  # yes/no/ans/unknown
+        self.type_linear = nn.Linear(self.fc_hidden_size, config.num_classes)  # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
@@ -69,14 +69,14 @@ class BertSupportNetX(nn.Module):
         # roberta不可以输入token_type_ids
         input_state = self.encoder(input_ids=context_idxs, attention_mask=context_mask,token_type_ids=segment_idxs)[0]
         x = input_state.transpose(1, 2)# .type(torch.cuda.FloatTensor)
-        x = self.resnet(x)
+        resnet_state = self.resnet(x)
         # x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3, stride=1, padding=1)
         # x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
         # x = F.relu(self.conv3(x))
         # x = F.relu(self.conv4(x))
         # x = F.relu(self.conv5(x))
         # x = F.relu(self.conv6(x))
-        input_state = x.transpose(2, 1)# .type(torch.cuda.FloatTensor)
+        #input_state = x.transpose(2, 1)# .type(torch.cuda.FloatTensor)
 
         # x = F.max_pool1d(x, x.size(2)).squeeze(2)
         # x = F.relu(self.fc1(x.view(x.size(0), -1)))
@@ -90,8 +90,8 @@ class BertSupportNetX(nn.Module):
         sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x sent x 512 x 300
         sp_state = sp_state.max(1)[0]
         sp_logits = self.sp_linear(sp_state)
-        type_state = torch.max(input_state, dim=1)[0]
-        type_logits = self.type_linear(type_state)
+        # type_state = torch.max(input_state, dim=1)[0]
+        type_logits = self.type_linear(resnet_state)
 
         # 找结束位置用的开始和结束位置概率之和
         # (batch, 512, 1) + (batch, 1, 512) -> (512, 512)
