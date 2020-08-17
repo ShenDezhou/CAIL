@@ -44,6 +44,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
+max_support_sents = 45
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
@@ -377,7 +378,7 @@ class Data:
                 para_start_position = len(doc_tokens)  # 刚开始doc_tokens是空的
 
                 for local_sent_id, sent in enumerate(sents):  # 处理段落的每个句子
-                    if local_sent_id > 40:  # 句子数量限制：一个段落最多只允许40个句子
+                    if local_sent_id >= max_support_sents:  # 句子数量限制：一个段落最多只允许44个句子
                         break
 
                     # Determine the global sent id for supporting facts
@@ -658,7 +659,7 @@ class Data:
         """
         IGNORE_INDEX = -100
         max_seq_len = 512
-        sent_limit = 40
+        sent_limit = max_support_sents
         max_query_len  = 50
 
         doc_input_ids, doc_input_mask, doc_segment_ids, query_mapping = [],[],[],[]
@@ -678,7 +679,7 @@ class Data:
 
             start_mapping_ = torch.Tensor(sent_limit, max_seq_len)
             all_mapping_ = torch.Tensor(max_seq_len, sent_limit)
-            is_support_ = [0] * 40
+            is_support_ = [0] * sent_limit
 
 
             for mapping in [start_mapping_, all_mapping_, query_mapping_]:
@@ -705,7 +706,7 @@ class Data:
             q_type.append(features.ans_type)  # 这个明明是answer_type，非要叫q_type
             ids.append(features.qas_id)
 
-            for j, sent_span in enumerate(features.sent_spans[:40]):  # 句子序号，span
+            for j, sent_span in enumerate(features.sent_spans[:sent_limit]):  # 句子序号，span
                 is_sp_flag = j in features.sup_fact_ids  # 这个代码写的真几把烂#我也觉得
                 start, end = sent_span
                 # if start < end:  # 还有start大于end的时候？

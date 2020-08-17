@@ -20,16 +20,17 @@ model_urls = {
     'wide_resnet101_2': 'https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth',
 }
 
+input_dim=45
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
-    return nn.Conv1d(in_planes, out_planes, kernel_size=3, stride=stride,
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=dilation, groups=groups, bias=False, dilation=dilation)
 
 
 def conv1x1(in_planes, out_planes, stride=1):
     """1x1 convolution"""
-    return nn.Conv1d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
 
 class BasicBlock(nn.Module):
@@ -121,17 +122,17 @@ class Bottleneck(nn.Module):
         return out
 
 
-class ResNet(nn.Module):
+class ResNet2D(nn.Module):
 
     def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
                  norm_layer=None):
-        super(ResNet, self).__init__()
+        super(ResNet2D, self).__init__()
         if norm_layer is None:
-            norm_layer = nn.BatchNorm1d
+            norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
 
-        self.inplanes = 64
+        self.inplanes = input_dim
         self.dilation = 1
         if replace_stride_with_dilation is None:
             # each element in the tuple indicates if we should replace
@@ -142,25 +143,25 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv1d(1024, self.inplanes, kernel_size=1, stride=2, padding=0,
+        self.conv1 = nn.Conv2d(input_dim, self.inplanes, kernel_size=3, stride=1, padding=0,
                                bias=False)
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
-        self.maxpool = nn.MaxPool1d(kernel_size=1, stride=2, padding=0)
-        self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=1, padding=0)
+        self.layer1 = self._make_layer(block, input_dim, layers[0])
+        self.layer2 = self._make_layer(block, input_dim, layers[1], stride=1,
                                        dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 128, layers[2], stride=2,
+        self.layer3 = self._make_layer(block, input_dim, layers[2], stride=1,
                                        dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 64, layers[3], stride=2,
+        self.layer4 = self._make_layer(block, input_dim, layers[3], stride=1,
                                        dilate=replace_stride_with_dilation[2])
-        self.avgpool = nn.AdaptiveAvgPool1d((1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.fc = nn.Linear(input_dim * block.expansion, num_classes)
 
         for m in self.modules():
-            if isinstance(m, nn.Conv1d):
+            if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-            elif isinstance(m, (nn.BatchNorm1d, nn.GroupNorm)):
+            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
@@ -211,7 +212,7 @@ class ResNet(nn.Module):
         x = self.layer4(x)
 
         x = self.avgpool(x)
-        # x = torch.flatten(x, 1)
+        x = torch.flatten(x, 1)
         # x = self.fc(x)
 
         return x
@@ -221,7 +222,7 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):
-    model = ResNet(block, layers, **kwargs)
+    model = ResNet2D(block, layers, **kwargs)
     # if pretrained:
     #     state_dict = load_state_dict_from_url(model_urls[arch],
     #                                           progress=progress)

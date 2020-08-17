@@ -6,6 +6,9 @@ from transformers import BertModel
 
 
 from resnet import ResNet,BasicBlock
+from resnet2d import ResNet2D
+from resnet2d import BasicBlock as BasicBlock2D
+
 class BertSupportNetX(nn.Module):
     """
     joint train bert and graph fusion net
@@ -23,11 +26,12 @@ class BertSupportNetX(nn.Module):
         self.input_dim = config.hidden_size
         # self.cnn_hidden_size = config.cnn_hidden_size
         # self.cnn_output_size = config.cnn_output_size
-        self.fc_hidden_size = config.fc_hidden_size
+        # self.fc_hidden_size = config.fc_hidden_size
         self.dropout_size = config.dropout
 
 
-        self.resnet = ResNet(block=BasicBlock, layers=[2,2,2,2], num_classes=self.fc_hidden_size)
+        self.resnet = ResNet(block=BasicBlock, layers=[2,2,2,2], num_classes=config.num_classes)
+        self.resnet2d = ResNet2D(block=BasicBlock2D, layers=[2, 2, 2, 2], num_classes=64)
         # self.dropout = nn.Dropout(self.dropout_size)
         #
         # self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)
@@ -43,10 +47,10 @@ class BertSupportNetX(nn.Module):
         # self.fc2 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
         # self.fc3 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
 
-        self.sp_linear = nn.Linear(self.input_dim, 1)
+        # self.sp_linear = nn.Linear(self.fc_hidden_size, 1)
         self.start_linear = nn.Linear(self.input_dim, 1)
         self.end_linear = nn.Linear(self.input_dim, 1)
-        self.type_linear = nn.Linear(self.fc_hidden_size, config.num_classes)  # yes/no/ans/unknown
+        # self.type_linear = nn.Linear(self.fc_hidden_size, config.num_classes)  # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
@@ -69,7 +73,7 @@ class BertSupportNetX(nn.Module):
         # roberta不可以输入token_type_ids
         input_state = self.encoder(input_ids=context_idxs, attention_mask=context_mask,token_type_ids=segment_idxs)[0]
         x = input_state.transpose(1, 2)# .type(torch.cuda.FloatTensor)
-        resnet_state = self.resnet(x)
+        type_logits = self.resnet(x)
         # x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3, stride=1, padding=1)
         # x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
         # x = F.relu(self.conv3(x))
@@ -87,11 +91,15 @@ class BertSupportNetX(nn.Module):
 
         start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
         end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
-        sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x sent x 512 x 300
-        sp_state = sp_state.max(1)[0]
-        sp_logits = self.sp_linear(sp_state)
+
+        sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x 512 x sent x 768
+        sp_state = sp_state.transpose(1,2)
+        sp_logits = self.resnet2d(sp_state)
+        # sp_state = sp_state.max(1)[0]
+        # sp_logits = self.sp_linear(resnet2d_state)
+
         # type_state = torch.max(input_state, dim=1)[0]
-        type_logits = self.type_linear(resnet_state)
+        # type_logits = self.type_linear(resnet_state)
 
         # 找结束位置用的开始和结束位置概率之和
         # (batch, 512, 1) + (batch, 1, 512) -> (512, 512)
@@ -104,8 +112,8 @@ class BertSupportNetX(nn.Module):
         # 这两句相当于找到了outer中最大值的i和j坐标
         start_position = outer.max(dim=2)[0].max(dim=1)[1]
         end_position = outer.max(dim=1)[0].max(dim=1)[1]
-        return start_logits, end_logits, type_logits, sp_logits.squeeze(2), start_position, end_position
-
+        # return start_logits, end_logits, type_logits, sp_logits.squeeze(2), start_position, end_position
+        return start_logits, end_logits, type_logits, sp_logits, start_position, end_position
 
 class BertSupportNet(nn.Module):
     """

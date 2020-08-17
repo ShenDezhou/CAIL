@@ -82,8 +82,9 @@ def predict(model, dataloader, example_dict, feature_dict, prediction_file, test
     sp_dict = {}
     dataloader.refresh()
     total_test_loss = [0] * 5
+    tracker = xm.RateTracker()
 
-    for batch in tqdm(dataloader):
+    for x,batch in enumerate(dataloader):
 
         batch['context_mask'] = batch['context_mask'].float()
         start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(batch)
@@ -114,6 +115,12 @@ def predict(model, dataloader, example_dict, feature_dict, prediction_file, test
                 if predict_support_np[i, j] > args.sp_threshold:
                     cur_sp_pred.append(example_dict[cur_id].sent_names[j])
             sp_dict.update({cur_id: cur_sp_pred})
+
+        if xm.get_ordinal() == 0:
+            if x % 100 == 0:
+                print('[xla:{}]({}) =={}== Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                    xm.get_ordinal(), x, ','.join([str(epoch)] + [str(results[s]) for s in keys]), tracker.rate(),
+                    tracker.global_rate(), time.asctime()), flush=True)
 
     new_answer_dict={}
     for key,value in answer_dict.items():
@@ -165,7 +172,7 @@ def train_epoch(data_loader,eval_dataset, dev_example_dict, dev_feature_dict, mo
 
 
 def train_batch(model, optimizer, scheduler,criterion,sp_loss_fct, batch, global_step):
-    global total_train_loss
+    # global total_train_loss
 
     start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(batch)
     loss_list = compute_loss(batch, criterion,sp_loss_fct, start_logits, end_logits, type_logits, sp_logits, start_position, end_position)
@@ -185,21 +192,21 @@ def train_batch(model, optimizer, scheduler,criterion,sp_loss_fct, batch, global
         # optimizer.step()
         torch.nn.utils.clip_grad_norm_(
             model.parameters(), config.max_grad_norm)
-        scheduler.step()
         xm.optimizer_step(optimizer)
+        scheduler.step()
         optimizer.zero_grad()
 
     global_step += 1
 
-    for i, l in enumerate(loss_list):
-        if not isinstance(l, int):
-            total_train_loss[i] += l.item()
+    # for i, l in enumerate(loss_list):
+    #     if not isinstance(l, int):
+    #         total_train_loss[i] += l.item()
 
-    if global_step % FLAGS.verbose_step == 0:
-        print("{} -- In Epoch{}: ".format(args.name, -1))
-        for i, l in enumerate(total_train_loss):
-            print("Avg-LOSS{}/batch/step: {}".format(i, l / args.verbose_step))
-        total_train_loss = [0] * 5
+    # if global_step % FLAGS.verbose_step == 0:
+    #     print("{} -- In Epoch{}: ".format(args.name, -1))
+    #     for i, l in enumerate(total_train_loss):
+    #         print("Avg-LOSS{}/batch/step: {}".format(i, l / args.verbose_step))
+    #     total_train_loss = [0] * 5
 
 
 def main(args):
@@ -227,6 +234,7 @@ def main(args):
 
         helper = DataHelper(gz=True, config=args)
         return helper
+
 
     helper = SERIAL_EXEC.run(load_dataset)
 
@@ -273,9 +281,10 @@ def main(args):
 
     # Training
     global_step = epc = 0
-    total_train_loss = [0] * 5
+    # total_train_loss = [0] * 5
     test_loss_record = []
     VERBOSE_STEP = args.verbose_step
+    tracker = xm.RateTracker()
 
     epoch_logger = get_csv_logger(os.path.join("log/", args.name + '-epoch.csv'),
         title='epoch,em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall')
@@ -284,7 +293,7 @@ def main(args):
                         criterion, sp_loss_fct, logger, predict_during_train=False, epoch=1, global_step=0,
                         test_loss_record=None):
         model.train()
-        pbar = tqdm(total=len(data_loader))
+        # pbar = tqdm(total=len(data_loader))
         epoch_len = len(data_loader)
         step_count = 0
         predict_step = epoch_len // 2
@@ -306,29 +315,37 @@ def main(args):
             #                                                 "ckpt_seed_{}_epoch_{}_{}.pkl".format(args.seed, epoch,
             #                                                                                       step_count)))
             #     model.train()
-            pbar.update(1)
+            if xm.get_ordinal() == 0:
+                if x % VERBOSE_STEP == 0:
+                    print('[xla:{}]({}) Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                        xm.get_ordinal(), x, tracker.rate(),
+                        tracker.global_rate(), time.asctime()), flush=True)
 
-    def test_fn(eval_dataset, dev_example_dict, dev_feature_dict, model, optimizer, scheduler,
+            # pbar.update(1)
+
+    def test_fn(data_loader, dev_example_dict, dev_feature_dict, model, optimizer, scheduler,
                  criterion, sp_loss_fct, logger, predict_during_train=False, epoch=1, global_step=0,
                  test_loss_record=None):
         model.train()
-        pbar = tqdm(total=len(eval_dataset))
-        epoch_len = len(eval_dataset)
+        # pbar = tqdm(total=len(eval_dataset))
+        epoch_len = len(data_loader)
         step_count = 0
         predict_step = epoch_len // 2
-        for x, batch in enumerate(eval_dataset):
-            predict(model, eval_dataset, dev_example_dict, dev_feature_dict,
-                    join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epoch)),
-                    test_loss_record)
+        # for x, batch in enumerate(data_loader):
 
-            results = eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epoch)),
-                           args.validdata)
-            # Logging
-            keys = 'em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall'.split(
-                ',')
-            logger.info(','.join([str(epoch)] + [str(results[s]) for s in keys]))
-            # model_to_save = model.module if hasattr(model, 'module') else model
-            # torch.save(model_to_save.state_dict(), join(args.checkpoint_path, "model_{}.bin".format(epoch)))
+        predict(model, data_loader, dev_example_dict, dev_feature_dict,
+                join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epoch)),
+                test_loss_record)
+
+        results = eval(join(args.prediction_path, 'pred_seed_{}_epoch_{}_99999.json'.format(args.seed, epoch)),
+                       args.validdata)
+        # Logging
+        keys = 'em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_prec,joint_recall'.split(
+            ',')
+        logger.info(','.join([str(epoch)] + [str(results[s]) for s in keys]))
+
+        # model_to_save = model.module if hasattr(model, 'module') else model
+        # torch.save(model_to_save.state_dict(), join(args.checkpoint_path, "model_{}.bin".format(epoch)))
 
     while True:
         if epc == args.epochs:  # 5 + 30
@@ -338,14 +355,14 @@ def main(args):
         Loader = Full_Loader
         Loader.refresh()
 
-        # para_loader = pl.ParallelLoader(Loader, [device])
-        train_fn(Loader,  dev_example_dict,
+        para_loader = pl.ParallelLoader(Loader, [device])
+        train_fn(para_loader,  dev_example_dict,
                     dev_feature_dict, model, optimizer, scheduler, criterion, sp_loss_fct, logger=epoch_logger,
                     predict_during_train=False, epoch=epc, global_step=global_step, test_loss_record=test_loss_record)
         xm.master_print("Finished training epoch {}".format(epc))
 
-        # eval_para_loader = pl.ParallelLoader(eval_dataset, [device])
-        test_fn(eval_dataset, dev_example_dict,
+        eval_para_loader = pl.ParallelLoader(eval_dataset, [device])
+        test_fn(eval_para_loader, dev_example_dict,
                     dev_feature_dict, model, optimizer, scheduler, criterion, sp_loss_fct, logger=epoch_logger,
                     predict_during_train=False, epoch=epc, global_step=global_step, test_loss_record=test_loss_record)
         xm.master_print("Finished training epoch {}".format(epc))
