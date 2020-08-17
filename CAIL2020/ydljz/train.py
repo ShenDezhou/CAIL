@@ -277,11 +277,8 @@ class Trainer:
                 loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7]) #y1, y2
                 loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])# q_type
                 sent_num_in_batch = batch[9].sum()  # is_support
-                sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
-                if sent_num_in_batch != 0:
-                    loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
-                else:
-                    loss3 = self.config.sp_lambda * sp_value * 1e30
+                sent_num_in_batch = 1.0 + sent_num_in_batch # to avoid devide by zero
+                loss3 = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum() * self.config.sp_lambda / sent_num_in_batch
                 loss = loss1 + loss2 + loss3
 
                 # if self.config.gradient_accumulation_steps > 1:

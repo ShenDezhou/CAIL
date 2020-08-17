@@ -25,8 +25,8 @@
   "num_epoch": 30,
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 64,
-  "max_grad_norm": 1e-2,
+  "gradient_accumulation_steps": 4,
+  "max_grad_norm": 1e-3,
 
   "prediction_path":"output/submissions",
 
@@ -36,6 +36,7 @@
   "sp_threshold": 0.5,
   "log_steps": 2000,
   "num_cores": 8,
+  "serial_load": true,
 
   "experiment_name": "BERT"
 }

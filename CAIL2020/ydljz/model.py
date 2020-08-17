@@ -27,7 +27,7 @@ class BertSupportNetX(nn.Module):
         self.dropout_size = config.dropout
 
 
-        # self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=self.input_dim)
+        self.resnet = ResNet(block=BasicBlock, layers=[0,0,0,0], num_classes=self.fc_hidden_size)
         # self.dropout = nn.Dropout(self.dropout_size)
         #
         # self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)
@@ -68,14 +68,15 @@ class BertSupportNetX(nn.Module):
             is_support,tok_to_orig_index):
         # roberta不可以输入token_type_ids
         input_state = self.encoder(input_ids=context_idxs, attention_mask=context_mask,token_type_ids=segment_idxs)[0]
-        # x = input_state.transpose(1, 2).type(torch.cuda.FloatTensor)
+        x = input_state.transpose(1, 2)# .type(torch.cuda.FloatTensor)
+        x = self.resnet(x)
         # x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3, stride=1, padding=1)
         # x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
         # x = F.relu(self.conv3(x))
         # x = F.relu(self.conv4(x))
         # x = F.relu(self.conv5(x))
         # x = F.relu(self.conv6(x))
-        # input_state = x.transpose(2, 1).type(torch.cuda.FloatTensor)
+        input_state = x.transpose(2, 1)# .type(torch.cuda.FloatTensor)
 
         # x = F.max_pool1d(x, x.size(2)).squeeze(2)
         # x = F.relu(self.fc1(x.view(x.size(0), -1)))

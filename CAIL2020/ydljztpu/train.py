@@ -497,9 +497,19 @@ def main(config_file='config/bert_config.json'):
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
-    datasets = data.load_train_and_valid_files(
-        train_file=config.train_file_path,
-        valid_file=config.valid_file_path)
+
+
+    def load_dataset():
+        datasets = data.load_train_and_valid_files(
+            train_file=config.train_file_path,
+            valid_file=config.valid_file_path)
+        return datasets
+
+    if config.serial_load:
+        datasets = SERIAL_EXEC.run(load_dataset)
+    else:
+        datasets = load_dataset()
+
     train_set, valid_set_train, valid_set_valid, train_exam, valid_exam, train_feat, valid_feat = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')

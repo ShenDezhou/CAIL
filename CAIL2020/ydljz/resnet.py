@@ -142,20 +142,20 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv1d(768, self.inplanes, kernel_size=1, stride=2, padding=0,
+        self.conv1 = nn.Conv1d(768, self.inplanes, kernel_size=3, stride=1, padding=0,
                                bias=False)
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
-        self.maxpool = nn.MaxPool1d(kernel_size=1, stride=2, padding=0)
+        self.maxpool = nn.MaxPool1d(kernel_size=3, stride=1, padding=0)
         self.layer1 = self._make_layer(block, 768, layers[0])
-        self.layer2 = self._make_layer(block, 768, layers[1], stride=2,
+        self.layer2 = self._make_layer(block, 768, layers[1], stride=1,
                                        dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 768, layers[2], stride=2,
+        self.layer3 = self._make_layer(block, 768, layers[2], stride=1,
                                        dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 768, layers[3], stride=2,
+        self.layer4 = self._make_layer(block, 768, layers[3], stride=1,
                                        dilate=replace_stride_with_dilation[2])
-        self.avgpool = nn.AdaptiveAvgPool1d((1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.avgpool = nn.AdaptiveAvgPool1d((512))
+        self.fc = nn.Linear(768 * block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv1d):
