@@ -594,11 +594,9 @@ def main(config_file='config/bert_config.json'):
             loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
             loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
             sent_num_in_batch = batch[9].sum()  # is_support
-            sp_value = sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
-            if sent_num_in_batch != 0:
-                loss3 = config.sp_lambda * sp_value / sent_num_in_batch
-            else:
-                loss3 = config.sp_lambda * sp_value * 1e30
+            sent_num_in_batch = 1.0 + sent_num_in_batch
+            loss3 = sp_loss_fct(sp_logits.view(-1),
+                                     batch[10].float().view(-1)).sum() * config.sp_lambda / sent_num_in_batch
 
             loss = loss1 + loss2 + loss3
             loss.backward()

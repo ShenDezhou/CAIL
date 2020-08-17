@@ -13,8 +13,6 @@
   "bert_model_path": "../wwm_large_ext",
   "trained_weight":"",
 
-  "cnn_hidden_size": 512,
-  "cnn_output_size": 512,
   "fc_hidden_size": 64,
 
   "hidden_size": 1024,

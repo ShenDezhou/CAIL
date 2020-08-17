@@ -155,7 +155,7 @@ class ResNet(nn.Module):
                                        dilate=replace_stride_with_dilation[1])
         self.layer4 = self._make_layer(block, input_dim, layers[3], stride=1,
                                        dilate=replace_stride_with_dilation[2])
-        self.avgpool = nn.AdaptiveAvgPool1d((512))
+        self.avgpool = nn.AdaptiveAvgPool1d((1))
         self.fc = nn.Linear(input_dim * block.expansion, num_classes)
 
         for m in self.modules():
@@ -212,8 +212,8 @@ class ResNet(nn.Module):
         x = self.layer4(x)
 
         x = self.avgpool(x)
-        # x = torch.flatten(x, 1)
-        # x = self.fc(x)
+        x = torch.flatten(x, 1)
+        x = self.fc(x)
 
         return x
 
