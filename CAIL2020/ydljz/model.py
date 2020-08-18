@@ -30,8 +30,8 @@ class BertSupportNetX(nn.Module):
         self.dropout_size = config.dropout
 
 
-        self.resnet = ResNet(block=BasicBlock, layers=[2,2,2,2], num_classes=config.num_classes)
-        self.resnet2d = ResNet2D(block=BasicBlock2D, layers=[2, 2, 2, 2], num_classes=64)
+        self.resnet = ResNet(block=BasicBlock, layers=[0, 0, 0, 0], num_classes=config.num_classes)
+        self.resnet2d = ResNet2D(block=BasicBlock2D, layers=[0, 0, 0, 0], num_classes=64)
         # self.dropout = nn.Dropout(self.dropout_size)
         #
         # self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)

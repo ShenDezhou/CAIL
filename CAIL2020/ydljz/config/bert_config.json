@@ -5,10 +5,10 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data2/valid.json",
-  "valid_file_path": "data2/valid.json",
+  "train_file_path": "data2/train_train.json",
+  "valid_file_path": "data2/train_valid.json",
 
-  "batch_size": 2,
+  "batch_size": 4,
 
   "bert_model_path": "D:/lbwj/model/bert/roberta_wwm_ext",
   "trained_weight":"",
