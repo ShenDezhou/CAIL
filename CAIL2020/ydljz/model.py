@@ -24,33 +24,33 @@ class BertSupportNetX(nn.Module):
         # self.prediction_layer = DeepCNNPredictionLayer(config)
         # deep cnn parts
         self.input_dim = config.hidden_size
-        # self.cnn_hidden_size = config.cnn_hidden_size
+        self.cnn_hidden_size = config.cnn_hidden_size
         # self.cnn_output_size = config.cnn_output_size
-        # self.fc_hidden_size = config.fc_hidden_size
+        self.fc_hidden_size = config.fc_hidden_size
         self.dropout_size = config.dropout
 
 
-        self.resnet = ResNet(block=BasicBlock, layers=[0, 0, 0, 0], num_classes=config.num_classes)
-        self.resnet2d = ResNet2D(block=BasicBlock2D, layers=[0, 0, 0, 0], num_classes=64)
+        # self.resnet = ResNet(block=BasicBlock, layers=[0, 0, 0, 0], num_classes=config.num_classes)
+        # self.resnet2d = ResNet2D(block=BasicBlock2D, layers=[0, 0, 0, 0], num_classes=64)
         # self.dropout = nn.Dropout(self.dropout_size)
         #
-        # self.conv1 = nn.Conv1d(self.input_dim,  self.cnn_hidden_size, kernel_size=3, padding=1)
-        # self.conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        # self.conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        # self.conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        # self.conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
-        # self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.fc_hidden_size, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv1d(config.max_seq_len,  self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv4 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv5 = nn.Conv1d(self.cnn_hidden_size, self.cnn_hidden_size, kernel_size=3, padding=1)
+        self.conv6 = nn.Conv1d(self.cnn_hidden_size, self.fc_hidden_size, kernel_size=3, padding=1)
 
         # cnn feature map has a total number of 228 dimensions.
-        # self.dropout = nn.Dropout(self.dropout_size)
+        self.dropout = nn.Dropout(self.dropout_size)
         # self.fc1 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
         # self.fc2 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
         # self.fc3 = nn.Linear(config.cnn_output_size, config.fc_hidden_size)
 
-        # self.sp_linear = nn.Linear(self.fc_hidden_size, 1)
+        self.sp_linear = nn.Linear(self.input_dim, 1)
         self.start_linear = nn.Linear(self.input_dim, 1)
         self.end_linear = nn.Linear(self.input_dim, 1)
-        # self.type_linear = nn.Linear(self.fc_hidden_size, config.num_classes)  # yes/no/ans/unknown
+        self.type_linear = nn.Linear(self.fc_hidden_size, config.num_classes)  # yes/no/ans/unknown
         self.cache_S = 0
         self.cache_mask = None
 
@@ -72,34 +72,34 @@ class BertSupportNetX(nn.Module):
             is_support,tok_to_orig_index):
         # roberta不可以输入token_type_ids
         input_state = self.encoder(input_ids=context_idxs, attention_mask=context_mask,token_type_ids=segment_idxs)[0]
-        x = input_state.transpose(1, 2)# .type(torch.cuda.FloatTensor)
-        type_logits = self.resnet(x)
-        # x = F.max_pool1d(F.relu(self.conv1(x)), kernel_size=3, stride=1, padding=1)
-        # x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
-        # x = F.relu(self.conv3(x))
-        # x = F.relu(self.conv4(x))
-        # x = F.relu(self.conv5(x))
-        # x = F.relu(self.conv6(x))
-        #input_state = x.transpose(2, 1)# .type(torch.cuda.FloatTensor)
-
-        # x = F.max_pool1d(x, x.size(2)).squeeze(2)
+        # x = input_state.transpose(1, 2)# .type(torch.cuda.FloatTensor)
+        # type_logits = self.resnet(x)
+        x = F.max_pool1d(F.relu(self.conv1(input_state)), kernel_size=3, stride=1, padding=1)
+        x = F.max_pool1d(F.relu(self.conv2(x)), kernel_size=3, stride=1, padding=1)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        # x = x.transpose(2, 1)# .type(torch.cuda.FloatTensor)
+        x = F.max_pool1d(x, x.size(2)).squeeze(2)
         # x = F.relu(self.fc1(x.view(x.size(0), -1)))
         # x, y = self.fc1(cnn), self.fc2(cnn)
         # x, y = self.dropout(x), self.dropout(y)
         # x, y, z = F.relu(self.fc1(x.view(x.size(0), -1))),F.relu(self.fc2(x.view(x.size(0), -1))),F.relu(self.fc3(x.view(x.size(0), -1)))
         # input_state, support_state, type_state = self.dropout(x), self.dropout(y), self.dropout(z)
-
+        type_logits = self.type_linear(x)
         start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
         end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
 
         sp_state = all_mapping.unsqueeze(3) * input_state.unsqueeze(2)  # N x 512 x sent x 768
-        sp_state = sp_state.transpose(1,2)
-        sp_logits = self.resnet2d(sp_state)
-        # sp_state = sp_state.max(1)[0]
-        # sp_logits = self.sp_linear(resnet2d_state)
+        sp_state = sp_state.transpose(1,2)  # batch * sent * 512 * 768
+        sp_logits = self.sp_linear(sp_state).squeeze(3)
+        sp_logits = sp_logits.max(2)[0]
 
-        # type_state = torch.max(input_state, dim=1)[0]
-        # type_logits = self.type_linear(resnet_state)
+
+
+
+
 
         # 找结束位置用的开始和结束位置概率之和
         # (batch, 512, 1) + (batch, 1, 512) -> (512, 512)
