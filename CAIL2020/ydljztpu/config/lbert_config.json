@@ -5,7 +5,7 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data2/train_train.json",
+  "train_file_path": "data2/trainx.json",
   "valid_file_path": "data2/train_valid.json",
 
   "batch_size": 1,

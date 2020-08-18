@@ -20,7 +20,8 @@ model_urls = {
     'wide_resnet101_2': 'https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth',
 }
 
-input_dim=45
+input_dim=32
+adapter_dim=45
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
@@ -143,7 +144,7 @@ class ResNet2D(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv2d(input_dim, self.inplanes, kernel_size=3, stride=1, padding=0,
+        self.conv1 = nn.Conv2d(adapter_dim, self.inplanes, kernel_size=3, stride=1, padding=0,
                                bias=False)
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
@@ -153,10 +154,10 @@ class ResNet2D(nn.Module):
                                        dilate=replace_stride_with_dilation[0])
         self.layer3 = self._make_layer(block, input_dim, layers[2], stride=1,
                                        dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, input_dim, layers[3], stride=1,
+        self.layer4 = self._make_layer(block, adapter_dim, layers[3], stride=1,
                                        dilate=replace_stride_with_dilation[2])
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
-        self.fc = nn.Linear(input_dim * block.expansion, num_classes)
+        self.fc = nn.Linear(adapter_dim * block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
