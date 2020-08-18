@@ -11,3 +11,6 @@ temp
 notebook
 result
 data
+input/
+jieba/
+torchmodel/
