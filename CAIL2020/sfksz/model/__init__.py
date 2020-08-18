@@ -1,8 +1,8 @@
-from model.qa.qa import Model,GRUModel
+from model.qa.qa import Model,RESModel
 
 model_list = {
     "Model": Model,
-    "GRUModel": GRUModel
+    "RESModel": RESModel
 }
 
 
