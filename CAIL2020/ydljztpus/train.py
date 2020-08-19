@@ -228,13 +228,14 @@ class Trainer:
             batch = tuple(t.to(self.device) for t in batch)
             # batch['context_mask'] = batch['context_mask'].float()
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-            # loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7])#y1,y2
-            # loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])#q_type
-            sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
-            loss3 = self.config.sp_lambda * sp_value / batch[9].sum()  # start_mapping
+            loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7])#y1,y2
+            loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])#q_type
+            # sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
+            # loss3 = self.config.sp_lambda * sp_value / batch[9].sum()
 
-            loss = loss3
-            loss_list = [loss, loss3]
+
+            loss = loss1 + loss2
+            loss_list = [loss, loss1, loss2]
 
             for i, l in enumerate(loss_list):
                 if not isinstance(l, int):
@@ -242,26 +243,26 @@ class Trainer:
 
             batchsize = batch[0].size(0)
             #ids
-            # answer_dict_ = convert_to_tokens(exam, feats, batch[5], start_position.data.cpu().numpy().tolist(),
-            #                                  end_position.data.cpu().numpy().tolist(),
-            #                                  np.argmax(type_logits.data.cpu().numpy(), 1))
-            # answer_dict.update(answer_dict_)
+            answer_dict_ = convert_to_tokens(exam, feats, batch[5], start_position.data.cpu().numpy().tolist(),
+                                             end_position.data.cpu().numpy().tolist(),
+                                             np.argmax(type_logits.data.cpu().numpy(), 1))
+            answer_dict.update(answer_dict_)
 
-            predict_support_np = torch.sigmoid(sp_logits).data.cpu().numpy()
-            for i in range(predict_support_np.shape[0]):
-                cur_sp_pred = []
-                cur_id = batch[5][i].item()
-
-                cur_sp_logit_pred = []  # for sp logit output
-                for j in range(predict_support_np.shape[1]):
-                    if j >= len(exam[cur_id].sent_names):
-                        break
-                    if need_sp_logit_file:
-                        temp_title, temp_id = exam[cur_id].sent_names[j]
-                        cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
-                    if predict_support_np[i, j] > self.config.sp_threshold:
-                        cur_sp_pred.append(exam[cur_id].sent_names[j])
-                sp_dict.update({cur_id: cur_sp_pred})
+            # predict_support_np = torch.sigmoid(sp_logits).data.cpu().numpy()
+            # for i in range(predict_support_np.shape[0]):
+            #     cur_sp_pred = []
+            #     cur_id = batch[5][i].item()
+            #
+            #     cur_sp_logit_pred = []  # for sp logit output
+            #     for j in range(predict_support_np.shape[1]):
+            #         if j >= len(exam[cur_id].sent_names):
+            #             break
+            #         if need_sp_logit_file:
+            #             temp_title, temp_id = exam[cur_id].sent_names[j]
+            #             cur_sp_logit_pred.append((temp_title, temp_id, predict_support_np[i, j]))
+            #         if predict_support_np[i, j] > self.config.sp_threshold:
+            #             cur_sp_pred.append(exam[cur_id].sent_names[j])
+            #     sp_dict.update({cur_id: cur_sp_pred})
 
         new_answer_dict = {}
         for key, value in answer_dict.items():
@@ -587,14 +588,13 @@ def main(config_file='config/bert_config.json'):
             # batch = tuple(t.to(device) for t in batch)
             # loss = self.criterion(logits, batch[-1])
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-            # loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
-            # loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
-            sent_num_in_batch = batch[9].sum()  # is_support
-            sent_num_in_batch = 1.0 + sent_num_in_batch
-            loss3 = sp_loss_fct(sp_logits.view(-1),
-                                     batch[10].float().view(-1)).sum() * config.sp_lambda / sent_num_in_batch
-
-            loss = loss3
+            start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
+            loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
+            loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
+            # sent_num_in_batch = batch[9].sum()  # is_support
+            # sent_num_in_batch = 1.0 + sent_num_in_batch # to avoid devide by zero
+            # loss3 = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum() * self.config.sp_lambda / sent_num_in_batch
+            loss = loss1 + loss2
             loss.backward()
 
             tracker.add(FLAGS.batch_size)
