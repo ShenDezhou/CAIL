@@ -23,7 +23,7 @@ Usage:
     datasets = data.load_train_and_valid_files(
         'SMP-CAIL2020-train.csv', 'SMP-CAIL2020-valid.csv')
     train_set, valid_set_train, valid_set_valid = datasets
-    # For RNN modelload_train_and_valid_files
+    # For RNN model
     data = Data('model/rnn/vocab.txt', model_type='rnn')
     datasets = data.load_all_files(
         'SMP-CAIL2020-train.csv', 'SMP-CAIL2020-valid.csv')
@@ -272,13 +272,13 @@ class Data:
         print('Loading train records for train...')
         train_exam, train_feat, train_set = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
-        print('Loading train records for valid...')
-        train_exam, train_feat, valid_set_train = self.load_file(train_file, False)
-        print(len(valid_set_train), 'train records loaded.')
+        # print('Loading train records for valid...')
+        # train_exam, train_feat, valid_set_train = self.load_file(train_file, False)
+        # print(len(valid_set_train), 'train records loaded.')
         print('Loading valid records...')
         valid_exam, valid_feat, valid_set_valid = self.load_file(valid_file, False)
         print(len(valid_set_valid), 'valid records loaded.')
-        return train_set, valid_set_train, valid_set_valid, train_exam, valid_exam, train_feat, valid_feat
+        return train_set, train_set, valid_set_valid, train_exam, valid_exam, train_feat, valid_feat
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -446,7 +446,7 @@ class Data:
 
             if len(ans_end_position) > 1:
                 cnt += 1  # 如果答案结束的位置大于1，cnt+1，如果答案结束位置是0呢？
-            if key < 10:
+            if False:
                 print("qid {}".format(key))
                 print("qas type {}".format(qas_type))
                 print("doc tokens {}".format(doc_tokens))
@@ -602,7 +602,7 @@ class Data:
             sup_fact_ids = [sent_id for sent_id in sup_fact_ids if sent_id < sent_num]
             if len(sup_fact_ids) != len(example.sup_fact_id):
                 failed += 1
-            if example.qas_id < 10:
+            if False:
                 print("qid {}".format(example.qas_id))
                 print("all_doc_tokens {}".format(all_doc_tokens))
                 print("doc_input_ids {}".format(doc_input_ids))

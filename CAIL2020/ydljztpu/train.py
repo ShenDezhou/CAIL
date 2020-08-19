@@ -164,7 +164,7 @@ class Trainer:
         return train_acc, train_f1, valid_acc, valid_f1
 
     def _epoch_evaluate_update_description_log(
-            self, tqdm_obj, logger, epoch, exam, feats):
+            self, tqdm_obj, logger, epoch, exam, feats, gold_file):
         """Evaluate model and update logs for epoch.
 
         Args:
@@ -182,7 +182,7 @@ class Trainer:
         self.predict(self.model, tqdm_obj, exam, feats,
                 join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)))
         results = eval(join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)),
-             self.config.valid_file_path)
+             gold_file)
 
         # Update tqdm description for command line
         # tqdm_obj.set_description(
@@ -369,11 +369,11 @@ class Trainer:
 
         train_results = self._epoch_evaluate_update_description_log(
             tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=-1 + 1,
-            exam=self.data_loader['train_exam'], feats=self.data_loader['train_feat'])
+            exam=self.data_loader['train_exam'], feats=self.data_loader['train_feat'], gold_file=self.config.train_file_path)
 
         valid_results = self._epoch_evaluate_update_description_log(
             tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=-1 + 1,
-            exam=self.data_loader['valid_exam'], feats=self.data_loader['valid_feat'])
+            exam=self.data_loader['valid_exam'], feats=self.data_loader['valid_feat'], gold_file=self.config.train_file_path)
 
         results = (train_results['f1'], train_results['sp_f1'], train_results['joint_f1'], valid_results['f1'],
                    valid_results['sp_f1'], valid_results['joint_f1'])
@@ -591,14 +591,14 @@ def main(config_file='config/bert_config.json'):
             # batch = tuple(t.to(device) for t in batch)
             # loss = self.criterion(logits, batch[-1])
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-            loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
-            loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
+            # loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
+            # loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
             sent_num_in_batch = batch[9].sum()  # is_support
             sent_num_in_batch = 1.0 + sent_num_in_batch
             loss3 = sp_loss_fct(sp_logits.view(-1),
                                      batch[10].float().view(-1)).sum() * config.sp_lambda / sent_num_in_batch
 
-            loss = loss1 + loss2 + loss3
+            loss = loss3
             loss.backward()
 
             tracker.add(FLAGS.batch_size)
