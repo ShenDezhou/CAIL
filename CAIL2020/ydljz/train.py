@@ -129,7 +129,7 @@ class Trainer:
         return train_acc, train_f1, valid_acc, valid_f1
 
     def _epoch_evaluate_update_description_log(
-            self, tqdm_obj, logger, epoch, exam, feats):
+            self, tqdm_obj, logger, epoch, exam, feats, gold_file):
         """Evaluate model and update logs for epoch.
 
         Args:
@@ -147,7 +147,7 @@ class Trainer:
         self.predict(self.model, tqdm_obj, exam, feats,
                 join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)))
         results = eval(join(self.config.prediction_path, 'pred_epoch_{}.json'.format(epoch)),
-             self.config.valid_file_path)
+             gold_file)
 
         # Update tqdm description for command line
         # tqdm_obj.set_description(
@@ -299,10 +299,14 @@ class Trainer:
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
             train_results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1, exam =self.data_loader['train_exam'], feats=self.data_loader['train_feat'] )
+                tqdm_obj=self.data_loader['valid_train'], logger=epoch_logger, epoch=epoch + 1,
+                exam=self.data_loader['train_exam'], feats=self.data_loader['train_feat'],
+                gold_file=self.config.train_file_path)
 
             valid_results = self._epoch_evaluate_update_description_log(
-                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1, exam=self.data_loader['valid_exam'], feats=self.data_loader['valid_feat'] )
+                tqdm_obj=self.data_loader['valid_valid'], logger=epoch_logger, epoch=epoch + 1,
+                exam=self.data_loader['valid_exam'], feats=self.data_loader['valid_feat'],
+                gold_file=self.config.valid_file_path)
 
             results = (train_results['f1'],train_results['sp_f1'],train_results['joint_f1'],valid_results['f1'],valid_results['sp_f1'],valid_results['joint_f1'])
             tqdm_obj.set_description(
