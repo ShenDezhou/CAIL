@@ -323,3 +323,4 @@ epoch,em,f1,prec,recall,sp_em,sp_f1,sp_prec,sp_recall,joint_em,joint_f1,joint_pr
 --cnn_module_layers=4
 --max_query_len=50
 
+(0.0, 0.8284155596967211, 0.0, 0.0, 0.7343907351460225, 0.0)

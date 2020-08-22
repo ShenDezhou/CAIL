@@ -588,7 +588,6 @@ def main(config_file='config/bert_config.json'):
             # batch = tuple(t.to(device) for t in batch)
             # loss = self.criterion(logits, batch[-1])
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-            start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
             loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
             loss2 = config.type_lambda * criterion(type_logits, batch[8])  # q_type
             # sent_num_in_batch = batch[9].sum()  # is_support

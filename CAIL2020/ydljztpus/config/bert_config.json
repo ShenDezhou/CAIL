@@ -5,34 +5,35 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data2/trainx.json",
-  "valid_file_path": "data2/train_valid.json",
-  "test_file_path": "data2/train_valid.json",
+  "train_file_path": "data2/train_full.json",
+  "valid_file_path": "data2/train_small.json",
+  "test_file_path": "data2/train_small.json",
 
   "batch_size": 8,
 
   "bert_model_path": "../roberta_wwm_ext",
   "trained_weight":"",
 
-  "cnn_hidden_size": 256,
-  "fc_hidden_size": 64,
+  "is_AKDE": true,
+  "dim_capsule": 16,
+  "num_compressed_capsule": 128,
 
   "hidden_size": 768,
   "num_classes": 4,
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
-  "num_warmup_steps": 0,
+  "num_epoch": 20,
+  "num_warmup_steps": 100,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 32,
+  "gradient_accumulation_steps": 1,
   "max_grad_norm": 1e-2,
 
   "prediction_path":"output/submissions",
 
 
   "type_lambda": 1,
-  "sp_lambda": 1,
+  "sp_lambda": 5,
   "sp_threshold": 0.5,
   "log_steps": 2000,
   "num_cores": 8,
