@@ -200,6 +200,7 @@ class Data:
         data_frame = pd.read_csv(filename)
 
         sc_list, label_list = [], []
+        segment = 0
         for row in data_frame.itertuples(index=False):
 
             sc_tokens = self.tokenizer.tokenize(str(row[0]))
@@ -230,7 +231,8 @@ class Data:
                     # bc_list.append(bc_tokens)
                     # label_list.append(label_)
                     loop += 1
-
+                    label_list.append(segment)
+            segment+=1
         return sc_list, label_list
 
     def _convert_sentence_pair_to_bert_dataset(
@@ -257,22 +259,22 @@ class Data:
             segment_ids = [0] * len(tokens)
             # tokens += s2_list[i] + ['[SEP]']
             # segment_ids += [1] * (len(s2_list[i]) + 1)
-            if len(tokens) > 512:
-                tokens = tokens[:256] + tokens[-256:]
-                assert len(tokens) == 512
-                segment_ids = segment_ids[:256] + segment_ids[-256:]
+            if len(tokens) > self.max_seq_len:
+                tokens = tokens[:self.max_seq_len//2] + tokens[-self.max_seq_len//2:]
+                assert len(tokens) == self.max_seq_len
+                segment_ids = segment_ids[:self.max_seq_len//2] + segment_ids[-self.max_seq_len//2:]
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
-            input_ids += [0] * (512 - tokens_len)
-            segment_ids += [0] * (512 - tokens_len)
-            input_mask += [0] * (512 - tokens_len)
+            input_ids += [0] * (self.max_seq_len - tokens_len)
+            segment_ids += [0] * (self.max_seq_len - tokens_len)
+            input_mask += [0] * (self.max_seq_len - tokens_len)
             all_input_ids.append(input_ids)
             all_input_mask.append(input_mask)
             all_segment_ids.append(segment_ids)
 
             label_list[i] = [1] + label_list[i] + [1]
-            label_list[i] += [0] * (512 - tokens_len)
+            label_list[i] += [0] * (self.max_seq_len - tokens_len)
         all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
         all_input_mask = torch.tensor(all_input_mask, dtype=torch.long)
         all_segment_ids = torch.tensor(all_segment_ids, dtype=torch.long)

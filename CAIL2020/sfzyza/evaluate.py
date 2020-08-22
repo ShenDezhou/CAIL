@@ -90,21 +90,41 @@ def evaluate(model, data_loader, device) -> List[str]:
     model.eval()
     input_ids = torch.tensor([], dtype=torch.float).to(device)
     outputs = torch.tensor([], dtype=torch.float).to(device)
+    segment = torch.tensor([], dtype=torch.float).to(device)
     for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
-            logits = model(*batch)
+            logits = model(*batch[:-1])
         outputs = torch.cat([outputs, logits[:, :]])
-        input_ids = torch.cat([input_ids, batch[:, :]])
+        input_ids = torch.cat([input_ids, batch[0][:, :]])
+        segment = torch.cat([segment, batch[-1][:, :]])
 
-    answer_list = []
-    predict_support_np = torch.sigmoid(outputs).data.cpu().numpy()
-    for i in range(predict_support_np.shape[0]):
-        left_ids = []
-        for j in range(predict_support_np.shape[1]):
-            if predict_support_np[i, j] > 0.5:
-                left_ids.append(input_ids[i,j])
-        answer_list.append(left_ids)
+    output_ids = []
+    output_tokens = []
+    for i in range(len(outputs)):
+        bits = outputs[i].data.cpu().numpy().round()
+        output_id = []
+        for j in range(len(bits)):
+            if bits[j]:
+                output_id.append(input_ids[i][j])
+        output_ids.append(output_id)
+        output_tokens.append(model.bert.decode(output_id))
+
+    segment_tokens = []
+    for i in range(len(segment)):
+        if segment[i] > len(segment_tokens):
+            segment_tokens.append("")
+        segment_tokens[segment[i]] += output_tokens[i]
+
+
+    # answer_list = []
+    # predict_support_np = torch.sigmoid(outputs).data.cpu().numpy()
+    # for i in range(predict_support_np.shape[0]):
+    #     left_ids = []
+    #     for j in range(predict_support_np.shape[1]):
+    #         if predict_support_np[i, j] > 0.5:
+    #             left_ids.append(input_ids[i,j])
+    #     answer_list.append(left_ids)
 
 
     #
@@ -112,7 +132,7 @@ def evaluate(model, data_loader, device) -> List[str]:
     #     logits = outputs[i]
     #     answer = int(torch.argmax(logits, dim=-1))
     #     answer_list.append(answer)
-    return answer_list
+    return output_tokens
 
 
 if __name__ == '__main__':

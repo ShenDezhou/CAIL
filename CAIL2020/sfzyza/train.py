@@ -386,8 +386,8 @@ def main(config_file='config/bert_config.json'):
             # pred = output.max(1, keepdim=True)[1]
             # correct += pred.eq(target.view_as(pred)).sum().item()
             for i in range(len(output)):
-                logits = output[i].numpy().round()
-                gold = target[i].numpy()
+                logits = output[i].data.cpu().numpy().round()
+                gold = target[i].data.cpu().numpy()
                 correct += np.sum(logits == gold)
                 total_samples += len(target[i])
 
@@ -449,7 +449,7 @@ def _mp_fn(rank, flags, model,serial):
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE',  accuracy_valid))
     # 4. Save model
-    if rank == 0:
+    if xm.get_ordinal() == 0:
         WRAPPED_MODEL.to('cpu')
         torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
         xm.master_print('saved model.')

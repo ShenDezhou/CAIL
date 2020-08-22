@@ -22,14 +22,14 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertYForClassification, RnnForSentencePairClassification, LogisticRegression
+from model import BertForClassification, RnnForSentencePairClassification, LogisticRegression
 from utils import load_torch_model
 
 
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
-    'bert': BertYForClassification,
+    'bert': BertForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression
 }
@@ -68,11 +68,15 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     # 3. Evaluate
     answer_list = evaluate(model, data_loader_test, device)
     # 4. Write answers to file
-    id_list = pd.read_csv(in_file)['id'].tolist()
+    id_list = []
+    with open(in_file, 'r') as fin:
+        for line in fin:
+            dic = json.load(line)
+            id_list.append(dic['id'])
+
     with open(out_file, 'w') as fout:
-        fout.write('id,answer\n')
-        for i, j in zip(id_list, answer_list):
-            fout.write(str(i) + ',' + str(j) + '\n')
+        result = dict(zip(id_list, answer_list))
+        fout.write(json.dumps(result, ensure_ascii=False) + '\n')
 
 
 if __name__ == '__main__':
