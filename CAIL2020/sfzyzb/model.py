@@ -29,7 +29,7 @@ class BertForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
         self.dropout = nn.Dropout(config.dropout)
-        self.linear = nn.Linear(config.hidden_size, config.num_classes)
+        self.linear = nn.Linear(config.hidden_size * 2, config.num_classes)
         self.num_classes = config.num_classes
 
     def forward(self, input_ids, attention_mask, token_type_ids):
@@ -44,17 +44,14 @@ class BertForClassification(nn.Module):
             logits: (batch_size, num_classes)
         """
         batch_size = input_ids.shape[0]
-        bert_output = self.bert(
-            input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            # encoder_hidden_states=False
-        )
+        hiddens = self.bert(input_ids=input_ids, attention_mask=attention_mask,token_type_ids=token_type_ids,
+                                                                    output_hidden_states=True)[2]
+        hidden_state = torch.cat([hiddens[-1], hiddens[-2]], dim=2)
         # bert_output[0]: (batch_size, sequence_length, hidden_size)
         # bert_output[1]: (batch_size, hidden_size)
-        pooled_output = bert_output[1]
-        pooled_output = self.dropout(pooled_output)
-        logits = self.linear(pooled_output).view(batch_size, self.num_classes)
+        hidden_state = hidden_state.max(1)[0]
+        hidden_state = self.dropout(hidden_state)
+        logits = self.linear(hidden_state).view(batch_size, self.num_classes)
         logits = nn.functional.softmax(logits, dim=-1)
         # logits: (batch_size, num_classes)
         return logits

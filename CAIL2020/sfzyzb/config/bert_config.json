@@ -1,6 +1,6 @@
 {
   "model_type": "bert",
-  "max_seq_len": 100,
+  "max_seq_len": 50,
   "model_path": "model/bert/",
   "log_path": "log/",
 
@@ -9,14 +9,14 @@
 
   "batch_size": 64,
 
-  "bert_model_path": "../roberta_wwm_ext",
+  "bert_model_path": "F:/roberta_wwm_ext",
   "trained_weight": "",
   "hidden_size": 768,
   "num_classes": 2,
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
+  "num_epoch": 3,
   "log_steps": 100,
   "serial_load": true,
   "metrics_debug": false,

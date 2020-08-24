@@ -87,7 +87,7 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     idcontent_list = list(df.itertuples(index=False))
     filter_list = [k for k,v in zip(idcontent_list, answer_list) if v]
     df = pd.DataFrame(filter_list, columns=['para', 'content'])
-    df.to_csv("data/filtered_para_content_test.csv", columns=['para', 'content'], index=False)
+    df.to_csv(out_file, columns=['para', 'content'], index=False)
 
 
 if __name__ == '__main__':

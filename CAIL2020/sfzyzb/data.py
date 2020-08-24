@@ -204,9 +204,12 @@ class Data:
             sc_tokens = self.tokenizer.tokenize(str(row[1]))
             # bc_tokens = self.tokenizer.tokenize(str(row[2]))
             if train:
-                sc_list.append(sc_tokens)
-                # bc_list.append(bc_tokens)
-                label_list.append(row[0])
+                # True False item has a rate of 1:5
+                copy = 5 if row[0] else 1
+                for _ in range(copy):
+                    sc_list.append(sc_tokens)
+                    # bc_list.append(bc_tokens)
+                    label_list.append(row[0])
             else:  # test
                 sc_list.append(sc_tokens)
                 # bc_list.append(bc_tokens)
