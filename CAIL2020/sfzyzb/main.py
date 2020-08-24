@@ -16,6 +16,7 @@ import os
 from types import SimpleNamespace
 
 import fire
+import pandas
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
@@ -49,15 +50,29 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     with open(model_config) as fin:
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     if torch.cuda.is_available():
-        #device = torch.device('cuda')
-        device = torch.device('cpu')
+        device = torch.device('cuda')
+        # device = torch.device('cpu')
     else:
         device = torch.device('cpu')
+    #0. preprocess file
+    tag_sents = []
+    para_id = 0
+    with open(in_file, 'r', encoding='utf-8') as fin:
+        for line in fin:
+            sents = json.loads(line.strip())
+            text = sents['text']
+            sentences = [item['sentence'] for item in text]
+            for sent in sentences:
+                tag_sents.append((para_id, sent))
+            para_id += 1
+        df = pandas.DataFrame(tag_sents, columns=['para', 'content'])
+        df.to_csv("data/para_content_test.csv", columns=['para', 'content'], index=False)
+
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
-    test_set = data.load_file(in_file, train=False)
+    test_set = data.load_file("data/para_content_test.csv", train=False)
     data_loader_test = DataLoader(
         test_set, batch_size=config.batch_size, shuffle=False)
     # 2. Load model
@@ -68,11 +83,11 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     # 3. Evaluate
     answer_list = evaluate(model, data_loader_test, device)
     # 4. Write answers to file
-    id_list = pd.read_csv(in_file)['id'].tolist()
-    with open(out_file, 'w') as fout:
-        fout.write('id,answer\n')
-        for i, j in zip(id_list, answer_list):
-            fout.write(str(i) + ',' + str(j) + '\n')
+    df = pd.read_csv("data/para_content_test.csv")
+    idcontent_list = list(df.itertuples(index=False))
+    filter_list = [k for k,v in zip(idcontent_list, answer_list) if v]
+    df = pd.DataFrame(filter_list, columns=['para', 'content'])
+    df.to_csv("data/filtered_para_content_test.csv", columns=['para', 'content'], index=False)
 
 
 if __name__ == '__main__':
