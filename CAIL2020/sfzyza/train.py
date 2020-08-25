@@ -206,7 +206,7 @@ class Trainer:
             self.model.train()
             tqdm_obj = tqdm(self.data_loader['train'], ncols=80)
             for step, batch in enumerate(tqdm_obj):
-                batch = tuple(t.to(self.device) for t in batch)
+                # batch = tuple(t.to(self.device) for t in batch)
                 logits = self.model(*batch[:-1])  # the last one is label
                 loss = self.criterion(logits, batch[-1])
 
@@ -449,7 +449,7 @@ def _mp_fn(rank, flags, model,serial):
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE',  accuracy_valid))
     # 4. Save model
-    if xm.get_ordinal() == 0:
+    if rank == 0:
         WRAPPED_MODEL.to('cpu')
         torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
         xm.master_print('saved model.')

@@ -13,6 +13,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 from types import SimpleNamespace
 
 import fire
@@ -34,8 +35,13 @@ MODEL_MAP = {
     'lr': LogisticRegression
 }
 
+def remove(text):
+    cleanr = re.compile(r" !#\$%&'\(\)*\+,-./:;<=>?@\^_`{|}~“”？，！【】（）、。：；’‘…￥·")
+    cleantext = re.sub(cleanr, '', text)
+    return cleantext
 
 def main(in_file='/data/SMP-CAIL2020-test1.csv',
+         temp_file="data/para_content_test.csv",
          out_file='/output/result1.csv',
          model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.
@@ -53,11 +59,21 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
         # device = torch.device('cpu')
     else:
         device = torch.device('cpu')
+
+    #0. preprocess file
+    id_list = []
+    with open(in_file, 'r', encoding='utf-8') as fin:
+        for line in fin:
+            sents = json.loads(line.strip())
+            id = sents['id']
+            id_list.append(id)
+    id_dict = dict(zip(range(len(id_list)), id_list))
+
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
-    test_set = data.load_file(in_file, train=False)
+    test_set = data.load_file(temp_file, train=False)
     data_loader_test = DataLoader(
         test_set, batch_size=config.batch_size, shuffle=False)
     # 2. Load model
@@ -67,16 +83,21 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     model.to(device)
     # 3. Evaluate
     answer_list = evaluate(model, data_loader_test, device)
+    token_list = []
+    for line in answer_list:
+        tokens = data.tokenizer.decode(line, skip_special_tokens=True)
+        token_list.append(tokens)
     # 4. Write answers to file
-    id_list = []
-    with open(in_file, 'r') as fin:
-        for line in fin:
-            dic = json.load(line)
-            id_list.append(dic['id'])
+    para_list = pd.read_csv(temp_file)['para'].to_list()
+    summary_dict = dict(zip(id_dict.values(), [""] * len(id_dict)))
 
-    with open(out_file, 'w') as fout:
-        result = dict(zip(id_list, answer_list))
-        fout.write(json.dumps(result, ensure_ascii=False) + '\n')
+    result = zip(para_list, token_list)
+    for id, summary in result:
+        summary_dict[id_dict[id]] += remove(summary)
+
+    with open(out_file, 'w', encoding='utf8') as fout:
+        for id, sumamry in summary_dict.items():
+            fout.write(json.dumps({'id':id,'summary':sumamry},  ensure_ascii=False) + '\n')
 
 
 if __name__ == '__main__':

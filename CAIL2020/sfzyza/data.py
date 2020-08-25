@@ -171,13 +171,13 @@ class Data:
         print('Loading train records for train...')
         train_set = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
-        print('Loading train records for valid...')
-        valid_set_train = self.load_file(train_file, True)
-        print(len(valid_set_train), 'train records loaded.')
+        # print('Loading train records for valid...')
+        # valid_set_train = self.load_file(train_file, True)
+        # print(len(valid_set_train), 'train records loaded.')
         print('Loading valid records...')
         valid_set_valid = self.load_file(valid_file, True)
         print(len(valid_set_valid), 'valid records loaded.')
-        return train_set, valid_set_train, valid_set_valid
+        return train_set, train_set, valid_set_valid
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -200,17 +200,18 @@ class Data:
         data_frame = pd.read_csv(filename)
 
         sc_list, label_list = [], []
-        segment = 0
+        # segment = 0
         for row in data_frame.itertuples(index=False):
-
-            sc_tokens = self.tokenizer.tokenize(str(row[0]))
-            bc_tokens = self.tokenizer.tokenize(str(row[1]))
             if train:
+                sc_tokens = self.tokenizer.tokenize(str(row[0]))
+                bc_tokens = self.tokenizer.tokenize(str(row[1]))
                 loop = 0
                 while loop < 20:
-                    if loop*510>len(sc_tokens):
+                    if loop*self.max_seq_len>=len(sc_tokens):
                         break
-                    sc_ = sc_tokens[loop*510:(loop+1)*510]
+                    sc_ = sc_tokens[loop*self.max_seq_len:(loop+1)*self.max_seq_len]
+                    if len(sc_) < self.max_seq_len * 0.8:
+                        break
                     label_ = []
                     for sc in sc_:
                         if sc in bc_tokens:
@@ -221,18 +222,10 @@ class Data:
                     # bc_list.append(bc_tokens)
                     label_list.append(label_)
                     loop += 1
-            else:  # test
-                loop = 0
-                while loop < 20:
-                    if loop * 510 > len(sc_tokens):
-                        break
-                    sc_ = sc_tokens[loop * 510:(loop + 1) * 510]
-                    sc_list.append(sc_)
-                    # bc_list.append(bc_tokens)
-                    # label_list.append(label_)
-                    loop += 1
-                    label_list.append(segment)
-            segment+=1
+            else:
+                # 0 segment id, 1 content line
+                sc_tokens = self.tokenizer.tokenize(str(row[1]))
+                sc_list.append(sc_tokens)
         return sc_list, label_list
 
     def _convert_sentence_pair_to_bert_dataset(
@@ -253,34 +246,47 @@ class Data:
                     each record: (input_ids, input_mask, segment_ids)
         """
         all_input_ids, all_input_mask, all_segment_ids = [], [], []
-
+        all_label_list = []
         for i, _ in tqdm(enumerate(s1_list), ncols=80):
             tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
             segment_ids = [0] * len(tokens)
             # tokens += s2_list[i] + ['[SEP]']
             # segment_ids += [1] * (len(s2_list[i]) + 1)
+
             if len(tokens) > self.max_seq_len:
                 tokens = tokens[:self.max_seq_len//2] + tokens[-self.max_seq_len//2:]
                 assert len(tokens) == self.max_seq_len
                 segment_ids = segment_ids[:self.max_seq_len//2] + segment_ids[-self.max_seq_len//2:]
+
+
+
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
             input_ids += [0] * (self.max_seq_len - tokens_len)
             segment_ids += [0] * (self.max_seq_len - tokens_len)
             input_mask += [0] * (self.max_seq_len - tokens_len)
+
+
             all_input_ids.append(input_ids)
             all_input_mask.append(input_mask)
             all_segment_ids.append(segment_ids)
 
-            label_list[i] = [1] + label_list[i] + [1]
-            label_list[i] += [0] * (self.max_seq_len - tokens_len)
+            if label_list:  # train
+                label_list_ = [1] + label_list[i] + [1]
+                label_list_ += [0] * (self.max_seq_len - tokens_len)
+                if len(label_list_) > self.max_seq_len:
+                    label_list_ = label_list_[:self.max_seq_len // 2] + label_list_[-self.max_seq_len // 2:]
+
+                all_label_list.append(label_list_)
+
+
         all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
         all_input_mask = torch.tensor(all_input_mask, dtype=torch.long)
         all_segment_ids = torch.tensor(all_segment_ids, dtype=torch.long)
 
         if label_list:  # train
-            all_label_ids = torch.tensor(label_list, dtype=torch.float)
+            all_label_ids = torch.tensor(all_label_list, dtype=torch.float)
             return TensorDataset(
                 all_input_ids, all_input_mask, all_segment_ids,
                 all_label_ids)

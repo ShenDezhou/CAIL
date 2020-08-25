@@ -10,10 +10,10 @@ import torch
 
 from tqdm import tqdm
 from sklearn import metrics
-from classmerge import classy_dic, indic
+# from classmerge import classy_dic, indic
 
-LABELS = [str(i) for i in range(len(classy_dic))]
-
+LABELS = [0,1]
+threshold = 0.8
 
 def calculate_accuracy_f1(
         golds: List[str], predicts: List[str]) -> tuple:
@@ -58,8 +58,9 @@ def get_labels_from_file(filename):
         List[str]: label list
     """
     data_frame = pandas.read_csv(filename)
-    labels = data_frame['type1'].map(indic).tolist()
+    labels = data_frame['summary'].tolist()
     return labels
+
 
 def eval_file(golds_file, predicts_file):
     """Evaluate submission file
@@ -88,33 +89,37 @@ def evaluate(model, data_loader, device) -> List[str]:
         answer list
     """
     model.eval()
-    input_ids = torch.tensor([], dtype=torch.float).to(device)
+    input_ids = torch.tensor([], dtype=torch.long).to(device)
     outputs = torch.tensor([], dtype=torch.float).to(device)
-    segment = torch.tensor([], dtype=torch.float).to(device)
+    # segment = torch.tensor([], dtype=torch.long).to(device)
     for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
-            logits = model(*batch[:-1])
+            logits = model(*batch)
         outputs = torch.cat([outputs, logits[:, :]])
         input_ids = torch.cat([input_ids, batch[0][:, :]])
-        segment = torch.cat([segment, batch[-1][:, :]])
+        # segment = torch.cat([segment, batch[-1][:, :]])
 
     output_ids = []
     output_tokens = []
     for i in range(len(outputs)):
-        bits = outputs[i].data.cpu().numpy().round()
+        if threshold==1:
+            toppostion = range(len(outputs[i]))
+        else:
+            toppostion = torch.topk(outputs[i], int(len(outputs[i]) * threshold), sorted=False, largest=True)[1]
+        #bits = outputs[i].data.cpu().numpy().round()
         output_id = []
-        for j in range(len(bits)):
-            if bits[j]:
+        for j in toppostion:
+            if input_ids[i][j]:
                 output_id.append(input_ids[i][j])
         output_ids.append(output_id)
-        output_tokens.append(model.bert.decode(output_id))
-
-    segment_tokens = []
-    for i in range(len(segment)):
-        if segment[i] > len(segment_tokens):
-            segment_tokens.append("")
-        segment_tokens[segment[i]] += output_tokens[i]
+    #     output_tokens.append(model.bert.convert_ids_to_tokens(output_id))
+    #
+    # segment_tokens = []
+    # for i in range(len(segment)):
+    #     if segment[i] > len(segment_tokens):
+    #         segment_tokens.append("")
+    #     segment_tokens[segment[i]] += output_tokens[i]
 
 
     # answer_list = []
@@ -132,7 +137,7 @@ def evaluate(model, data_loader, device) -> List[str]:
     #     logits = outputs[i]
     #     answer = int(torch.argmax(logits, dim=-1))
     #     answer_list.append(answer)
-    return output_tokens
+    return output_ids
 
 
 if __name__ == '__main__':

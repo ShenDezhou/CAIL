@@ -2,12 +2,14 @@
 
 Author: Yixu GAO yxgao19@fudan.edu.cn
 """
+import json
 import logging
 import os
 from collections import OrderedDict
 
+import pandas
 import torch
-
+from PythonROUGE import PythonROUGE
 
 def get_path(path):
     """Create the path if it does not exist.
@@ -67,3 +69,46 @@ def load_torch_model(model, model_path):
         new_state_dict[k] = value
     model.load_state_dict(new_state_dict, strict=True)
     return model
+
+
+def eval_score(input_path, output_path):
+    get_path("prediction")
+    pred_list = []
+    with open(output_path,'r', encoding='utf8') as fr:
+        for line in fr:
+            item = json.loads(line)
+            pred_list.append(os.path.join("prediction", item['id'] + ".txt"))
+            with open(os.path.join("prediction", item['id']+".txt"),'w', encoding='utf8') as fw:
+                fw.write(item['summary'])
+
+    get_path("gold")
+    gold_list = []
+    with open(input_path,'r', encoding='utf8') as fr:
+        for line in fr:
+            item = json.loads(line)
+            gold_list.append([os.path.join("gold", item['id'] + ".txt")])
+            with open(os.path.join("gold", item['id']+".txt"),'w', encoding='utf8') as fw:
+                fw.write(item['summary'])
+
+    recall_list,precision_list,F_measure_list = PythonROUGE(pred_list,gold_list)
+    print(precision_list, recall_list, F_measure_list)
+    final_score = 0.2*F_measure_list[0] + 0.4*F_measure_list[1]+ 0.4*F_measure_list[2]
+    print('weighted F1-score:', final_score)
+    return final_score
+
+def write_to_output(tokenizer, id_dict, temp_file, answer_list, out_file):
+    token_list = []
+    for line in answer_list:
+        tokens = tokenizer.decode(line)
+        token_list.append(tokens)
+    # 4. Write answers to file
+    para_list = pandas.read_csv(temp_file)['para'].to_list()
+    summary_dict = dict(zip(id_dict.values(), [""] * len(id_dict)))
+
+    result = zip(para_list, token_list)
+    for id, summary in result:
+        summary_dict[id_dict[id]] += summary
+
+    with open(out_file, 'w') as fout:
+        for id, sumamry in summary_dict.items():
+            fout.write(json.dumps({'id': id, 'summary': sumamry}, ensure_ascii=False) + '\n')
