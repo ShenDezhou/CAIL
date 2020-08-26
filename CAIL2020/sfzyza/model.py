@@ -10,6 +10,7 @@ from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
 import torch.nn.functional as F
+from capsnetx import PrimaryCaps, FCCaps, FlattenCaps
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
@@ -29,8 +30,36 @@ class BertForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
         self.dropout = nn.Dropout(config.dropout)
-        self.linear = nn.Linear(config.hidden_size*6, config.num_classes)
+        self.linear = nn.Linear(4, config.num_classes)
         self.num_classes = config.num_classes
+
+        self.dim_capsule = config.dim_capsule
+        self.num_compressed_capsule = config.num_compressed_capsule
+        self.ngram_size = [2, 4, 8]
+        self.convs_doc = nn.ModuleList([nn.Conv1d(config.max_seq_len, 32, K, stride=2) for K in self.ngram_size])
+        torch.nn.init.xavier_uniform_(self.convs_doc[0].weight)
+        torch.nn.init.xavier_uniform_(self.convs_doc[1].weight)
+        torch.nn.init.xavier_uniform_(self.convs_doc[2].weight)
+
+        self.primary_capsules_doc = PrimaryCaps(num_capsules=self.dim_capsule, in_channels=32, out_channels=32,
+                                                kernel_size=1, stride=1)
+
+        self.flatten_capsules = FlattenCaps()
+
+        self.W_doc = nn.Parameter(torch.FloatTensor(147328, self.num_compressed_capsule))
+        torch.nn.init.xavier_uniform_(self.W_doc)
+
+        self.fc_capsules_doc_child = FCCaps(config, output_capsule_num=config.num_classes,
+                                            input_capsule_num=self.num_compressed_capsule,
+                                            in_channels=self.dim_capsule, out_channels=self.dim_capsule)
+
+
+    def compression(self, poses, W):
+        poses = torch.matmul(poses.permute(0, 2, 1), W).permute(0, 2, 1)
+        activations = torch.sqrt((poses ** 2).sum(2))
+        return poses, activations
+
+
 
     def forward(self, input_ids, attention_mask, token_type_ids):
         """Forward inputs and get logits.
@@ -46,14 +75,25 @@ class BertForClassification(nn.Module):
         batch_size = input_ids.shape[0]
         hiddens = self.bert(input_ids=input_ids, attention_mask=attention_mask,token_type_ids=token_type_ids,
                                                                     output_hidden_states=True)[2]
-        hidden_state = torch.cat([*hiddens[-3:],*hiddens[0:3]], dim=2)
+        hidden_state = torch.cat([*hiddens[-3:], hiddens[0]], dim=2)
         # bert_output[0]: (batch_size, sequence_length, hidden_size)
         # bert_output[1]: (batch_size, hidden_size)
-        hidden_state = hidden_state.mean(1)
-        hidden_state = self.dropout(hidden_state)
-        logits = self.linear(hidden_state).view(batch_size, self.num_classes)
-        logits = torch.sigmoid(logits)
+        #hidden_state = hidden_state.mean(1)
+        #hidden_state = self.dropout(hidden_state)
+        #logits = self.linear(hidden_state).view(batch_size, self.num_classes)
+        #logits = torch.sigmoid(logits)
         # logits: (batch_size, num_classes)
+        nets_doc_l = []
+        for i in range(len(self.ngram_size)):
+            nets = self.convs_doc[i](hidden_state)
+            nets_doc_l.append(nets)
+        nets_doc = torch.cat((nets_doc_l[0], nets_doc_l[1], nets_doc_l[2]), 2)
+        poses_doc, activations_doc = self.primary_capsules_doc(nets_doc)
+        poses, activations = self.flatten_capsules(poses_doc, activations_doc)
+        poses, activations = self.compression(poses, self.W_doc)
+        poses, logits = self.fc_capsules_doc_child(poses, activations, range(4))#4 types in total.
+
+        logits = self.linear(logits.view(batch_size,-1)).view(batch_size, self.num_classes)
         return logits
 
 class BertXForClassification(nn.Module):

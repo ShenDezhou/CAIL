@@ -7,7 +7,7 @@
   "train_file_path": "data/core_summary_train.csv",
   "valid_file_path": "data/core_summary_valid.csv",
 
-  "batch_size": 6,
+  "batch_size": 3,
 
   "bert_model_path": "../roberta_wwm_ext",
   "trained_weight":"",
@@ -15,14 +15,19 @@
   "num_classes": 512,
   "dropout": 0.05,
 
-  "lr": 1e-3,
-  "num_epoch": 6,
+  "is_AKDE": true,
+  "dim_capsule": 16,
+  "num_compressed_capsule": 128,
+
+
+  "lr": 1e-4,
+  "num_epoch": 20,
   "log_steps": 100,
   "serial_load": true,
   "metrics_debug": false,
-  "num_warmup_steps": 0,
+  "num_warmup_steps": 200,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 4,
+  "gradient_accumulation_steps": 8,
   "max_grad_norm": 4e-3,
   "num_cores": 8,
 

@@ -93,7 +93,7 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
 
     result = zip(para_list, token_list)
     for id, summary in result:
-        summary_dict[id_dict[id]] += remove(summary)
+        summary_dict[id_dict[id]] += remove(summary).replace(" ","")
 
     with open(out_file, 'w', encoding='utf8') as fout:
         for id, sumamry in summary_dict.items():
