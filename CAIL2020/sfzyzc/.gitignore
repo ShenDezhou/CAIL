@@ -1,0 +1,12 @@
+.DS_Store
+
+model/
+log/
+
+
+gold/
+prediction/
+roberta_wwm_ext/
+
+*.model
+*.zip
