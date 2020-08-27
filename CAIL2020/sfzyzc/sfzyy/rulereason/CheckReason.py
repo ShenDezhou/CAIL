@@ -1,16 +1,9 @@
-import json
 import os
-
-import numpy
-import thulac
 import psutil
-from sklearn.feature_extraction.text import TfidfVectorizer as TFIDF
-import joblib
-from sklearn.ensemble import GradientBoostingClassifier
 import re
 
 #training score : 0.88
-
+#租赁合同、借款合同、劳动合同、继承、侵权责任、追偿权
 class CheckReason():
     def __init__(self,):
         self.arguereasondic = dict(zip(['劳动合同', '侵权责任', '租赁合同', '借款合同', '继承', '追偿权', '借款', '侵权', '继承关系'], range(9)))

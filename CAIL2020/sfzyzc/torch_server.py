@@ -98,11 +98,11 @@ class TorchResource:
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials', 'true')
         resp.set_header("Cache-Control", "no-cache")
-        data = req.stream.read(req.content_length)
-        jsondata = json.loads(data)
-        clean_title = shortenlines(jsondata.title)
-        clean_content = cleanall(jsondata.content)
-        resp.media = self.bert_classification(clean_title, clean_content)
+        jsondata = json.loads(req.stream.read(req.content_length))
+        title=jsondata['1']
+        clean_content = shortenlines(jsondata['2'])
+        resp.media = self.get_abstract(title, clean_content)
+        logger.info("###")
 
 
 if __name__ == "__main__":

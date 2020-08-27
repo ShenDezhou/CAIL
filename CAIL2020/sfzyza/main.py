@@ -36,7 +36,7 @@ MODEL_MAP = {
 }
 
 def remove(text):
-    cleanr = re.compile(r" !#\$%&'\(\)*\+,-./:;<=>?@\^_`{|}~“”？，！【】（）、。：；’‘…￥·")
+    cleanr = re.compile(r"[ !#\$%&'\(\)*\+,-./:;<=>?@\^_`{|}~“”？！【】（）、’‘…￥·]*")
     cleantext = re.sub(cleanr, '', text)
     return cleantext
 

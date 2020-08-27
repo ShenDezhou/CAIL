@@ -7,7 +7,7 @@
   "train_file_path": "data/core_summary_train.csv",
   "valid_file_path": "data/core_summary_valid.csv",
 
-  "batch_size": 3,
+  "batch_size": 2,
 
   "bert_model_path": "../roberta_wwm_ext",
   "trained_weight":"",
@@ -20,8 +20,8 @@
   "num_compressed_capsule": 128,
 
 
-  "lr": 1e-4,
-  "num_epoch": 20,
+  "lr": 1e-3,
+  "num_epoch": 10,
   "log_steps": 100,
   "serial_load": true,
   "metrics_debug": false,

@@ -59,7 +59,7 @@ class Sentence_Abstract(object):
             self.model, model_path=os.path.join(config.model_path, 'model.bin'))
         self.model.to(self.device)
         self.config = config
-
+        self.model.eval()
 
     def get_abstract(self, in_file):
         # 0. preprocess file

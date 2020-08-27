@@ -1,7 +1,7 @@
 {
   "model_type": "bert",
   "max_seq_len": 1024,
-  "model_path": "model/bert/",
+  "model_path": "sfzyza/model/bert/",
   "log_path": "log/",
 
   "train_file_path": "data/train.csv",
@@ -10,7 +10,7 @@
   "batch_size": 2,
 
   "bert_model_path": "/mnt/data/torchcail/bert-base-chinese",
-  "trained_weight":"data_model/model.bin",
+  "trained_weight":"",
   "hidden_size": 768,
   "num_classes": 2,
   "dropout": 0.50,

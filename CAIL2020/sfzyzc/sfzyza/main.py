@@ -64,6 +64,7 @@ class Word_Abstract(object):
         self.model.to(self.device)
         self.config = config
 
+
     def get_abstract(self, in_file, temp_file):
         # 0. preprocess file
         id_list = []

@@ -7,7 +7,7 @@
   "train_file_path": "data/type_content_train.csv",
   "valid_file_path": "data/type_content_valid.csv",
 
-  "batch_size": 64,
+  "batch_size": 1,
 
   "bert_model_path": "F:/roberta_wwm_ext",
   "trained_weight": "",
