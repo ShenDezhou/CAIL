@@ -10,7 +10,7 @@ from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
 import torch.nn.functional as F
-from capsnetx import PrimaryCaps, FCCaps, FlattenCaps
+from sfzyza.capsnetx import PrimaryCaps, FCCaps, FlattenCaps
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""

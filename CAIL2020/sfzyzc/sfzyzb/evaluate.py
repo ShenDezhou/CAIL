@@ -10,7 +10,7 @@ import torch
 
 from tqdm import tqdm
 from sklearn import metrics
-from classmerge import classy_dic, indic
+# from classmerge import classy_dic, indic
 
 LABELS = ['0','1']
 

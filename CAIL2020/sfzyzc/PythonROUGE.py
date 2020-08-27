@@ -39,8 +39,8 @@ def PythonROUGE(guess_summ_list,ref_summ_list,ngram_order=2, byte=0):
         del temp
     
     # this is the path to your ROUGE distribution
-    ROUGE_path = 'data/script/ROUGE-1.5.5.pl'
-    data_path = 'data/script/ROUGE'
+    ROUGE_path = 'rouge/script/ROUGE-1.5.5.pl'
+    data_path = 'rouge/script/ROUGE'
     
     # these are the options used to call ROUGE
     # feel free to edit this is you want to call ROUGE with different options
@@ -49,7 +49,7 @@ def PythonROUGE(guess_summ_list,ref_summ_list,ngram_order=2, byte=0):
         options = '-b ' + str(byte) + ' ' + options
     # this is a temporary XML file which will contain information
     # in the format ROUGE uses
-    xml_path = 'data/script/temp.xml'
+    xml_path = 'rouge/script/temp.xml'
     xml_file = open(xml_path,'w')
     xml_file.write('<ROUGE-EVAL version="1.0">\n')
     for guess_summ_index,guess_summ_file in enumerate(guess_summ_list):
@@ -61,7 +61,7 @@ def PythonROUGE(guess_summ_list,ref_summ_list,ngram_order=2, byte=0):
     
     
     # this is the file where the output of ROUGE will be stored
-    ROUGE_output_path = 'data/script/ROUGE_result.txt'
+    ROUGE_output_path = 'rouge/script/ROUGE_result.txt'
     # this is where we run ROUGE itself
     exec_command = 'perl ' + ROUGE_path + ' -e ' + data_path + ' ' + options + ' ' + xml_path + ' > ' + ROUGE_output_path
     os.system(exec_command)
