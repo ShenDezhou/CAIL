@@ -56,8 +56,8 @@ class WordFormatter:
             temp_context = []
             temp_question = []
 
+            temp_question.append(self.convert(temp_data["statement"], self.max_question_len, bk=True))
             for option in ["A", "B", "C", "D"]:
-                temp_question.append(self.convert(temp_data["statement"], self.max_question_len, bk=True))
                 temp_context.append(self.convert(temp_data["option_list"][option], self.max_option_len))
 
             context.append(temp_context)

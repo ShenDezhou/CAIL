@@ -1,8 +1,8 @@
-from model.qa.qa import Model,RESModel
+from model.qa.qa import Model,CAPSModel
 
 model_list = {
     "Model": Model,
-    "RESModel": RESModel
+    "CAPSModel": CAPSModel
 }
 
 

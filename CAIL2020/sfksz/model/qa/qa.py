@@ -4,8 +4,8 @@ import torch.nn.functional as F
 
 from model.encoder.LSTMEncoder import LSTMEncoder
 from model.layer.Attention import Attention
-from tools.accuracy_tool import single_label_top1_accuracy
-from model.qa.util import generate_ans
+from tools.accuracy_tool import single_label_top1_accuracy, multi_label_top1_accuracy
+from model.qa.util import generate_ans,multi_generate_ans
 
 
 class Model(nn.Module):
@@ -68,7 +68,6 @@ class Model(nn.Module):
         return {"output": generate_ans(data["id"], y)}
 
 from model.encoder.GRUEncoder import GRUEncoder
-from model.qa.resnet import ResNet,BasicBlock
 class RESModel(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(RESModel, self).__init__()
@@ -86,25 +85,10 @@ class RESModel(nn.Module):
 
         hidden_size = config.getint("model", "output_channel")  # config.num_fc_hidden_size
         self.resnet = ResNet(block=BasicBlock, layers=[0, 0, 0, 0], num_classes=hidden_size)
-
-        # input_channel = self.hidden_size
-        # num_conv_filters = config.getint("model", "num_conv_filters")#config.num_conv_filters
-        # output_channel = config.getint("model", "output_channel")#config.output_channel
-
-        #
-        # self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
-        # self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
-        # self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        # self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        # self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        # self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
-        # self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
-        # self.fc1 = nn.Linear(output_channel, hidden_size)
-
-
         self.rank_module = nn.Linear(hidden_size, 1)
 
         self.criterion = nn.CrossEntropyLoss()
+        self.bce = nn.BCEWithLogitsLoss(reduction='mean')
 
         self.multi_module = nn.Linear(4, 16)
         self.accuracy_function = single_label_top1_accuracy
@@ -137,17 +121,6 @@ class RESModel(nn.Module):
             x = x.transpose(1, 2).type(torch.FloatTensor)
 
         x = self.resnet(x)
-        # x = F.max_pool1d(F.relu(self.conv1(x)), 3)
-        # x = F.max_pool1d(F.relu(self.conv2(x)), 3)
-        # x = F.relu(self.conv3(x))
-        # x = F.relu(self.conv4(x))
-        # x = F.relu(self.conv5(x))
-        # x = F.relu(self.conv6(x))
-        #
-        # x = F.max_pool1d(x, x.size(2)).squeeze(2).view(x.size(0), -1)
-        # # x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        # x = self.dropout(x)
-
         y = x.view(batch * option, -1)
         y = self.rank_module(y)
         y = y.view(batch, option)
@@ -162,10 +135,10 @@ class RESModel(nn.Module):
         return {"output": generate_ans(data["id"], y)}
 
 
-from model.encoder.GRUEncoder import GRUEncoder
-class GRUModel(nn.Module):
+from model.qa.capsnetx import PrimaryCaps, FCCaps, FlattenCaps
+class CAPSModel(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
-        super(GRUModel, self).__init__()
+        super(CAPSModel, self).__init__()
 
         self.hidden_size = config.getint("model", "hidden_size")
         self.word_num = 0
@@ -174,31 +147,47 @@ class GRUModel(nn.Module):
             self.word_num += 1
 
         self.embedding = nn.Embedding(self.word_num, self.hidden_size)
-        self.context_encoder = GRUEncoder(config, gpu_list, *args, **params)
-        self.question_encoder = GRUEncoder(config, gpu_list, *args, **params)
+        self.context_encoder = LSTMEncoder(config, gpu_list, *args, **params)
+        self.question_encoder = LSTMEncoder(config, gpu_list, *args, **params)
         self.attention = Attention(config, gpu_list, *args, **params)
 
-        input_channel = self.hidden_size
-        num_conv_filters = config.getint("model", "num_conv_filters")#config.num_conv_filters
-        output_channel = config.getint("model", "output_channel")#config.output_channel
-        # hidden_size = config.getint("model", "num_fc_hidden_size")#config.num_fc_hidden_size
+        self.num_classes = 4
+        # self.conv_channel = config.getint("data", "max_question_len") + config.getint("data", "max_option_len")
 
-        self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
-        self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
-        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
-        self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
-        # self.fc1 = nn.Linear(output_channel, hidden_size)
+        self.dim_capsule =  config.getint("model", "dim_capsule")
+        self.num_compressed_capsule = config.getint("model", "num_compressed_capsule")
+        self.ngram_size = [2, 4, 8]
+        self.convs_doc = nn.ModuleList([nn.Conv1d(self.hidden_size , 32, K, stride=2) for K in self.ngram_size])
+        torch.nn.init.xavier_uniform_(self.convs_doc[0].weight)
+        torch.nn.init.xavier_uniform_(self.convs_doc[1].weight)
+        torch.nn.init.xavier_uniform_(self.convs_doc[2].weight)
 
+        self.primary_capsules_doc = PrimaryCaps(num_capsules=self.dim_capsule, in_channels=32, out_channels=32,
+                                                kernel_size=1, stride=1)
 
-        self.rank_module = nn.Linear(output_channel, 1)
+        self.flatten_capsules = FlattenCaps()
+
+        self.W_doc = nn.Parameter(torch.FloatTensor(49024, self.num_compressed_capsule))
+        torch.nn.init.xavier_uniform_(self.W_doc)
+
+        self.fc_capsules_doc_child = FCCaps(config, output_capsule_num=self.num_classes,
+                                            input_capsule_num=self.num_compressed_capsule,
+                                            in_channels=self.dim_capsule, out_channels=self.dim_capsule)
+
+        # self.rank_module = nn.Linear(hidden_size, 1)
 
         self.criterion = nn.CrossEntropyLoss()
+        self.bce = nn.BCEWithLogitsLoss(reduction='mean')
 
-        self.multi_module = nn.Linear(4, 16)
-        self.accuracy_function = single_label_top1_accuracy
+        self.fc_module = nn.Linear(self.dim_capsule, self.num_classes)
+        self.accuracy_function = multi_label_top1_accuracy
+
+
+    def compression(self, poses, W):
+        poses = torch.matmul(poses.permute(0, 2, 1), W).permute(0, 2, 1)
+        activations = torch.sqrt((poses ** 2).sum(2))
+        return poses, activations
+
 
     def init_multi_gpu(self, device, config, *args, **params):
         pass
@@ -210,8 +199,8 @@ class GRUModel(nn.Module):
         batch = question.size()[0]
         option = question.size()[1]
 
-        context = context.view(batch * option, -1)
-        question = question.view(batch * option, -1)
+        context = context.view(batch, -1)
+        question = question.view(batch, -1)
         context = self.embedding(context)
         question = self.embedding(question)
 
@@ -226,26 +215,29 @@ class GRUModel(nn.Module):
             x = x.transpose(1, 2).type(torch.cuda.FloatTensor)
         else:
             x = x.transpose(1, 2).type(torch.FloatTensor)
-        x = F.max_pool1d(F.relu(self.conv1(x)), 3)
-        x = F.max_pool1d(F.relu(self.conv2(x)), 3)
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = F.relu(self.conv5(x))
-        x = F.relu(self.conv6(x))
 
-        x = F.max_pool1d(x, x.size(2)).squeeze(2).view(x.size(0), -1)
-        # x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        x = self.dropout(x)
+        nets_doc_l = []
+        for i in range(len(self.ngram_size)):
+            nets = self.convs_doc[i](x)
+            nets_doc_l.append(nets)
+        nets_doc = torch.cat((nets_doc_l[0], nets_doc_l[1], nets_doc_l[2]), 2)
+        poses_doc, activations_doc = self.primary_capsules_doc(nets_doc)
+        poses, activations = self.flatten_capsules(poses_doc, activations_doc)
+        poses, activations = self.compression(poses, self.W_doc)
+        poses, type_logits = self.fc_capsules_doc_child(poses, activations, range(4))  # 4 types in total.
+        type_logits = type_logits.squeeze(2)
+        # type_logits = self.fc_module(type_logits)
 
-        y = x.view(batch * option, -1)
-        y = self.rank_module(y)
-        y = y.view(batch, option)
-        y = self.multi_module(y)
+        # y = x.view(batch * option, -1)
+        # y = self.rank_module(y)
+        # y = y.view(batch, option)
+        # y = self.multi_module(y)
 
         if mode != "test":
             label = data["label"]
-            loss = self.criterion(y, label)
-            acc_result = self.accuracy_function(y, label, config, acc_result)
+            # loss = self.criterion(type_logits, label)
+            loss = self.bce(type_logits, label)
+            acc_result = self.accuracy_function(type_logits, label, config, acc_result)
             return {"loss": loss, "acc_result": acc_result}
 
-        return {"output": generate_ans(data["id"], y)}
+        return {"output": multi_generate_ans(data["id"], type_logits)}

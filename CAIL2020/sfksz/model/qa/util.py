@@ -18,3 +18,17 @@ def generate_ans(id_list, ans_list):
         result.append({"id": idx, "answer": ans})
 
     return result
+
+def multi_generate_ans(id_list, ans_list):
+    result = []
+    for a in range(0, len(id_list)):
+        idx = id_list[a]
+        ans = ans_list[a]
+        ans = ans.data.cpu().round()
+        ans_ = []
+        for x,y in zip(ans,list("ABCD")):
+            if x:
+                ans_.append(y)
+        result.append({"id": idx, "answer": ans_})
+
+    return result

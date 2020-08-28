@@ -1,13 +1,15 @@
 import logging
 
-from .Basic import BasicFormatter
+from formatter.Basic import BasicFormatter
 from formatter.WordFormatter import WordFormatter
+from formatter.MultiWordFormatter import MultiWordFormatter
 
 logger = logging.getLogger(__name__)
 
 formatter_list = {
     "Basic": BasicFormatter,
-    "WordFormatter": WordFormatter
+    "WordFormatter": WordFormatter,
+    "MultiWordFormatter": MultiWordFormatter
 }
 
 
