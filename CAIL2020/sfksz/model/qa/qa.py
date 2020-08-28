@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from model.encoder.LSTMEncoder import LSTMEncoder
 from model.layer.Attention import Attention
 from tools.accuracy_tool import single_label_top1_accuracy, multi_label_top1_accuracy
-from model.qa.util import generate_ans,multi_generate_ans
+from model.qa.util import generate_ans, multi_generate_ans
 
 
 class Model(nn.Module):
@@ -67,7 +67,10 @@ class Model(nn.Module):
 
         return {"output": generate_ans(data["id"], y)}
 
+
 from model.encoder.GRUEncoder import GRUEncoder
+
+
 class RESModel(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(RESModel, self).__init__()
@@ -136,6 +139,8 @@ class RESModel(nn.Module):
 
 
 from model.qa.capsnetx import PrimaryCaps, FCCaps, FlattenCaps
+
+
 class CAPSModel(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(CAPSModel, self).__init__()
@@ -154,10 +159,10 @@ class CAPSModel(nn.Module):
         self.num_classes = 4
         # self.conv_channel = config.getint("data", "max_question_len") + config.getint("data", "max_option_len")
 
-        self.dim_capsule =  config.getint("model", "dim_capsule")
+        self.dim_capsule = config.getint("model", "dim_capsule")
         self.num_compressed_capsule = config.getint("model", "num_compressed_capsule")
         self.ngram_size = [2, 4, 8]
-        self.convs_doc = nn.ModuleList([nn.Conv1d(self.hidden_size , 32, K, stride=2) for K in self.ngram_size])
+        self.convs_doc = nn.ModuleList([nn.Conv1d(self.hidden_size, 32, K, stride=2) for K in self.ngram_size])
         torch.nn.init.xavier_uniform_(self.convs_doc[0].weight)
         torch.nn.init.xavier_uniform_(self.convs_doc[1].weight)
         torch.nn.init.xavier_uniform_(self.convs_doc[2].weight)
@@ -182,12 +187,10 @@ class CAPSModel(nn.Module):
         self.fc_module = nn.Linear(self.dim_capsule, self.num_classes)
         self.accuracy_function = multi_label_top1_accuracy
 
-
     def compression(self, poses, W):
         poses = torch.matmul(poses.permute(0, 2, 1), W).permute(0, 2, 1)
         activations = torch.sqrt((poses ** 2).sum(2))
         return poses, activations
-
 
     def init_multi_gpu(self, device, config, *args, **params):
         pass
