@@ -48,4 +48,4 @@ if __name__ == "__main__":
         for word in frequency:
             if frequency[word] >= min_freq:
                 word2id[word] = len(word2id)
-        json.dump(word2id, open("../data/word2id.txt", "w", encoding="utf8"), indent=2, ensure_ascii=False)
+        json.dump(word2id, open("data/word2id.txt", "w", encoding="utf8"), indent=2, ensure_ascii=False)

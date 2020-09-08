@@ -24,10 +24,10 @@ def multi_generate_ans(id_list, ans_list):
     for a in range(0, len(id_list)):
         idx = id_list[a]
         ans = ans_list[a]
-        ans = ans.data.cpu().round()
+        ans = ans.data.cpu()
         ans_ = []
         for x,y in zip(ans,list("ABCD")):
-            if x:
+            if x>0:
                 ans_.append(y)
         result.append({"id": idx, "answer": ans_})
 

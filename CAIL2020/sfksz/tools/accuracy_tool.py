@@ -93,13 +93,16 @@ def single_label_top1_accuracy(outputs, label, config, result=None):
 def bit_to_int(bits):
     res = 0
     for index, x in enumerate(bits):
-        res += x*(2**index)
-    return int(res.item())
+        if x>=0.5:
+            res += 2**index
+    num = int(res)
+    assert num < 16 and num >=0, bits
+    return num
 
 def multi_label_top1_accuracy(outputs, label, config, result=None):
     if result is None:
         result = []
-    id1 = outputs.data.cpu().round()
+    id1 = outputs#.data.cpu().round()
     # id2 = torch.max(label, dim=1)[1]
     id2 = label
     nr_classes = outputs.size(1)*4
@@ -111,7 +114,7 @@ def multi_label_top1_accuracy(outputs, label, config, result=None):
 
         it_is = bit_to_int(id1[a])
         should_be = bit_to_int(id2[a])
-        if (id1[a].data.cpu() == id2[a].data.cpu()).all():
+        if it_is==should_be:
             result[it_is]["TP"] += 1
         else:
             result[it_is]["FP"] += 1

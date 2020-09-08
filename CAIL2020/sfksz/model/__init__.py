@@ -1,8 +1,10 @@
-from model.qa.qa import Model,CAPSModel
+from model.qa.qa import Model,ModelS, CAPSModel, BertCAPSModel
 
 model_list = {
     "Model": Model,
-    "CAPSModel": CAPSModel
+    "ModelS": ModelS,
+    "CAPSModel": CAPSModel,
+    "BertCAPSModel": BertCAPSModel
 }
 
 

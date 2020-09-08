@@ -22,11 +22,19 @@ class LSTMEncoder(nn.Module):
         seq_len = x.size()[1]
         # print(x.size())
         # print(batch_size, self.num_layers + int(self.bi) * self.num_layers, self.output_size)
-        hidden = (
-            torch.autograd.Variable(
-                torch.zeros(self.num_layers + int(self.bi) * self.num_layers, batch_size, self.output_size)).cuda(),
-            torch.autograd.Variable(
-                torch.zeros(self.num_layers + int(self.bi) * self.num_layers, batch_size, self.output_size)).cuda())
+        if not torch.cuda.is_available():
+            hidden = (
+                torch.autograd.Variable(
+                    torch.zeros(self.num_layers + int(self.bi) * self.num_layers, batch_size, self.output_size)),
+                torch.autograd.Variable(
+                    torch.zeros(self.num_layers + int(self.bi) * self.num_layers, batch_size, self.output_size)))
+        else:
+            hidden = (
+                torch.autograd.Variable(
+                    torch.zeros(self.num_layers + int(self.bi) * self.num_layers, batch_size, self.output_size).cuda()),
+                torch.autograd.Variable(
+                    torch.zeros(self.num_layers + int(self.bi) * self.num_layers, batch_size, self.output_size)).cuda())
+
 
         h_, c = self.lstm(x, hidden)
 
