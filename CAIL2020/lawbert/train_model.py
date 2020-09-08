@@ -1,7 +1,9 @@
 import argparse
 import json
+import os
 from types import SimpleNamespace
 
+import torch
 import torch_xla
 import torch_xla.core.xla_model as xm
 import torch_xla.debug.metrics as met
@@ -49,12 +51,13 @@ WRAPPED_MODEL = AutoModelWithLMHead.from_pretrained(
 
 tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)
 WRAPPED_MODEL.resize_token_embeddings(len(tokenizer))
-block_size = tokenizer.max_len
+
+print("dataset maxl:", config.max_seq_len)
 
 dataset = LineByLineTextDataset(
     tokenizer=tokenizer,
     file_path=config.train_file_path,
-    block_size=block_size,
+    block_size=config.max_seq_len,
 )
 data_collator = DataCollatorForLanguageModeling(
     tokenizer=tokenizer, mlm=True, mlm_probability=0.15
@@ -68,9 +71,10 @@ training_args = TrainingArguments(
     output_dir=TEMP,
     overwrite_output_dir=True,
     num_train_epochs=1,
-    per_device_train_batch_size=64,
+    per_device_train_batch_size=8,
     save_steps=10_000,
     save_total_limit=2,
+    tpu_num_cores=8,
 )
 
 trainer = Trainer(
@@ -83,5 +87,7 @@ trainer = Trainer(
 
 
 trainer.train(model_path=config.bert_model_path)
+WRAPPED_MODEL.to('cpu')
 trainer.save_model(output_dir=config.trained_model_path)
+torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.trained_model_path, 'pytorch_model.bin'))
 

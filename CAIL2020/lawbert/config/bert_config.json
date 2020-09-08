@@ -5,7 +5,7 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/data_train1.csv",
+  "train_file_path": "data/data_tiny.csv",
   "valid_file_path": "data2/train.json",
   "trained_model_path": "model/",
 

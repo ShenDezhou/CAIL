@@ -4,16 +4,6 @@ import os
 from types import SimpleNamespace
 
 import torch
-from transformers import DataCollatorForLanguageModeling
-from transformers import LineByLineTextDataset
-from transformers import Trainer, TrainingArguments
-
-import torch_xla
-import torch_xla.core.xla_model as xm
-import torch_xla.debug.metrics as met
-import torch_xla.distributed.parallel_loader as pl
-import torch_xla.distributed.xla_multiprocessing as xmp
-import torch_xla.utils.utils as xu
 
 from transformers import (
     CONFIG_MAPPING,
@@ -59,7 +49,5 @@ WRAPPED_MODEL = AutoModelWithLMHead.from_pretrained(
         )
 
 tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)
-WRAPPED_MODEL.to('cpu')
-torch.save(WRAPPED_MODEL.state_dict(), os.path.join(OUTPUT, 'pytorch_model.bin'))
-# WRAPPED_MODEL.save_pretrained(OUTPUT)
+
 print('DONE')

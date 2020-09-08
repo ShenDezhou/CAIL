@@ -2,7 +2,7 @@
   "model_type": "bert",
   "max_seq_len": 512,
   "max_query_len": 50,
-  "model_path": "model/bert/",
+  "model_path": "model/",
   "log_path": "log/",
 
   "train_file_path": "data/data_train1.csv",
