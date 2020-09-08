@@ -82,14 +82,15 @@ class ModelS(nn.Module):
         self.question_len = config.getint("data", "max_question_len")
 
         self.embedding = nn.Embedding(self.word_num, self.hidden_size)
-        self.context_encoder = LSTMEncoder(config, gpu_list, *args, **params)
-        self.question_encoder = LSTMEncoder(config, gpu_list, *args, **params)
+        self.context_encoder = BertEncoder(config, gpu_list, *args, **params)
+        self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
         self.attention = Attention(config, gpu_list, *args, **params)
+        self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
 
         self.bce = nn.MultiLabelSoftMarginLoss(reduction='sum')
         self.gelu = nn.GELU()
-        # self.fc_module_s = nn.Linear(self.question_len, 1)
-        self.fc_module = nn.Linear(self.context_len, 4)
+        # self.fc_module_q = nn.Linear(self.question_len, 1)
+        self.fc_module = nn.Linear(self.hidden_size * 2, 4)
         self.accuracy_function = multi_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
@@ -117,8 +118,9 @@ class ModelS(nn.Module):
 
         # y = y.view(batch * option, -1)
         # y = self.rank_module(y)
-        # y = self.fc_module_s(y).squeeze(dim=2)
+        # y = self.fc_module_q(a).squeeze(dim=2)
         y = self.gelu(y)
+        y = self.dropout(y)
         # y = y.view(batch, option)
         y = self.fc_module(y)
         # y = torch.sigmoid(y)
@@ -130,6 +132,72 @@ class ModelS(nn.Module):
             return {"loss": loss, "acc_result": acc_result}
 
         return {"output": multi_generate_ans(data["id"], y)}
+
+
+from model.encoder.BertEncoder import BertEncoder
+class ModelX(nn.Module):
+    def __init__(self, config, gpu_list, *args, **params):
+        super(ModelX, self).__init__()
+
+        self.hidden_size = config.getint("model", "hidden_size")
+        self.word_num = 0
+        f = open(config.get("data", "word2id"), "r", encoding="utf8")
+        for line in f:
+            self.word_num += 1
+
+        self.context_len = config.getint("data", "max_option_len") * 4
+        self.question_len = config.getint("data", "max_question_len")
+
+        self.embedding = nn.Embedding(self.word_num, self.hidden_size)
+        self.context_encoder = BertEncoder(config, gpu_list, *args, **params)
+        self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
+        self.attention = Attention(config, gpu_list, *args, **params)
+        self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
+
+        self.bce = nn.MultiLabelSoftMarginLoss(reduction='sum')
+        self.gelu = nn.GELU()
+        # self.fc_module_q = nn.Linear(self.question_len, 1)
+        self.fc_module = nn.Linear(self.hidden_size * 2, 4)
+        self.accuracy_function = multi_label_top1_accuracy
+
+    def init_multi_gpu(self, device, config, *args, **params):
+        pass
+
+    def forward(self, data, config, gpu_list, acc_result, mode):
+        context = data["context"]
+        question = data["question"]
+
+        batch = question[0].size()[0]
+        _, _, context = self.context_encoder(*context)
+        _, _, question = self.question_encoder(*question)
+
+        context_1 = context[-1].view(batch, -1, self.hidden_size)
+        question_1 = question[-1]
+
+        context_2 = context[-2].view(batch, -1, self.hidden_size)
+        question_2 = question[-2]
+
+        context = torch.cat([context_1,context_2], dim=1)
+        question = torch.cat([question_1, question_2], dim=1)
+
+        c, q, a = self.attention(context, question)
+
+        # y = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
+        y = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
+
+        y = self.gelu(y)
+        y = self.dropout(y)
+        y = self.fc_module(y)
+
+
+        if mode != "test":
+            label = data["label"]
+            loss = self.bce(y, label)
+            acc_result = self.accuracy_function(y, label, config, acc_result)
+            return {"loss": loss, "acc_result": acc_result}
+
+        return {"output": multi_generate_ans(data["id"], y)}
+
 
 from model.encoder.GRUEncoder import GRUEncoder
 from model.qa.resnet import ResNet, BasicBlock
@@ -306,7 +374,7 @@ class CAPSModel(nn.Module):
 
         return {"output": multi_generate_ans(data["id"], type_logits)}
 
-from model.encoder.BertEncoder import BertEncoder
+
 class BertCAPSModel(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(BertCAPSModel, self).__init__()
