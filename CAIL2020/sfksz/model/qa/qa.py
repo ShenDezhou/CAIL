@@ -180,8 +180,8 @@ class ModelX(nn.Module):
         context = torch.cat([context_1,context_2], dim=1)
         question = torch.cat([question_1, question_2], dim=1)
 
-        c, q, a = self.attention(context, question)
-
+        # c, q, a = self.attention(context, question)
+        c, q = context, question
         # y = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
         y = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
 
