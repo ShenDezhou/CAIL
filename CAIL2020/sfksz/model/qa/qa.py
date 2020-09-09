@@ -171,21 +171,21 @@ class ModelX(nn.Module):
         _, _, context = self.context_encoder(*context)
         _, _, question = self.question_encoder(*question)
 
-        context_1 = context[-1].view(batch, -1, self.hidden_size)
-        question_1 = question[-1]
+        context = context[-1].view(batch, -1, self.hidden_size)
+        question = question[-1]
 
-        context_2 = context[-2].view(batch, -1, self.hidden_size)
-        question_2 = question[-2]
-
-        context = torch.cat([context_1,context_2], dim=1)
-        question = torch.cat([question_1, question_2], dim=1)
+        # # context_2 = context[-2].view(batch, -1, self.hidden_size)
+        # # question_2 = question[-2]
+        #
+        # context = torch.cat([context_1,context_2], dim=1)
+        # question = torch.cat([question_1, question_2], dim=1)
 
         # c, q, a = self.attention(context, question)
         c, q = context, question
         # y = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
         y = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
 
-        y = self.gelu(y)
+        # y = self.gelu(y)
         y = self.dropout(y)
         y = self.fc_module(y)
 

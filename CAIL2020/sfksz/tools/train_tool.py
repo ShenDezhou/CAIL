@@ -92,17 +92,25 @@ def train(parameters, config, gpu_list, do_test=False):
                     else:
                         data[key] = Variable(data[key])
 
-            optimizer.zero_grad()
             results = model(data, config, gpu_list, acc_result, "train")
 
             loss, acc_result = results["loss"], results["acc_result"]
             total_loss += float(loss)
 
             loss.backward()
-            optimizer.step()
-            exp_lr_scheduler.step()
+
 
             step += 1
+            gradient_accumulation_steps =  config.getint("train", "gradient_accumulation_steps")
+            max_grad_norm =  config.getfloat("train", "max_grad_norm")
+            if step % gradient_accumulation_steps == 0:
+                torch.nn.utils.clip_grad_norm_(
+                    model.parameters(), max_grad_norm)
+                # after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                optimizer.step()
+                exp_lr_scheduler.step()
+                optimizer.zero_grad()
+
             if step % output_time == 0:
                 output_info = output_function(acc_result, config)
                 delta_t = timer() - start_time

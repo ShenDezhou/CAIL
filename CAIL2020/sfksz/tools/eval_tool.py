@@ -40,9 +40,9 @@ def output_value(epoch, mode, step, time, loss, info, end, config):
     s += str(info)
     s = s.replace(" ", delimiter)
     if not (end is None):
-        print(s, end=end)
+        print(s, end=end, flush=True)
     else:
-        print(s)
+        print(s, flush=True)
 
 
 def valid(model, dataset, epoch, writer, config, gpu_list, output_function, mode="valid"):
