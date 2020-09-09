@@ -424,8 +424,8 @@ def main(config_file='config/bert_config.json'):
         if FLAGS.metrics_debug:
             xm.master_print(met.metrics_report())
 
-        if accuracy_valid > 0.777:
-            break
+        # if accuracy_valid > 0.777:
+        #     break
         # 4. Save model
         # if xm.get_ordinal() == 0:
         #     # if epoch==FLAGS.num_epoch-1:
@@ -455,7 +455,7 @@ def _mp_fn(rank, flags, model,serial):
     # plot_results(data.cpu(), pred.cpu(), target.cpu())
     xm.master_print(('DONE',  accuracy_valid))
     # 4. Save model
-    if rank == 0:
+    if xm.get_ordinal() == 0:
         WRAPPED_MODEL.to('cpu')
         torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
         xm.master_print('saved model.')
