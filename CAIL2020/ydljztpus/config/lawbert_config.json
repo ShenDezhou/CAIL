@@ -6,24 +6,24 @@
   "log_path": "log/",
 
   "train_file_path": "data2/train_half.json",
-  "valid_file_path": "data2/train_valid.json",
+  "valid_file_path": "data2/trainx.json",
   "test_file_path": "data2/train_small.json",
 
-  "batch_size": 2,
+  "batch_size": 8,
 
-  "bert_model_path": "../wwm_large_ext",
+  "bert_model_path": "../lawberta_wwm_ext",
   "trained_weight":"",
 
   "is_AKDE": true,
   "dim_capsule": 16,
   "num_compressed_capsule": 128,
 
-  "hidden_size": 1024,
+  "hidden_size": 768,
   "num_classes": 4,
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 8,
+  "num_epoch": 10,
   "num_warmup_steps": 100,
   "num_training_steps": 32000,
   "gradient_accumulation_steps": 8,

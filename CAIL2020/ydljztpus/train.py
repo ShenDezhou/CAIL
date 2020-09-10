@@ -302,12 +302,8 @@ class Trainer:
                 start_logits, end_logits, type_logits, sp_logits, start_position, end_position = self.model(*batch)
                 loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7]) #y1, y2
                 loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])# q_type
-                sent_num_in_batch = batch[9].sum()  # is_support
-                sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
-                if sent_num_in_batch != 0:
-                    loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
-                else:
-                    loss3 = self.config.sp_lambda * sp_value * 1e30
+                loss3 = self.config.sp_lambda * self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum() /  batch[9].sum()  # is_support
+
                 loss = loss1 + loss2 + loss3
 
                 # if self.config.gradient_accumulation_steps > 1:
@@ -585,7 +581,7 @@ def main(config_file='config/bert_config.json'):
         tracker = xm.RateTracker()
         model.train()
         for x, batch in enumerate(loader):
-            # batch = tuple(t.to(device) for t in batch)
+            batch = tuple(t.to(device) for t in batch)
             # loss = self.criterion(logits, batch[-1])
             start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
             loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])  # y1, y2
@@ -595,7 +591,7 @@ def main(config_file='config/bert_config.json'):
             # loss3 = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum() * self.config.sp_lambda / sent_num_in_batch
             loss = loss1 + loss2
             loss.backward()
-
+            del batch #try to save cpu mem.
             tracker.add(FLAGS.batch_size)
             if (x + 1) % config.gradient_accumulation_steps == 0:
                 torch.nn.utils.clip_grad_norm_(
@@ -606,8 +602,8 @@ def main(config_file='config/bert_config.json'):
 
             if xm.get_ordinal() == 0:
                 if x % FLAGS.log_steps == 0:
-                    print('[xla:{}]({}) Loss={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
-                        xm.get_ordinal(), x, loss.item(), tracker.rate(),
+                    print('[xla:{}]({}) Loss1={:.5f} Loss2={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                        xm.get_ordinal(), x, loss1.item(),loss2.item(), tracker.rate(),
                         tracker.global_rate(), time.asctime()), flush=True)
 
     # def test_loop_fn(loader):
