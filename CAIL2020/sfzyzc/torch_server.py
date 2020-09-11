@@ -23,7 +23,7 @@ from dataclean import cleanall, shortenlines
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 logger = logging.getLogger()
 cors_allow_all = CORS(allow_all_origins=True,
-                      allow_origins_list=['http://localhost:8081'],
+                      allow_origins_list=['*'],
                       allow_all_headers=True,
                       allow_all_methods=True,
                       allow_credentials_all_origins=True
@@ -80,7 +80,7 @@ class TorchResource:
 
     def on_get(self, req, resp):
         logger.info("...")
-        resp.set_header('Access-Control-Allow-Origin', 'http://localhost:8081')
+        resp.set_header('Access-Control-Allow-Origin', '*')
         resp.set_header('Access-Control-Allow-Methods', '*')
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials', 'true')
@@ -93,7 +93,7 @@ class TorchResource:
 
     def on_post(self, req, resp):
         """Handles POST requests"""
-        resp.set_header('Access-Control-Allow-Origin', 'http://localhost:8081')
+        resp.set_header('Access-Control-Allow-Origin', '*')
         resp.set_header('Access-Control-Allow-Methods', '*')
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials', 'true')
