@@ -30,7 +30,11 @@
         </tr>
 
         <tr style="height: 30px; background-color: #e2eaf1;">
-            <td style="width: 50%;">输入：</td>
+            <td style="width: 50%;">输入：
+                
+                <button onclick="claertext();return false;" style="float: right;">清空</button>
+
+            </td>
             <td>输出：</td>
         </tr>
         <tr style="height: 500px; background-color: #fff;">
@@ -111,7 +115,7 @@
     function dopost() {
         var url = 'http://' + $('#input_url').val(); 'http://192.168.60.15:58083/z';
 
-        var input = $('#input').text();
+        var input = $('#input').val();
 
         input = input.replace('\r', '');
 
@@ -141,6 +145,11 @@
             timeout: 60000,
             dataType: 'JSON'
         });
+    }
+
+    function claertext() {
+        $('#input').val('');
+        $('#input').focus();
     }
 </script>
 
