@@ -1,6 +1,6 @@
 import torch.optim as optim
 from pytorch_pretrained_bert import BertAdam
-
+from model.lamb import Lamb
 
 def init_optimizer(model, config, *args, **params):
     optimizer_type = config.get("train", "optimizer")
@@ -14,6 +14,10 @@ def init_optimizer(model, config, *args, **params):
     elif optimizer_type == "bert_adam":
         optimizer = BertAdam(model.parameters(), lr=learning_rate,
                              weight_decay=config.getfloat("train", "weight_decay"))
+    elif optimizer_type == "lamb":
+        optimizer = Lamb(model.parameters(), lr=learning_rate,
+                             weight_decay=config.getfloat("train", "weight_decay"))
+
     else:
         raise NotImplementedError
 
