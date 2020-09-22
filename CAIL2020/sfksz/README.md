@@ -30,3 +30,8 @@
 8      valid  25/25       0:02/ 0:00    0.112   {"micro_precision": 0.98}
 9      train  2635/2634  20:34/ 0:00    0.614   {"micro_precision": 0.919}
 9      valid  25/25       0:02/ 0:00    0.089   {"micro_precision": 0.98}
+
+
+RoBERTa
+19     train  2108/2107  35:32/-1:59    3.199   {"micro_precision": 0.546}
+19     valid  39/39       0:05/ 0:00    0.979   {"micro_precision": 0.705}

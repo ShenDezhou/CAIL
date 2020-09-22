@@ -1,5 +1,7 @@
 import json
-import jieba
+import sys
+sys.path.extend("..")
+import lawa
 import os
 import argparse
 
@@ -9,7 +11,7 @@ min_freq = 10
 
 
 def cut(s):
-    arr = list(jieba.cut(s))
+    arr = list(lawa.cut(s))
     for word in arr:
         if word not in frequency:
             frequency[word] = 0
