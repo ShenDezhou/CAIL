@@ -267,6 +267,7 @@ class Linear(nn.Module):
         x = self.linear(x)
         return x
 
+from model.qa.resnet import ResNet, BasicBlock
 class ModelX(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(ModelX, self).__init__()
@@ -290,12 +291,13 @@ class ModelX(nn.Module):
         self.att_weight_q = Linear(self.hidden_size, 1)
         self.att_weight_cq = Linear(self.hidden_size, 1)
 
+        self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=4 * 4)
 
         self.bce = nn.MultiLabelSoftMarginLoss(reduction='sum')
         self.gelu = nn.GELU()
         self.softmax = nn.Softmax(dim=1)
         # self.fc_module_q = nn.Linear(self.question_len, 1)
-        self.fc_module = nn.Linear(self.hidden_size * 4, 4)
+        self.fc_module = nn.Linear(4 * 4 , 4)
         self.accuracy_function = multi_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
@@ -359,18 +361,20 @@ class ModelX(nn.Module):
         # question = torch.cat([question_1, question_2], dim=1)
         # context = (context_1 + context_2)/2
         # question = (question_1 + question_2)/2
-
+        y = torch.cat([context, question], dim=1)
+        y = y.transpose(1,2)
+        # y = y.reshape((batch, -1))
         # c, q, a = self.attention(context, question)
-        a = self.att_flow_layer(context, question)
+        # a = self.att_flow_layer(context, question)
         # c, q = context, question
-        # y = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
-        # y = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
-        y = torch.mean(a, dim=1)
-
+        # ymax = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
+        # ymean = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
+        # y = torch.cat([ymax,ymean], dim=1)
+        y = self.resnet(y)
         # y = self.gelu(y)
         # y = self.dropout(y)
         y = self.fc_module(y)
-        y = self.softmax(y)
+        # y = self.softmax(y)
 
 
         if mode != "test":
@@ -383,7 +387,7 @@ class ModelX(nn.Module):
 
 
 from model.encoder.GRUEncoder import GRUEncoder
-from model.qa.resnet import ResNet, BasicBlock
+
 class RESModel(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(RESModel, self).__init__()
