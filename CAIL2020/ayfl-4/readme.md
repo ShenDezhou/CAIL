@@ -1,4 +1,8 @@
 # Introduction
+
+compare between BERT-LARGE with RoBERTa-3-LARGE-ext model.
+
+## 1.BERT-LARGE model
 ```
 [xla:0](100) Loss=1.16723 Rate=0.07 GlobalRate=0.05 Time=Thu Sep 24 07:41:56 2020
 [xla:0](200) Loss=1.43893 Rate=4.44 GlobalRate=0.10 Time=Thu Sep 24 07:42:23 2020
@@ -37,3 +41,63 @@ Finished test epoch 0, valid=98.95
 ('DONE', 98.95)
 saved model.
 ```
+
+
+# 2.RoBERTa-3-Large-Ext model
+```
+[xla:0](100) Loss=1.36708 Rate=0.29 GlobalRate=0.05 Time=Fri Sep 25 07:46:23 2020
+[xla:0](200) Loss=1.38933 Rate=29.32 GlobalRate=0.10 Time=Fri Sep 25 07:46:27 2020
+[xla:0](300) Loss=0.90580 Rate=41.29 GlobalRate=0.15 Time=Fri Sep 25 07:46:31 2020
+[xla:0](400) Loss=0.90670 Rate=46.25 GlobalRate=0.20 Time=Fri Sep 25 07:46:36 2020
+[xla:0](500) Loss=1.20364 Rate=47.92 GlobalRate=0.24 Time=Fri Sep 25 07:46:40 2020
+[xla:0](600) Loss=1.11587 Rate=48.59 GlobalRate=0.29 Time=Fri Sep 25 07:46:44 2020
+[xla:0](700) Loss=1.03590 Rate=48.93 GlobalRate=0.34 Time=Fri Sep 25 07:46:48 2020
+[xla:0](800) Loss=0.77885 Rate=48.77 GlobalRate=0.39 Time=Fri Sep 25 07:46:52 2020
+[xla:0](900) Loss=0.82693 Rate=49.07 GlobalRate=0.44 Time=Fri Sep 25 07:46:56 2020
+[xla:0](1000) Loss=0.74579 Rate=49.28 GlobalRate=0.49 Time=Fri Sep 25 07:47:00 2020
+[xla:0](1100) Loss=0.75016 Rate=49.32 GlobalRate=0.53 Time=Fri Sep 25 07:47:04 2020
+[xla:0](1200) Loss=1.02060 Rate=49.23 GlobalRate=0.58 Time=Fri Sep 25 07:47:08 2020
+[xla:0](1300) Loss=0.74703 Rate=49.31 GlobalRate=0.63 Time=Fri Sep 25 07:47:12 2020
+[xla:0](1400) Loss=0.74613 Rate=49.35 GlobalRate=0.68 Time=Fri Sep 25 07:47:16 2020
+[xla:0](1500) Loss=0.76008 Rate=49.55 GlobalRate=0.73 Time=Fri Sep 25 07:47:20 2020
+[xla:0](1600) Loss=0.74436 Rate=48.80 GlobalRate=0.77 Time=Fri Sep 25 07:47:24 2020
+[xla:0](1700) Loss=0.74433 Rate=49.21 GlobalRate=0.82 Time=Fri Sep 25 07:47:28 2020
+[xla:0](1800) Loss=0.74404 Rate=49.29 GlobalRate=0.87 Time=Fri Sep 25 07:47:32 2020
+[xla:0](1900) Loss=0.74386 Rate=49.39 GlobalRate=0.92 Time=Fri Sep 25 07:47:37 2020
+[xla:0](2000) Loss=0.74873 Rate=49.71 GlobalRate=0.96 Time=Fri Sep 25 07:47:41 2020
+[xla:0](2100) Loss=0.74387 Rate=49.62 GlobalRate=1.01 Time=Fri Sep 25 07:47:45 2020
+Finished training epoch 0
+[xla:0](0) Acc=1.00000 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:47:52 2020
+[xla:0](100) Acc=0.97030 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:47:58 2020
+[xla:0](200) Acc=0.96766 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:03 2020
+[xla:0](300) Acc=0.96678 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:07 2020
+[xla:0](400) Acc=0.96758 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:11 2020
+[xla:0](500) Acc=0.96108 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:16 2020
+[xla:0](600) Acc=0.96173 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:20 2020
+[xla:0](700) Acc=0.96362 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:25 2020
+[xla:0](800) Acc=0.96317 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:29 2020
+[xla:0](900) Acc=0.96337 Rate=0.00 GlobalRate=0.00 Time=Fri Sep 25 07:48:33 2020
+[xla:0] Accuracy=96.35%
+Finished test epoch 0, valid=96.35
+('DONE', 96.35)
+```
+Acc drops on 2.6%
+
+# COST
+1. BERT-large
+15411713558ns
+13870042109ns
+14300081014ns
+12136016172ns
+12392196777ns
+12904527936ns
+
+2. RoBERTa-3-Large-ext
+2161661649ns
+1966810849ns
+2085638407ns
+2046428213ns
+2026669033ns
+2279752473ns
+
+同比下降-84.488%，209ms（原1350ms）

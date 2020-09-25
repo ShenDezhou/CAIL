@@ -111,4 +111,4 @@ if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
     api.req_options.auto_parse_form_urlencoded = True
     api.add_route('/z', TorchResource())
-    waitress.serve(api, port=58082, threads=48, url_scheme='http')
+    waitress.serve(api, port=58083, threads=48, url_scheme='http')
