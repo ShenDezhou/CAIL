@@ -84,22 +84,22 @@ class BertWordFormatter:
             idx.append(temp_data["id"])
 
             if mode != "test":
-                label_x = []
-                for opt in list("ABCD"):
-                    if opt in temp_data["answer"]:
-                        label_x.append(1)
-                    else:
-                        label_x.append(0)
+                # label_x = []
+                # for opt in list("ABCD"):
+                #     if opt in temp_data["answer"]:
+                #         label_x.append(1)
+                #     else:
+                #         label_x.append(0)
 
-                # label_x = 0
-                # if "A" in temp_data["answer"]:
-                #     label_x += 1
-                # if "B" in temp_data["answer"]:
-                #     label_x += 2
-                # if "C" in temp_data["answer"]:
-                #     label_x += 4
-                # if "D" in temp_data["answer"]:
-                #     label_x += 8
+                label_x = 0
+                if "A" in temp_data["answer"]:
+                    label_x += 1
+                if "B" in temp_data["answer"]:
+                    label_x += 2
+                if "C" in temp_data["answer"]:
+                    label_x += 4
+                if "D" in temp_data["answer"]:
+                    label_x += 8
                 label.append(label_x)
 
             temp_context = []

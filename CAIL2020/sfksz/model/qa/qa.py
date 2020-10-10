@@ -290,22 +290,22 @@ class ModelX(nn.Module):
         # self.att_weight_c = Linear(self.hidden_size, 1)
         # self.att_weight_q = Linear(self.hidden_size, 1)
         # self.att_weight_cq = Linear(self.hidden_size, 1)
-        self.conv1 = nn.Conv2d(1, 1, kernel_size=13, stride=13,padding=0, bias=False)
-        self.conv2 = nn.Conv2d(1, 1, kernel_size=11, stride=3, padding=0, bias=False)
+        self.conv1 = nn.Conv2d(1, 1, kernel_size=13, stride=7,padding=0, bias=False)
+        self.conv2 = nn.Conv2d(1, 1, kernel_size=11, stride=5, padding=0, bias=False)
         self.conv3 = nn.Conv2d(1, 1, kernel_size=7, stride=3, padding=0, bias=False)
-        self.conv4 = nn.Conv2d(1, 1, kernel_size=5, stride=1, padding=0, bias=False)
-        self.conv5 = nn.Conv2d(1, 1, kernel_size=3, stride=3, padding=0, bias=False)
-        self.maxpool = nn.MaxPool2d(kernel_size=7, stride=7, padding=0)
+        self.conv4 = nn.Conv2d(1, 1, kernel_size=5, stride=3, padding=0, bias=False)
+        self.conv5 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=0, bias=False)
+        self.maxpool = nn.MaxPool2d(kernel_size=5, stride=3, padding=0)
 
         # self.resnet = ResNet(block=Bottleneck, groups=1, layers=[1,1,1,1], num_classes=64)
 
-        self.bce = nn.MultiLabelSoftMarginLoss(reduction='sum')
-        self.kl = nn.KLDivLoss(reduction='mean')
+        self.bce = nn.CrossEntropyLoss(reduction='mean')
+        # self.kl = nn.KLDivLoss(reduction='mean')
         self.gelu = nn.GELU()
         self.softmax = nn.Softmax(dim=1)
         # self.fc_module_q = nn.Linear(self.question_len, 1)
-        self.fc_module = nn.Linear(22, 4)
-        self.accuracy_function = multi_label_top1_accuracy
+        self.fc_module = nn.Linear(self.hidden_size * 4, 16)
+        self.accuracy_function = single_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
         pass
@@ -365,21 +365,22 @@ class ModelX(nn.Module):
         contextpool = []
         for i in range(4):
             option = bert_context[:,i,:,:].squeeze(1)
-            c, q, a = self.attention(bert_question, option)
-            contextpool.append(a)
+            c, q, a = self.attention(option, bert_question)
+            contextpool.append(c)
+            question = q
 
-        y = torch.cat(contextpool, dim=1)
-        y = y.unsqueeze(1)
+        # cp = torch.cat(contextpool, dim=1)
+        # y = y.unsqueeze(1)
 
-        y = self.conv1(y)
-        y = torch.sigmoid(y)
+        # y = self.conv5(y)
+        # y = torch.sigmoid(y)
         # y = self.conv2(y)
         # y = self.conv3(y)
         # y = self.conv4(y)
         # y = self.conv5(y)
         # y = self.gelu(y)
-        y = self.maxpool(y)
-        y = torch.sigmoid(y)
+        # y = self.conv4(y)
+        # y = torch.sigmoid(y)
 
         # context = bert_context[-1].view(batch, -1, self.context_len, self.hidden_size)
         # question = bert_question[-1].view(batch,4, self.context_len, self.hidden_size)
@@ -397,6 +398,7 @@ class ModelX(nn.Module):
         # y = y.reshape(batch, -1, self.context_len, self.context_len)
         # y = y.reshape((batch, -1))
 
+        y = torch.cat([torch.max(c, dim=1)[0] for c in contextpool], dim=1)
         # a = self.att_flow_layer(context, question)
         # c, q = context, question
         # ymax = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
@@ -407,16 +409,16 @@ class ModelX(nn.Module):
         y = y.flatten(start_dim=1)
         # y = self.dropout(y)
         y = self.fc_module(y)
-        y = self.softmax(y)
+        # y = self.softmax(y)
 
 
         if mode != "test":
-            label = data["label"].float()
+            label = data["label"]
             loss = self.bce(y, label)
             acc_result = self.accuracy_function(y, label, config, acc_result)
             return {"loss": loss, "acc_result": acc_result}
 
-        return {"output": multi_generate_ans(data["id"], y)}
+        return {"output": generate_ans(data["id"], y)}
 
 
 from model.encoder.GRUEncoder import GRUEncoder

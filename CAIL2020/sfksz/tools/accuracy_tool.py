@@ -93,7 +93,7 @@ def single_label_top1_accuracy(outputs, label, config, result=None):
 def bit_to_int(bits):
     res = 0
     for index, x in enumerate(bits):
-        if x>=0.5:
+        if x>0:
             res += 2**index
     num = int(res)
     assert num < 16 and num >=0, bits
