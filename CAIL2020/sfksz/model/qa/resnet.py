@@ -20,17 +20,17 @@ model_urls = {
     'wide_resnet101_2': 'https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth',
 }
 
-input_dim=768
+#input_dim=64
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
-    return nn.Conv1d(in_planes, out_planes, kernel_size=3, stride=stride,
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=dilation, groups=groups, bias=False, dilation=dilation)
 
 
 def conv1x1(in_planes, out_planes, stride=1):
     """1x1 convolution"""
-    return nn.Conv1d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
 
 class BasicBlock(nn.Module):
@@ -40,7 +40,7 @@ class BasicBlock(nn.Module):
                  base_width=64, dilation=1, norm_layer=None):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
-            norm_layer = nn.BatchNorm1d
+            norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
             raise ValueError('BasicBlock only supports groups=1 and base_width=64')
         if dilation > 1:
@@ -80,7 +80,7 @@ class Bottleneck(nn.Module):
     # This variant is also known as ResNet V1.5 and improves accuracy according to
     # https://ngc.nvidia.com/catalog/model-scripts/nvidia:resnet_50_v1_5_for_pytorch.
 
-    expansion = 4
+    expansion = 2
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
                  base_width=64, dilation=1, norm_layer=None):
@@ -95,7 +95,7 @@ class Bottleneck(nn.Module):
         self.bn2 = norm_layer(width)
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(planes * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
+        self.gelu = nn.GELU()
         self.downsample = downsample
         self.stride = stride
 
@@ -103,21 +103,21 @@ class Bottleneck(nn.Module):
         identity = x
 
         out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
+        # out = self.bn1(out)
+        # out = self.gelu(out)
 
         out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
+        # out = self.bn2(out)
+        # out = self.gelu(out)
 
         out = self.conv3(out)
-        out = self.bn3(out)
+        # out = self.bn3(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)
-
         out += identity
-        out = self.relu(out)
+
+        out = self.gelu(out)
 
         return out
 
@@ -129,10 +129,10 @@ class ResNet(nn.Module):
                  norm_layer=None):
         super(ResNet, self).__init__()
         if norm_layer is None:
-            norm_layer = nn.BatchNorm1d
+            norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
 
-        self.inplanes = input_dim
+        self.inplanes = groups * width_per_group
         self.dilation = 1
         if replace_stride_with_dilation is None:
             # each element in the tuple indicates if we should replace
@@ -143,25 +143,25 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv1d(input_dim, self.inplanes, kernel_size=3, stride=1, padding=0,
+        self.conv1 = nn.Conv2d(groups * self.base_width, self.inplanes, kernel_size=3, stride=1, padding=1,
                                bias=False)
         self.bn1 = norm_layer(self.inplanes)
-        self.relu = nn.ReLU(inplace=True)
-        self.maxpool = nn.MaxPool1d(kernel_size=3, stride=1, padding=0)
-        self.layer1 = self._make_layer(block, input_dim, layers[0])
-        self.layer2 = self._make_layer(block, input_dim, layers[1], stride=1,
+        self.gelu = nn.GELU()
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.layer1 = self._make_layer(block, self.inplanes, layers[0], stride=2)
+        self.layer2 = self._make_layer(block, self.inplanes, layers[1], stride=4,
                                        dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, input_dim, layers[2], stride=1,
+        self.layer3 = self._make_layer(block, self.inplanes, layers[2], stride=4,
                                        dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, input_dim, layers[3], stride=1,
+        self.layer4 = self._make_layer(block, self.inplanes, layers[3], stride=4,
                                        dilate=replace_stride_with_dilation[2])
-        self.avgpool = nn.AdaptiveAvgPool1d((1))
-        self.fc = nn.Linear(input_dim * block.expansion, num_classes)
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Linear(self.inplanes, num_classes)
 
         for m in self.modules():
-            if isinstance(m, nn.Conv1d):
+            if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-            elif isinstance(m, (nn.BatchNorm1d, nn.GroupNorm)):
+            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
@@ -202,8 +202,8 @@ class ResNet(nn.Module):
     def _forward_impl(self, x):
         # See note [TorchScript super()]
         x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
+        # x = self.bn1(x)
+        # x = self.gelu(x)
         x = self.maxpool(x)
 
         x = self.layer1(x)

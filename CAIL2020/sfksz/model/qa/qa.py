@@ -267,7 +267,7 @@ class Linear(nn.Module):
         x = self.linear(x)
         return x
 
-from model.qa.resnet import ResNet, BasicBlock
+from model.qa.resnet import ResNet, BasicBlock, Bottleneck
 class ModelX(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(ModelX, self).__init__()
@@ -278,107 +278,140 @@ class ModelX(nn.Module):
         # for line in f:
         #     self.word_num += 1
 
-        self.context_len = config.getint("data", "max_option_len") * 4
+        self.context_len = config.getint("data", "max_option_len")
         self.question_len = config.getint("data", "max_question_len")
 
         # self.embedding = nn.Embedding(self.word_num, self.hidden_size)
         self.context_encoder = BertEncoder(config, gpu_list, *args, **params)
-        #self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
-        # self.attention = Attention(config, gpu_list, *args, **params)
+        # self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
+        self.attention = Attention(config, gpu_list, *args, **params)
         self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
 
-        self.att_weight_c = Linear(self.hidden_size, 1)
-        self.att_weight_q = Linear(self.hidden_size, 1)
-        self.att_weight_cq = Linear(self.hidden_size, 1)
+        # self.att_weight_c = Linear(self.hidden_size, 1)
+        # self.att_weight_q = Linear(self.hidden_size, 1)
+        # self.att_weight_cq = Linear(self.hidden_size, 1)
+        self.conv1 = nn.Conv2d(1, 1, kernel_size=13, stride=13,padding=0, bias=False)
+        self.conv2 = nn.Conv2d(1, 1, kernel_size=11, stride=3, padding=0, bias=False)
+        self.conv3 = nn.Conv2d(1, 1, kernel_size=7, stride=3, padding=0, bias=False)
+        self.conv4 = nn.Conv2d(1, 1, kernel_size=5, stride=1, padding=0, bias=False)
+        self.conv5 = nn.Conv2d(1, 1, kernel_size=3, stride=3, padding=0, bias=False)
+        self.maxpool = nn.MaxPool2d(kernel_size=7, stride=7, padding=0)
 
-        self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=4 * 4)
+        # self.resnet = ResNet(block=Bottleneck, groups=1, layers=[1,1,1,1], num_classes=64)
 
         self.bce = nn.MultiLabelSoftMarginLoss(reduction='sum')
+        self.kl = nn.KLDivLoss(reduction='mean')
         self.gelu = nn.GELU()
         self.softmax = nn.Softmax(dim=1)
         # self.fc_module_q = nn.Linear(self.question_len, 1)
-        self.fc_module = nn.Linear(4 * 4 , 4)
+        self.fc_module = nn.Linear(22, 4)
         self.accuracy_function = multi_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
         pass
 
-    def att_flow_layer(self, c, q):
-        """
-        :param c: (batch, c_len, hidden_size * 2)
-        :param q: (batch, q_len, hidden_size * 2)
-        :return: (batch, c_len, q_len)
-        """
-        c_len = c.size(1)
-        q_len = q.size(1)
-
-        cq = []
-        for i in range(q_len):
-            # (batch, 1, hidden_size * 2)
-            qi = q.select(1, i).unsqueeze(1)
-            # (batch, c_len, 1)
-            ci = self.att_weight_cq(c * qi).squeeze()
-            cq.append(ci)
-        # (batch, c_len, q_len)
-        cq = torch.stack(cq, dim=-1)
-
-        # (batch, c_len, q_len)
-        s = self.att_weight_c(c).expand(-1, -1, q_len) + \
-            self.att_weight_q(q).permute(0, 2, 1).expand(-1, c_len, -1) + \
-            cq
-
-        # (batch, c_len, q_len)
-        a = F.softmax(s, dim=2)
-        # (batch, c_len, q_len) * (batch, q_len, hidden_size * 2) -> (batch, c_len, hidden_size * 2)
-        c2q_att = torch.bmm(a, q)
-        # (batch, 1, c_len)
-        b = F.softmax(torch.max(s, dim=2)[0], dim=1).unsqueeze(1)
-        # (batch, 1, c_len) * (batch, c_len, hidden_size * 2) -> (batch, hidden_size * 2)
-        q2c_att = torch.bmm(b, c).squeeze()
-        # (batch, c_len, hidden_size * 2) (tiled)
-        q2c_att = q2c_att.unsqueeze(1).expand(-1, c_len, -1)
-        # q2c_att = torch.stack([q2c_att] * c_len, dim=1)
-
-        # (batch, c_len, hidden_size * 8)
-        x = torch.cat([c, c2q_att, c * c2q_att, c * q2c_att], dim=-1)
-        return x
+    # def att_flow_layer(self, c, q):
+    #     """
+    #     :param c: (batch, c_len, hidden_size * 2)
+    #     :param q: (batch, q_len, hidden_size * 2)
+    #     :return: (batch, c_len, q_len)
+    #     """
+    #     c_len = c.size(1)
+    #     q_len = q.size(1)
+    #
+    #     cq = []
+    #     for i in range(q_len):
+    #         # (batch, 1, hidden_size * 2)
+    #         qi = q.select(1, i).unsqueeze(1)
+    #         # (batch, c_len, 1)
+    #         ci = self.att_weight_cq(c * qi).squeeze()
+    #         cq.append(ci)
+    #     # (batch, c_len, q_len)
+    #     cq = torch.stack(cq, dim=-1)
+    #
+    #     # (batch, c_len, q_len)
+    #     s = self.att_weight_c(c).expand(-1, -1, q_len) + \
+    #         self.att_weight_q(q).permute(0, 2, 1).expand(-1, c_len, -1) + \
+    #         cq
+    #
+    #     # (batch, c_len, q_len)
+    #     a = F.softmax(s, dim=2)
+    #     # (batch, c_len, q_len) * (batch, q_len, hidden_size * 2) -> (batch, c_len, hidden_size * 2)
+    #     c2q_att = torch.bmm(a, q)
+    #     # (batch, 1, c_len)
+    #     b = F.softmax(torch.max(s, dim=2)[0], dim=1).unsqueeze(1)
+    #     # (batch, 1, c_len) * (batch, c_len, hidden_size * 2) -> (batch, hidden_size * 2)
+    #     q2c_att = torch.bmm(b, c).squeeze()
+    #     # (batch, c_len, hidden_size * 2) (tiled)
+    #     q2c_att = q2c_att.unsqueeze(1).expand(-1, c_len, -1)
+    #     # q2c_att = torch.stack([q2c_att] * c_len, dim=1)
+    #
+    #     # (batch, c_len, hidden_size * 8)
+    #     x = torch.cat([c, c2q_att, c * c2q_att, c * q2c_att], dim=-1)
+    #     return x
 
     def forward(self, data, config, gpu_list, acc_result, mode):
         context = data["context"]
         question = data["question"]
 
         batch = question[0].size()[0]
-        _, _, context = self.context_encoder(*context)
-        _, _, question = self.context_encoder(*question)
 
-        context = context[-1].view(batch, -1, self.hidden_size)
-        question = question[-1]
+        _, _, bert_question = self.context_encoder(*question)
+        _, _, bert_context = self.context_encoder(*context)
 
-        # context_2 = context[-2].view(batch, -1, self.hidden_size)
-        # question_2 = question[-2]
+        bert_context = bert_context[-1].reshape(batch,4,self.context_len, -1)
+        bert_question = bert_question[-1]
+
+        contextpool = []
+        for i in range(4):
+            option = bert_context[:,i,:,:].squeeze(1)
+            c, q, a = self.attention(bert_question, option)
+            contextpool.append(a)
+
+        y = torch.cat(contextpool, dim=1)
+        y = y.unsqueeze(1)
+
+        y = self.conv1(y)
+        y = torch.sigmoid(y)
+        # y = self.conv2(y)
+        # y = self.conv3(y)
+        # y = self.conv4(y)
+        # y = self.conv5(y)
+        # y = self.gelu(y)
+        y = self.maxpool(y)
+        y = torch.sigmoid(y)
+
+        # context = bert_context[-1].view(batch, -1, self.context_len, self.hidden_size)
+        # question = bert_question[-1].view(batch,4, self.context_len, self.hidden_size)
+
+        # context_2 = bert_context[-2].view(batch, -1, self.context_len, self.hidden_size)
+        # question_2 = bert_question[-2].view(batch,4, self.context_len, self.hidden_size)
         #
         # context = torch.cat([context_1,context_2], dim=1)
         # question = torch.cat([question_1, question_2], dim=1)
         # context = (context_1 + context_2)/2
         # question = (question_1 + question_2)/2
-        y = torch.cat([context, question], dim=1)
-        y = y.transpose(1,2)
+        # y = torch.cat([context, question, context_2, question_2], dim=1)
+        # y = question.view(batch,4, self.context_len, self.context_len, -1)
+        # y = y.permute(0,1,4,2,3)
+        # y = y.reshape(batch, -1, self.context_len, self.context_len)
         # y = y.reshape((batch, -1))
-        # c, q, a = self.attention(context, question)
+
         # a = self.att_flow_layer(context, question)
         # c, q = context, question
         # ymax = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
         # ymean = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
         # y = torch.cat([ymax,ymean], dim=1)
-        y = self.resnet(y)
+        # y = self.resnet(y)
         # y = self.gelu(y)
+        y = y.flatten(start_dim=1)
         # y = self.dropout(y)
         y = self.fc_module(y)
-        # y = self.softmax(y)
+        y = self.softmax(y)
 
 
         if mode != "test":
-            label = data["label"]
+            label = data["label"].float()
             loss = self.bce(y, label)
             acc_result = self.accuracy_function(y, label, config, acc_result)
             return {"loss": loss, "acc_result": acc_result}
