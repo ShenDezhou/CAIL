@@ -101,3 +101,18 @@ Acc drops on 2.6%
 2279752473ns
 
 同比下降-84.488%，209ms（原1350ms）
+
+# CIFAR-10数据 data和filenmaes 示例:
+Pandas(labels=9, data=array([142, 143, 144, ...,  52,  44,  38], dtype=uint8), filenames=b'moving_van_s_000051.png')
+Pandas(labels=5, data=array([133, 162, 168, ...,  51,  50,  60], dtype=uint8), filenames=b'pekinese_s_000458.png')
+Pandas(labels=1, data=array([240, 233, 238, ..., 132, 132, 129], dtype=uint8), filenames=b'wagon_s_001343.png')
+Pandas(labels=1, data=array([255, 252, 253, ..., 234, 232, 232], dtype=uint8), filenames=b'automobile_s_002395.png')
+Pandas(labels=9, data=array([  1,   6,  23, ..., 151, 153, 155], dtype=uint8), filenames=b'aerial_ladder_truck_s_001180.png')
+Pandas(labels=1, data=array([129, 128, 130, ..., 185, 184, 187], dtype=uint8), filenames=b'police_cruiser_s_001389.png')
+Pandas(labels=9, data=array([154, 154, 184, ...,  52,  30,  32], dtype=uint8), filenames=b'lorry_s_001596.png')
+Pandas(labels=2, data=array([107,  88,  80, ..., 139,  62, 106], dtype=uint8), filenames=b'sparrow_s_001912.png')
+Pandas(labels=4, data=array([197, 203, 197, ...,  97,  98,  87], dtype=uint8), filenames=b'mule_deer_s_001733.png')
+Pandas(labels=9, data=array([255, 255, 255, ..., 255, 255, 255], dtype=uint8), filenames=b'delivery_truck_s_001529.png')
+Pandas(labels=1, data=array([ 34,  41,  49, ..., 175, 174, 174], dtype=uint8), filenames=b'coupe_s_001573.png')
+Pandas(labels=9, data=array([64, 59, 68, ..., 89, 91, 85], dtype=uint8), filenames=b'lorry_s_000018.png')
+Pandas(labels=8, data=array([224, 224, 224, ..., 213, 212, 195], dtype=uint8), filenames=b'banana_boat_s_001615.png')

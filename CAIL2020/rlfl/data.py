@@ -209,13 +209,15 @@ class Data:
 
         sc_list, bc_list, label_list = [], [], []
         for row in data_frame.itertuples(index=False):
-            print(row)
             if type==0:
                 sc_tokens = self.tokenizer.tokenize(str(row[1]))
                 bc_tokens = self.tokenizer.tokenize(str(row[2]))
             if type==1:
                 sc_tokens = self.tokenizer.convert_ids_to_tokens(list(row[1]))
-                bc_tokens = self.tokenizer.tokenize(str(row[2]))
+                if train:
+                    bc_tokens = self.tokenizer.tokenize(str(row[2]))
+                else:
+                    bc_tokens = self.tokenizer.tokenize('[MASK]' * len(str(row[2])))
             if train:
                 sc_list.append(sc_tokens)
                 bc_list.append(bc_tokens)

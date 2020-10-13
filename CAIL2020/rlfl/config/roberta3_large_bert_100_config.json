@@ -4,14 +4,14 @@
   "model_path": "model/rbt3l/",
   "log_path": "log/",
 
-  "train_file_path": "data_cv/train_100.data",
-  "valid_file_path": "data_cv/test_100.data",
+  "train_file_path": "data_cv/train.data",
+  "valid_file_path": "data_cv/test.data",
 
   "batch_size": 2,
 
-  "bert_model_path": "../roberta3_ext/",
+  "bert_model_path": "../roberta3_large_ext/",
   "trained_weight":"",
-  "hidden_size": 768,
+  "hidden_size": 1024,
   "num_classes": 100,
   "dropout": 0.05,
 
