@@ -110,7 +110,7 @@ class TorchResource:
         row = {'content': document}
         df = pandas.DataFrame().append(row, ignore_index=True)
         filename = "data/{}.csv".format(time.time())
-        df.to_csv(filename, index=False, columns=['content'])
+        df.to_csv(filename, index=False, escapechar="\\", columns=['content'])
 
         with tf.Graph().as_default():
             output_graph_def = tf.GraphDef()
@@ -183,12 +183,12 @@ class TorchResource:
         resp.set_header("Cache-Control", "no-cache")
         data = req.stream.read(req.content_length)
         data = data.decode('utf-8')
-        regex = re.compile(r'\\(?![/u"])')
-        data = regex.sub(r"\\\\", data)
+        # regex = re.compile(r'\\(?![/u"])')
+        # data = regex.sub(r"\\", data)
         jsondata = json.loads(data)
         # clean_title = shortenlines(jsondata['1'])
         # clean_content = cleanall(jsondata['2'])
-        clean_content = jsondata['1'].replace('\\\\','\\', 10**10)
+        clean_content = jsondata['1']
         resp.media = self.predict_from_pb(clean_content)
         logger.info("###")
 
