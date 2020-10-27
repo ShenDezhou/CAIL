@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import time
 from types import SimpleNamespace
 import falcon
 import pandas
@@ -106,6 +107,10 @@ class TorchResource:
         logger.info("###")
 
     def predict_from_pb(self, document):
+        row = {'content': document}
+        df = pandas.DataFrame().append(row, ignore_index=True)
+        filename = "data/{}.csv".format(time.time())
+        df.to_csv(filename, index=False, columns=['content'])
 
         with tf.Graph().as_default():
             output_graph_def = tf.GraphDef()
