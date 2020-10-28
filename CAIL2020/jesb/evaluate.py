@@ -35,8 +35,6 @@ df = pandas.read_csv("data/contract_amount_test.csv", encoding='utf-8')
 correct = 0
 total = len(df)
 for x, row in df.iterrows():
-    if x<2:
-        continue
     contract = row[0]
     indexes = row[1].split(";")
     tags = []
