@@ -16,7 +16,7 @@ from tensorflow.contrib.crf import viterbi_decode
 import json
 import re
 from data_utils import input_from_line, result_to_json
-
+from six import unichr
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 logger = logging.getLogger()
@@ -95,6 +95,31 @@ def decode(logits, lengths, matrix):
             paths.append(path[1:])
         return paths
 
+#digit regex[0-9]
+digit_regex = re.compile("[0-9,]+")
+
+def strQ2B(ustring):
+    """全角转半角"""
+    rstring = ""
+    for uchar in ustring:
+        inside_code=ord(uchar)
+        if inside_code == 12288:#全角空格直接转换
+            inside_code = 32
+        elif (inside_code >= 65281 and inside_code <= 65374): #全角字符（除空格）根据关系转化
+            inside_code -= 65248
+
+        rstring += unichr(inside_code)
+    return rstring
+
+def augment(word, line):
+    line = strQ2B(line)
+    augdigit = re.compile("([0-9]*"+word+")")
+    augword = augdigit.search(line)
+    #找到了多个匹配，不修改
+    if augword and len(augword.groups()) == 1:
+        return augword.group(0)
+    return word
+
 
 class TorchResource:
 
@@ -105,6 +130,9 @@ class TorchResource:
             print('json file loaded')
 
         logger.info("###")
+
+
+
 
     def predict_from_pb(self, document):
         row = {'content': document}
@@ -157,7 +185,12 @@ class TorchResource:
 
                     if len(entities) != 0:
                         for entity in entities:
-                            list_amounts.append(entity['word'])
+                            #是数字金额需要增强逻辑
+                            if digit_regex.match(entity['word']) and len(entity['word']) >= 5:
+                                aug_word = augment(entity['word'], line)
+                                list_amounts.append(aug_word)
+                            else:
+                                list_amounts.append(entity['word'])
                             print(entity['word'])
                 return {"answer":list_amounts}
 

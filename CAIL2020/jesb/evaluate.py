@@ -23,17 +23,20 @@ def compare(s,t):
         ii = strQ2B(i)
         if ii in t:
             c+= 1
+        else:
+            print(ii, t)
 
     return c*1.0/len(s)
 
 
 http = urllib3.PoolManager()
-url = "http://192.168.0.161:58084/z"
+url = "http://localhost:58084/z"
 df = pandas.read_csv("data/contract_amount_test.csv", encoding='utf-8')
 correct = 0
 total = len(df)
 for x, row in df.iterrows():
-
+    if x<2:
+        continue
     contract = row[0]
     indexes = row[1].split(";")
     tags = []
