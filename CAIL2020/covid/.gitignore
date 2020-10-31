@@ -1,0 +1,15 @@
+.DS_Store
+
+model/
+log/
+data/
+roberta_wwm_ext/
+dataset/
+data_cv/
+dataset_cv/
+dataset_cv100/
+
+*.pdf
+*.docx
+*.html
+CT*/
