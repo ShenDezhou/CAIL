@@ -18,7 +18,8 @@ from torch import optim
 from torchocr.networks import build_model, build_loss
 from torchocr.datasets import build_dataloader
 from torchocr.utils import get_logger, weight_init, load_checkpoint, save_checkpoint
-
+from torchocr.metrics import RecMetric
+from torchocr.utils import CTCLabelConverter
 
 def parse_args():
     import argparse
@@ -71,9 +72,9 @@ def build_optimizer(params, config):
     优化器
     Returns:
     """
-    
-    opt_type = config.pop('type')
-    opt = getattr(optim, opt_type)(params, **config)
+    config_dic = config.__dict__
+    opt_type = config_dic.pop('type')
+    opt = getattr(optim, opt_type)(params, **config_dic)
     return opt
 
 
@@ -81,6 +82,7 @@ def build_scheduler(optimizer, config):
     """
     """
     scheduler = None
+    config = config.__dict__
     sch_type = config.pop('type')
     if sch_type == 'LambdaLR':
         burn_in, steps = config['burn_in'], config['steps']
@@ -193,8 +195,7 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
     :return: None
     """
 
-    from torchocr.metrics import RecMetric
-    from torchocr.utils import CTCLabelConverter
+
     converter = CTCLabelConverter(cfg.dataset.alphabet)
     train_options = cfg.train_options
     metric = RecMetric(converter)
@@ -214,7 +215,7 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
         global_step = 0
     # 开始训练
     try:
-        for epoch in range(start_epoch, train_options['epochs']):  # traverse each epoch
+        for epoch in range(start_epoch, train_options.epochs):  # traverse each epoch
             net.train()  # train mode
             start = time.time()
             for i, batch_data in enumerate(train_loader):  # traverse each batch in the epoch
@@ -234,9 +235,9 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
                 acc_dict = metric(output, batch_data['label'])
                 acc = acc_dict['n_correct'] / cur_batch_size
                 norm_edit_dis = 1 - acc_dict['norm_edit_dis'] / cur_batch_size
-                if (i + 1) % train_options['print_interval'] == 0:
+                if (i + 1) % train_options.print_interval == 0:
                     interval_batch_time = time.time() - start
-                    logger.info(f"[{epoch}/{train_options['epochs']}] - "
+                    logger.info(f"[{epoch}/{train_options.epochs}] - "
                                 f"[{i + 1}/{all_step}] - "
                                 f"lr:{current_lr} - "
                                 f"loss:{loss_dict['loss'].item():.4f} - "
@@ -244,13 +245,13 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
                                 f"norm_edit_dis:{norm_edit_dis:.4f} - "
                                 f"time:{interval_batch_time:.4f}")
                     start = time.time()
-                if (i + 1) >= train_options['val_interval'] and (i + 1) % train_options['val_interval'] == 0:
+                if (i + 1) >= train_options.val_interval and (i + 1) % train_options.val_interval == 0:
                     global_state['start_epoch'] = epoch
                     global_state['best_model'] = best_model
                     global_state['global_step'] = global_step
-                    net_save_path = f"{train_options['checkpoint_save_dir']}/latest.pth"
+                    net_save_path = f"{train_options.checkpoint_save_dir}/latest.pth"
                     save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
-                    if train_options['ckpt_save_type'] == 'HighestAcc':
+                    if train_options.ckpt_save_type == 'HighestAcc':
                         # val
                         eval_dict = evaluate(net, eval_loader, loss_func, to_use_device, logger, converter, metric)
                         if eval_dict['eval_acc'] >= best_model['eval_acc']:
@@ -261,15 +262,15 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
                             global_state['start_epoch'] = epoch
                             global_state['best_model'] = best_model
                             global_state['global_step'] = global_step
-                            net_save_path = f"{train_options['checkpoint_save_dir']}/best.pth"
+                            net_save_path = f"{train_options.checkpoint_save_dir}/best.pth"
                             save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
-                    elif train_options['ckpt_save_type'] == 'FixedEpochStep' and epoch % train_options['ckpt_save_epoch'] == 0:
+                    elif train_options.ckpt_save_type == 'FixedEpochStep' and epoch % train_options.ckpt_save_epoch == 0:
                         shutil.copy(net_save_path, net_save_path.replace('latest.pth', f'{epoch}.pth'))
                 global_step += 1
             scheduler.step()
     except KeyboardInterrupt:
         import os
-        save_checkpoint(os.path.join(train_options['checkpoint_save_dir'], 'final.pth'), net, optimizer, logger, cfg, global_state=global_state)
+        save_checkpoint(os.path.join(train_options.checkpoint_save_dir, 'final.pth'), net, optimizer, logger, cfg, global_state=global_state)
     except:
         error_msg = traceback.format_exc()
         logger.error(error_msg)
@@ -283,23 +284,23 @@ def main():
     # cfg = parse_args()
     parser = argparse.ArgumentParser(description='train')
     parser.add_argument('--config', type=str, default='config/rec.json', help='train config file path')
-    cfg = parser.parse_args()
-    with open(cfg.config) as fin:
+    args = parser.parse_args()
+    with open(args.config) as fin:
         cfg = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
 
-    os.makedirs(cfg.train_options['checkpoint_save_dir'], exist_ok=True)
-    logger = get_logger('torchocr', log_file=os.path.join(cfg.train_options['checkpoint_save_dir'], 'train.log'))
+    os.makedirs(cfg.train_options.checkpoint_save_dir, exist_ok=True)
+    logger = get_logger('torchocr', log_file=os.path.join(cfg.train_options.checkpoint_save_dir, 'train.log'))
 
     # ===> 训练信息的打印
     train_options = cfg.train_options
     logger.info(cfg)
     # ===>
     to_use_device = torch.device(
-        train_options['device'] if torch.cuda.is_available() and ('cuda' in train_options['device']) else 'cpu')
-    set_random_seed(cfg['SEED'], 'cuda' in train_options['device'], deterministic=True)
+        train_options.device if torch.cuda.is_available() and ('cuda' in train_options.device) else 'cpu')
+    # set_random_seed(cfg.SEED, 'cuda' in train_options.device, deterministic=True)
 
     # ===> build network
-    net = build_model(cfg['model'])
+    net = build_model(cfg.model)
 
     # ===> 模型初始化及模型部署到对应的设备
     net.apply(weight_init)
@@ -309,16 +310,16 @@ def main():
     net.train()
 
     # ===> get fine tune layers
-    params_to_train = get_fine_tune_params(net, train_options['fine_tune_stage'])
+    params_to_train = get_fine_tune_params(net, train_options.fine_tune_stage)
     # ===> solver and lr scheduler
-    optimizer = build_optimizer(net.parameters(), cfg['optimizer'])
-    scheduler = build_scheduler(optimizer, cfg['lr_scheduler'])
+    optimizer = build_optimizer(net.parameters(), cfg.optimizer)
+    scheduler = build_scheduler(optimizer, cfg.lr_scheduler)
 
     # ===> whether to resume from checkpoint
-    resume_from = train_options['resume_from']
+    resume_from = train_options.resume_from
     if resume_from:
         net, _resumed_optimizer,global_state = load_checkpoint(net, resume_from, to_use_device, optimizer,
-                                                                 third_name=train_options['third_party_name'])
+                                                                 third_name=train_options.third_party_name)
         if _resumed_optimizer:
             optimizer = _resumed_optimizer
         logger.info(f'net resume from {resume_from}')
@@ -327,7 +328,7 @@ def main():
         logger.info(f'net resume from scratch.')
 
     # ===> loss function
-    loss_func = build_loss(cfg['loss'])
+    loss_func = build_loss(cfg.loss)
     loss_func = loss_func.to(to_use_device)
 
     with open(cfg.dataset.alphabet, 'r', encoding='utf-8') as file:

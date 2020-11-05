@@ -16,18 +16,18 @@ head_dict = {'CTC': CTC}
 class RecModel(nn.Module):
     def __init__(self, config):
         super().__init__()
-        assert 'in_channels' in config, 'in_channels must in model config'
+        assert config.in_channels, 'in_channels must in model config'
         backbone_type = config.backbone.type#.pop('type')
         assert backbone_type in backbone_dict, f'backbone.type must in {backbone_dict}'
-        self.backbone = backbone_dict[backbone_type](config.in_channels, **config.backbone)
+        self.backbone = backbone_dict[backbone_type](config.in_channels, **config.backbone.__dict__)
 
         neck_type = config.neck.type#.pop('type')
         assert neck_type in neck_dict, f'neck.type must in {neck_dict}'
-        self.neck = neck_dict[neck_type](self.backbone.out_channels, **config.neck)
+        self.neck = neck_dict[neck_type](self.backbone.out_channels, **config.neck.__dict__)
 
         head_type = config.head.type#.pop('type')
         assert head_type in head_dict, f'head.type must in {head_dict}'
-        self.head = head_dict[head_type](self.neck.out_channels, **config.head)
+        self.head = head_dict[head_type](self.neck.out_channels, **config.head.__dict__)
 
         self.name = f'RecModel_{backbone_type}_{neck_type}_{head_type}'
 

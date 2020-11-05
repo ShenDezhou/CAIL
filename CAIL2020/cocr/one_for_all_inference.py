@@ -336,7 +336,7 @@ class DetInfer:
     def __init__(self, model_path):
         ckpt = torch.load(model_path, map_location='cpu')
         cfg = ckpt['cfg']
-        self.model = build_model(cfg['model'])
+        self.model = build_model(cfg.model)
         state_dict = {}
         for k, v in ckpt['state_dict'].items():
             state_dict[k.replace('module.', '')] = v
@@ -347,10 +347,10 @@ class DetInfer:
         self.model.eval()
 
         self.resize = ResizeShortSize(736, False)
-        self.post_proess = build_post_process(cfg['post_process'])
+        self.post_proess = build_post_process(cfg.post_process)
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=cfg['dataset']['train']['dataset']['mean'], std=cfg['dataset']['train']['dataset']['std'])
+            transforms.Normalize(mean=cfg.dataset.train.dataset.mean, std=cfg.dataset.train.dataset.std)
         ])
 
     def predict(self, img, is_output_polygon=False):
@@ -573,7 +573,7 @@ if __name__ == '__main__':
         '-e', '--eval_dataset_directory', default='config/bert_config.json',
         help='model config file')
     parser.add_argument(
-        '-d', '--detector_pretrained_model_file', default=r'F:\CAIL\CAIL2020\cocr\model\db_ResNet50_vd_icdar2015withconfig.pth',
+        '-d', '--detector_pretrained_model_file', default=r'F:\CAIL\CAIL2020\cocr\model\DBNet\checkpoint\latest.pth',
         help='model config file')
     parser.add_argument(
         '-r', '--recognizer_pretrained_model_file', default=r'F:\CAIL\CAIL2020\cocr\model\CRNN\checkpoint\best.pth',

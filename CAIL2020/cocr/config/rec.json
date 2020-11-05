@@ -12,7 +12,7 @@
       "head"
     ],
     "print_interval": 10,
-    "val_interval": 50,
+    "val_interval": 100,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },
@@ -55,12 +55,12 @@
         "input_h": 32,
         "mean": 0.5,
         "std": 0.5,
-        "augmentation": False
+        "augmentation": "False"
       },
       "loader": {
         "type": "DataLoader",
         "batch_size": 16,
-        "shuffle": True,
+        "shuffle": "True",
         "num_workers": 1,
         "collate_fn": {
           "type": "RecCollateFn",
@@ -75,12 +75,12 @@
         "input_h": 32,
         "mean": 0.5,
         "std": 0.5,
-        "augmentation": False
+        "augmentation": "False"
       },
       "loader": {
         "type": "RecDataLoader",
         "batch_size": 4,
-        "shuffle": False,
+        "shuffle": "False",
         "num_workers": 1,
         "collate_fn": {
           "type": "RecCollateFn",

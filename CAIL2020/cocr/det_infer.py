@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=str, default='config/det.json',
                         help='train config file path')
     parser.add_argument('-m','--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\DBNet\checkpoint\latest.pth')
-    parser.add_argument('-i','--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs\img_2.jpg')
+    parser.add_argument('-i','--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs\img_3.jpg')
     args = parser.parse_args()
 
     img = cv2.imread(args.img_path)
