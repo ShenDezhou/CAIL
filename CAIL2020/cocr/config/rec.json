@@ -1,26 +1,26 @@
 {
   "exp_name": "CRNN",
   "train_options": {
-    "resume_from": "",
+    "resume_from": "model/recgon-model.bin",
     "third_party_name": "",
     "checkpoint_save_dir": "./model/CRNN/checkpoint",
     "device": "cuda:0",
-    "epochs": 1,
+    "epochs": 50,
     "fine_tune_stage": [
       "backbone",
       "neck",
       "head"
     ],
     "print_interval": 10,
-    "val_interval": 100,
+    "val_interval": 256,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },
   "SEED": 927,
   "optimizer": {
     "type": "Adam",
-    "lr": 0.001,
-    "weight_decay": 0.0001
+    "lr": 1e-1,
+    "weight_decay": 0
   },
   "lr_scheduler": {
     "type": "StepLR",
@@ -38,7 +38,7 @@
     },
     "head": {
       "type": "CTC",
-      "n_class": 10
+      "n_class": 92
     },
     "in_channels": 3
   },
@@ -59,9 +59,9 @@
       },
       "loader": {
         "type": "DataLoader",
-        "batch_size": 16,
+        "batch_size": 96,
         "shuffle": "True",
-        "num_workers": 1,
+        "num_workers": 4,
         "collate_fn": {
           "type": "RecCollateFn",
           "img_w": 120
@@ -79,9 +79,9 @@
       },
       "loader": {
         "type": "RecDataLoader",
-        "batch_size": 4,
+        "batch_size": 10,
         "shuffle": "False",
-        "num_workers": 1,
+        "num_workers": 4,
         "collate_fn": {
           "type": "RecCollateFn",
           "img_w": 120

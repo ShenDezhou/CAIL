@@ -11,7 +11,7 @@ class RecInfer:
     def __init__(self, model_path):
         ckpt = torch.load(model_path, map_location='cpu')
         cfg = ckpt['cfg']
-        self.model = build_model(cfg['model'])
+        self.model = build_model(cfg.model)
         state_dict = {}
         for k, v in ckpt['state_dict'].items():
             state_dict[k.replace('module.', '')] = v
@@ -21,8 +21,8 @@ class RecInfer:
         self.model.to(self.device)
         self.model.eval()
 
-        self.process = RecDataProcess(cfg['dataset']['train']['dataset'])
-        self.converter = CTCLabelConverter(cfg['dataset']['alphabet'])
+        self.process = RecDataProcess(cfg.dataset.train.dataset)
+        self.converter = CTCLabelConverter(cfg.dataset.alphabet)
 
     def predict(self, img):
         # 预处理根据训练来
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # cfg = parse_args()
     parser = argparse.ArgumentParser(description='train')
     parser.add_argument('--config', type=str, default='config/rec.json', help='train config file path')
-    parser.add_argument('--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\CRNN\checkpoint\latest.pth')
-    parser.add_argument('--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\recognition\test\img_2_0.jpg')
+    parser.add_argument('--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\recgon-model.bin')
+    parser.add_argument('--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\recognition\train\img_1_0.jpg')
 
     args = parser.parse_args()
 

@@ -1,7 +1,7 @@
 {
   "exp_name": "DBNet",
   "train_options": {
-    "resume_from": "",
+    "resume_from": "model/detect-model.bin",
     "third_party_name": "",
     "checkpoint_save_dir": "model/DBNet/checkpoint",
     "device": "cuda:0",

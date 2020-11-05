@@ -71,3 +71,5 @@ PytorchOCR开源的文本识别算法列表：
 
 ## 相关仓库
 * https://github.com/WenmuZhou/OCR_DataSet
+
+中文语句中的符号（-/+*#%@）,英文字符（&<>=[]{}）。
