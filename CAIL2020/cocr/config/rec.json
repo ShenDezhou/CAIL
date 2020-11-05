@@ -1,7 +1,7 @@
 {
   "exp_name": "CRNN",
   "train_options": {
-    "resume_from": "model/recgon-model.bin",
+    "resume_from": "",
     "third_party_name": "",
     "checkpoint_save_dir": "./model/CRNN/checkpoint",
     "device": "cuda:0",
@@ -12,7 +12,7 @@
       "head"
     ],
     "print_interval": 10,
-    "val_interval": 256,
+    "val_interval": 10,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },
@@ -20,7 +20,7 @@
   "optimizer": {
     "type": "Adam",
     "lr": 1e-1,
-    "weight_decay": 0
+    "weight_decay": 0.001
   },
   "lr_scheduler": {
     "type": "StepLR",

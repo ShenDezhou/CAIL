@@ -240,7 +240,7 @@ def train(net, optimizer, loss_func, train_loader, eval_loader, to_use_device,
                 global_state['start_epoch'] = epoch
                 global_state['best_model'] = best_model
                 global_state['global_step'] = global_step
-                net_save_path = f"{train_options.checkpoint_save_dir}/latest.pth"
+                net_save_path = f"{train_options.checkpoint_save_dir}/model.bin"
                 save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
                 if train_options.checkpoint_save_dir == 'HighestAcc':
                     # val
@@ -253,17 +253,17 @@ def train(net, optimizer, loss_func, train_loader, eval_loader, to_use_device,
                         global_state['start_epoch'] = epoch
                         global_state['best_model'] = best_model
                         global_state['global_step'] = global_step
-                        net_save_path = f"{train_options.checkpoint_save_dir}/best.pth"
+                        net_save_path = f"{train_options.checkpoint_save_dir}/best-model.bin"
                         save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
                 elif train_options.checkpoint_save_dir == 'FixedEpochStep' and epoch % train_options.ckpt_save_epoch == 0:
-                    shutil.copy(net_save_path, net_save_path.replace('latest.pth', f'{epoch}.pth'))
+                    shutil.copy(net_save_path, net_save_path.replace('model.bin', f'model-{epoch}.bin'))
                 best_str = 'current best, '
                 for k, v in best_model.items():
                     best_str += '{}: {}, '.format(k, v)
                 logger.info(best_str)
     except KeyboardInterrupt:
         import os
-        save_checkpoint(os.path.join(train_options.checkpoint_save_dir, 'final.pth'), net, optimizer, logger, cfg, global_state=global_state)
+        save_checkpoint(os.path.join(train_options.checkpoint_save_dir, 'final-model.bin'), net, optimizer, logger, cfg, global_state=global_state)
     except:
         error_msg = traceback.format_exc()
         logger.error(error_msg)

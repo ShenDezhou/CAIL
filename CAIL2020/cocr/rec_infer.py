@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # cfg = parse_args()
     parser = argparse.ArgumentParser(description='train')
     parser.add_argument('--config', type=str, default='config/rec.json', help='train config file path')
-    parser.add_argument('--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\recgon-model.bin')
-    parser.add_argument('--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\recognition\train\img_1_0.jpg')
+    parser.add_argument('--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\CRNN\checkpoint\latest.pth')
+    parser.add_argument('--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\recognition\train\img_11_1.jpg')
 
     args = parser.parse_args()
 

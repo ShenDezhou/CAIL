@@ -249,7 +249,7 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
                     global_state['start_epoch'] = epoch
                     global_state['best_model'] = best_model
                     global_state['global_step'] = global_step
-                    net_save_path = f"{train_options.checkpoint_save_dir}/latest.pth"
+                    net_save_path = f"{train_options.checkpoint_save_dir}/model.bin"
                     save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
                     if train_options.ckpt_save_type == 'HighestAcc':
                         # val
@@ -262,10 +262,10 @@ def train(net, optimizer, scheduler, loss_func, train_loader, eval_loader, to_us
                             global_state['start_epoch'] = epoch
                             global_state['best_model'] = best_model
                             global_state['global_step'] = global_step
-                            net_save_path = f"{train_options.checkpoint_save_dir}/best.pth"
+                            net_save_path = f"{train_options.checkpoint_save_dir}/best.bin"
                             save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
                     elif train_options.ckpt_save_type == 'FixedEpochStep' and epoch % train_options.ckpt_save_epoch == 0:
-                        shutil.copy(net_save_path, net_save_path.replace('latest.pth', f'{epoch}.pth'))
+                        shutil.copy(net_save_path, net_save_path.replace('model.bin', f'model-{epoch}.bin'))
                 global_step += 1
             scheduler.step()
     except KeyboardInterrupt:
