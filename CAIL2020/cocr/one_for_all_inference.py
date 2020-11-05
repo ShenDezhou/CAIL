@@ -8,7 +8,6 @@ from functools import reduce
 
 __dir__ = pathlib.Path(os.path.abspath(__file__))
 
-from importlib import import_module
 from itertools import chain
 
 sys.path.append(str(__dir__))
@@ -33,8 +32,7 @@ from torchocr.networks import build_model
 from torchocr.datasets.RecDataSet import RecDataProcess
 from torchocr.utils import CTCLabelConverter
 
-default_font_for_annotate = ImageFont.truetype(r'doc\田氏颜体大字库2.0.ttf', 20)
-
+# default_font_for_annotate = ImageFont.truetype('doc/田氏颜体大字库2.0.ttf', 20)
 
 def get_data(_to_eval_directory, _to_eval_file, _transform):
     """
@@ -404,7 +402,7 @@ class RecInfer:
 
 def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pretrained_model_file):
     # 配置参数
-    device_name = 'cuda:0'
+    device_name = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     # eval_dataset_directory = r'F:\CAIL\CAIL2020\cocr\data\dmtxxsb'
     eval_file = None
     target_size = (1024, 1024)
@@ -455,36 +453,12 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
     # recognizer_pretrained_model_file =
     annotate_on_image = True
     need_rectify_on_single_character = True
-    labels = ''.join([f'{i}' for i in range(10)] + [chr(97 + i) for i in range(26)])
+
+    # labels = ''.join([f'{i}' for i in range(10)] + [chr(97 + i) for i in range(26)])
     # 模型推断
-    label_converter = CTCLabelConverter(labels)
+    # label_converter = CTCLabelConverter(labels)
     device = torch.device(device_name)
 
-
-    def parse_det_args():
-        import argparse
-        parser = argparse.ArgumentParser(description='train')
-        parser.add_argument('--config', type=str, default='config/det_train_db_config.py',
-                            help='train config file path')
-        args = parser.parse_args()
-        # 解析.py文件
-        config_path = os.path.abspath(os.path.expanduser(args.config))
-        assert os.path.isfile(config_path)
-        if config_path.endswith('.py'):
-            module_name = os.path.basename(config_path)[:-3]
-            config_dir = os.path.dirname(config_path)
-            sys.path.insert(0, config_dir)
-            mod = import_module(module_name)
-            sys.path.pop(0)
-            return mod.config
-            # cfg_dict = {
-            #     name: value
-            #     for name, value in mod.__dict__.items()
-            #     if not name.startswith('__')
-            # }
-            # return cfg_dict
-        else:
-            raise IOError('Only py type are supported now!')
 
 
     # detector_config = parse_det_args()
@@ -492,29 +466,6 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
     # detector.load_state_dict(torch.load(detector_pretrained_model_file, map_location='cpu'))
     detector = DetInfer(detector_pretrained_model_file)
 
-    def parse_rec_args():
-        import argparse
-        parser = argparse.ArgumentParser(description='train')
-        parser.add_argument('--config', type=str, default='config/rec_train_config.py', help='train config file path')
-        args = parser.parse_args()
-        # 解析.py文件
-        config_path = os.path.abspath(os.path.expanduser(args.config))
-        assert os.path.isfile(config_path)
-        if config_path.endswith('.py'):
-            module_name = os.path.basename(config_path)[:-3]
-            config_dir = os.path.dirname(config_path)
-            sys.path.insert(0, config_dir)
-            mod = import_module(module_name)
-            sys.path.pop(0)
-            return mod.config
-            # cfg_dict = {
-            #     name: value
-            #     for name, value in mod.__dict__.items()
-            #     if not name.startswith('__')
-            # }
-            # return cfg_dict
-        else:
-            raise IOError('Only py type are supported now!')
 
     # recognizer_config = parse_rec_args()
     # recognizer = RecModel(recognizer_config).to(device)
