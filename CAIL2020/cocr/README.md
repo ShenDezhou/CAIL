@@ -73,3 +73,6 @@ PytorchOCR开源的文本识别算法列表：
 * https://github.com/WenmuZhou/OCR_DataSet
 
 中文语句中的符号（-/+*#%@）,英文字符（&<>=[]{}）。
+
+账号：comp_2416
+密码：YAd0BOFsDW6wFU07 和 WllPeMX8WojBxkgl

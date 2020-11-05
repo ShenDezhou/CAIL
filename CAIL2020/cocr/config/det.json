@@ -1,9 +1,9 @@
 {
   "exp_name": "DBNet",
   "train_options": {
-    "resume_from": "model/detect-model.bin",
+    "resume_from": "",
     "third_party_name": "",
-    "checkpoint_save_dir": "model/DBNet/checkpoint",
+    "checkpoint_save_dir": "model/DBNet/",
     "device": "cuda:0",
     "epochs": 100,
     "fine_tune_stage": [
@@ -14,7 +14,7 @@
     "print_interval": 1,
     "val_interval": 10,
     "ckpt_save_type": "HighestAcc",
-    "ckpt_save_epoch": 10
+    "ckpt_save_epoch": 1
   },
   "SEED": 927,
   "optimizer": {
@@ -53,7 +53,7 @@
     "train": {
       "dataset": {
         "type": "JsonDataset",
-        "file": "data\\icdar2015\\detection\\train.json",
+        "file": "data/detection/train.json",
         "mean": [
           0.485,
           0.456,
@@ -148,7 +148,7 @@
     "eval": {
       "dataset": {
         "type": "JsonDataset",
-        "file": "data\\icdar2015\\detection\\test.json",
+        "file": "data/detection/test.json",
         "mean": [
           0.485,
           0.456,
