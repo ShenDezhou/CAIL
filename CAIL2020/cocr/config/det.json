@@ -1,0 +1,189 @@
+{
+  "exp_name": "DBNet",
+  "train_options": {
+    "resume_from": "",
+    "third_party_name": "",
+    "checkpoint_save_dir": "model/DBNet/checkpoint",
+    "device": "cuda:0",
+    "epochs": 100,
+    "fine_tune_stage": [
+      "backbone",
+      "neck",
+      "head"
+    ],
+    "print_interval": 1,
+    "val_interval": 10,
+    "ckpt_save_type": "HighestAcc",
+    "ckpt_save_epoch": 10
+  },
+  "SEED": 927,
+  "optimizer": {
+    "type": "Adam",
+    "lr": 1e-4,
+    "weight_decay": 0
+  },
+  "model": {
+    "type": "DetModel",
+    "backbone": {
+      "type": "ResNet",
+      "layers": 18,
+      "pretrained": "True"
+    },
+    "neck": {
+      "type": "FPN",
+      "out_channels": 256
+    },
+    "head": {
+      "type": "DBHead"
+    },
+    "in_channels": 3
+  },
+  "loss": {
+    "type": "DBLoss",
+    "alpha": 1,
+    "beta": 10
+  },
+  "post_process": {
+    "type": "DBPostProcess",
+    "thresh": 0.3,
+    "box_thresh": 0.7,
+    "unclip_ratio": 1.5
+  },
+  "dataset": {
+    "train": {
+      "dataset": {
+        "type": "JsonDataset",
+        "file": "data\\icdar2015\\detection\\train.json",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "pre_processes": [
+          {
+            "type": "IaaAugment",
+            "args": [
+              {
+                "type": "Fliplr",
+                "args": {
+                  "p": 0.5
+                }
+              },
+              {
+                "type": "Affine",
+                "args": {
+                  "rotate": [
+                    -10,
+                    10
+                  ]
+                }
+              },
+              {
+                "type": "Resize",
+                "args": {
+                  "size": [
+                    0.5,
+                    3
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "EastRandomCropData",
+            "args": {
+              "size": [
+                640,
+                640
+              ],
+              "max_tries": 50,
+              "keep_ratio": "True"
+            }
+          },
+          {
+            "type": "MakeBorderMap",
+            "args": {
+              "shrink_ratio": 0.4,
+              "thresh_min": 0.3,
+              "thresh_max": 0.7
+            }
+          },
+          {
+            "type": "MakeShrinkMap",
+            "args": {
+              "shrink_ratio": 0.4,
+              "min_text_size": 8
+            }
+          }
+        ],
+        "filter_keys": [
+          "img_path",
+          "img_name",
+          "text_polys",
+          "texts",
+          "ignore_tags",
+          "shape"
+        ],
+        "ignore_tags": [
+          "*",
+          "###"
+        ],
+        "img_mode": "RGB"
+      },
+      "loader": {
+        "type": "DataLoader",
+        "batch_size": 12,
+        "shuffle": "True",
+        "num_workers": 4,
+        "collate_fn": {
+          "type": ""
+        }
+      }
+    },
+    "eval": {
+      "dataset": {
+        "type": "JsonDataset",
+        "file": "data\\icdar2015\\detection\\test.json",
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ],
+        "pre_processes": [
+          {
+            "type": "ResizeShortSize",
+            "args": {
+              "short_size": 736,
+              "resize_text_polys": "False"
+            }
+          }
+        ],
+        "filter_keys": [],
+        "ignore_tags": [
+          "*",
+          "###"
+        ],
+        "img_mode": "RGB"
+      },
+      "loader": {
+        "type": "DataLoader",
+        "batch_size": 8,
+        "shuffle": "False",
+        "num_workers": 4,
+        "collate_fn": {
+          "type": "DetCollectFN"
+        }
+      }
+    }
+  }
+}
