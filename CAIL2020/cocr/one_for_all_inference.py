@@ -376,7 +376,7 @@ class RecInfer:
     def __init__(self, model_path):
         ckpt = torch.load(model_path, map_location='cpu')
         cfg = ckpt['cfg']
-        self.model = build_model(cfg['model'])
+        self.model = build_model(cfg.model)
         state_dict = {}
         for k, v in ckpt['state_dict'].items():
             state_dict[k.replace('module.', '')] = v
@@ -386,8 +386,8 @@ class RecInfer:
         self.model.to(self.device)
         self.model.eval()
 
-        self.process = RecDataProcess(cfg['dataset']['train']['dataset'])
-        self.converter = CTCLabelConverter(cfg['dataset']['alphabet'])
+        self.process = RecDataProcess(cfg.dataset.train.dataset)
+        self.converter = CTCLabelConverter(cfg.dataset.alphabet)
 
     def predict(self, img):
         # 预处理根据训练来
@@ -405,7 +405,7 @@ class RecInfer:
 def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pretrained_model_file):
     # 配置参数
     device_name = 'cuda:0'
-    eval_dataset_directory = r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs'
+    # eval_dataset_directory = r'F:\CAIL\CAIL2020\cocr\data\dmtxxsb'
     eval_file = None
     target_size = (1024, 1024)
     eval_stds = [0.229, 0.224, 0.225]
@@ -523,9 +523,7 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
     # detector.eval()
     # recognizer.eval()
     with torch.no_grad():
-        for m_path, m_pil_img, m_eval_tensor in tqdm(
-                get_data(eval_dataset_directory, eval_file, eval_detect_transformer)
-        ):
+        for m_path, m_pil_img, m_eval_tensor in get_data(eval_dataset_directory, eval_file, eval_detect_transformer):
             m_eval_tensor = m_eval_tensor.to(device)
             # 获得检测需要的相关信息
             img = cv2.imread(m_path)
@@ -545,7 +543,7 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
                 rect_result.append(mp)
                 mt = refined_recognized_result[0][0]
                 m_recognized_results.append(mt)
-                print(mp, mt)
+                # print(mp, mt)
                 count += 1
 
             # m_final_polygons, m_final_text = related_polygon_assembly(m_polygons, m_recognized_results)
@@ -556,16 +554,20 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
                 m_base_name, m_ext = os.path.splitext(m_path)
                 filename = os.path.basename(m_path)
                 # annotated_img.save(f'{m_base_name}_result{m_ext}')
-                with open(f'result.csv', mode='a+', encoding='utf-8') as to_write:
+                with open(f'data/result.csv', mode='a+', encoding='utf-8') as to_write:
                     # to_write.write('index,text\n')
                     if zipped:
+                        line = ""
                         to_write.write(f'{filename}')
+                        line += filename
                         for m_index, m_text in enumerate(zipped):
                             rects, texts = m_text
                             rects = [str(s) for s in rects]
                             str_rects = ",".join(rects)
                             to_write.write(f'\t({str_rects})\t{texts}')
+                            line += f'\t({str_rects})\t{texts}'
                         to_write.write('\n')
+                        print(line)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -573,10 +575,10 @@ if __name__ == '__main__':
         '-e', '--eval_dataset_directory', default='config/bert_config.json',
         help='model config file')
     parser.add_argument(
-        '-d', '--detector_pretrained_model_file', default=r'F:\CAIL\CAIL2020\cocr\model\DBNet\checkpoint\latest.pth',
+        '-d', '--detector_pretrained_model_file', default=r'model/det-model.bin',
         help='model config file')
     parser.add_argument(
-        '-r', '--recognizer_pretrained_model_file', default=r'F:\CAIL\CAIL2020\cocr\model\CRNN\checkpoint\best.pth',
+        '-r', '--recognizer_pretrained_model_file', default=r'model/rec-model.bin',
         help='model config file')
 
 
