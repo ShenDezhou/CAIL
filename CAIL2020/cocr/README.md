@@ -76,3 +76,5 @@ PytorchOCR开源的文本识别算法列表：
 
 账号：comp_2416
 密码：YAd0BOFsDW6wFU07 和 WllPeMX8WojBxkgl
+
+yum install docker-ce-19.03.13 docker-ce-cli-19.03.13 containerd.io

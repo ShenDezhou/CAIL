@@ -1,0 +1,7 @@
+{
+  "registry-mirrors": [
+    "https://ay50ucm9.mirror.aliyuncs.com"
+  ],
+  "bip":"10.255.255.1/24",
+  "dns": ["223.5.5.5"]
+}
