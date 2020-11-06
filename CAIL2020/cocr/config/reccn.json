@@ -1,0 +1,92 @@
+{
+  "exp_name": "CRNN4",
+  "train_options": {
+    "resume_from": "",
+    "third_party_name": "",
+    "checkpoint_save_dir": "model/CRNN4/",
+    "device": "cuda:0",
+    "epochs": 100,
+    "fine_tune_stage": [
+      "backbone",
+      "neck",
+      "head"
+    ],
+    "print_interval": 1,
+    "val_interval": 1000,
+    "ckpt_save_type": "HighestAcc",
+    "ckpt_save_epoch": 1
+  },
+  "SEED": 927,
+  "optimizer": {
+    "type": "Adam",
+    "lr": 1e-4,
+    "weight_decay": 0
+  },
+  "lr_scheduler": {
+    "type": "StepLR",
+    "step_size": 60,
+    "gamma": 0.5
+  },
+  "model": {
+    "type": "RecModel",
+    "backbone": {
+      "type": "ResNet",
+      "layers": 18
+    },
+    "neck": {
+      "type": "RNN"
+    },
+    "head": {
+      "type": "CTC",
+      "n_class": 4049
+    },
+    "in_channels": 3
+  },
+  "loss": {
+    "type": "CTCLoss",
+    "blank_idx": 0
+  },
+  "dataset": {
+    "alphabet": "torchocr/datasets/alphabets/chinese4049.txt",
+    "train": {
+      "dataset": {
+        "type": "RecTextLineDataset",
+        "file": "data/baidu2019/train.txt",
+        "input_h": 32,
+        "mean": 0.5,
+        "std": 0.5,
+        "augmentation": "False"
+      },
+      "loader": {
+        "type": "DataLoader",
+        "batch_size": 32,
+        "shuffle": "True",
+        "num_workers": 4,
+        "collate_fn": {
+          "type": "RecCollateFn",
+          "img_w": 120
+        }
+      }
+    },
+    "eval": {
+      "dataset": {
+        "type": "RecTextLineDataset",
+        "file": "data/baidu2019/test.txt",
+        "input_h": 32,
+        "mean": 0.5,
+        "std": 0.5,
+        "augmentation": "False"
+      },
+      "loader": {
+        "type": "RecDataLoader",
+        "batch_size": 4,
+        "shuffle": "False",
+        "num_workers": 4,
+        "collate_fn": {
+          "type": "RecCollateFn",
+          "img_w": 120
+        }
+      }
+    }
+  }
+}

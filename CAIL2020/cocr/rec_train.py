@@ -283,7 +283,7 @@ def main():
     # ===> 获取配置文件参数
     # cfg = parse_args()
     parser = argparse.ArgumentParser(description='train')
-    parser.add_argument('--config', type=str, default='config/rec.json', help='train config file path')
+    parser.add_argument('--config', type=str, default='config/reccn.json', help='train config file path')
     args = parser.parse_args()
     with open(args.config) as fin:
         cfg = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
