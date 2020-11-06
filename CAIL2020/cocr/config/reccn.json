@@ -51,7 +51,7 @@
     "train": {
       "dataset": {
         "type": "RecTextLineDataset",
-        "file": "data/baidu2019/train.txt",
+        "file": "data/recognitioncn/train.txt",
         "input_h": 32,
         "mean": 0.5,
         "std": 0.5,
@@ -59,7 +59,7 @@
       },
       "loader": {
         "type": "DataLoader",
-        "batch_size": 32,
+        "batch_size": 64,
         "shuffle": "True",
         "num_workers": 4,
         "collate_fn": {
@@ -71,7 +71,7 @@
     "eval": {
       "dataset": {
         "type": "RecTextLineDataset",
-        "file": "data/baidu2019/test.txt",
+        "file": "data/recognitioncn/test.txt",
         "input_h": 32,
         "mean": 0.5,
         "std": 0.5,

@@ -10,7 +10,7 @@ RUN ln -s /usr/bin/python3.6 /usr/bin/python
 RUN apt-get install python3-pip -y
 RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install -r requirements.txt -i https://pypi.douban.com/simple --trusted-host pypi.douban.com
-RUN pip install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip install torch==1.5.1+cu101 torchvision==0.6.1+cu101 -i https://pypi.douban.com/simple
 
 
 
