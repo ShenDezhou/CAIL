@@ -15,7 +15,6 @@ sys.path.append(str(__dir__.parent.parent))
 
 import torch
 from PIL import Image, ImageDraw, ImageFont
-from tqdm import tqdm
 from torchvision import transforms
 import cv2
 import numpy as np
@@ -400,6 +399,17 @@ class RecInfer:
         return txt
 
 
+def resize(img, scale_percent = 60):
+    scale_percent = 60  # percent of original size
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    # resize image
+    resized = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+    return resized
+
+
+
 def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pretrained_model_file):
     # 配置参数
     device_name = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -478,6 +488,10 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
             m_eval_tensor = m_eval_tensor.to(device)
             # 获得检测需要的相关信息
             img = cv2.imread(m_path)
+            # avoid OOM in GPU
+            if img.shape[0] > 1500:
+                img = resize(img, img.shape[0] * 100. / 1024)
+
             m_pil_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             m_detect_result, score_list = detector.predict(m_pil_img)
             # 根据网络类型，处理检测的相关信息，最后转换为一堆多边形

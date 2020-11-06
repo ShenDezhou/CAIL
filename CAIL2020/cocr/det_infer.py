@@ -62,21 +62,33 @@ def init_args():
     args = parser.parse_args()
     return args
 
+def resize(img, scale_percent = 60):
+    scale_percent = 60  # percent of original size
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    # resize image
+    resized = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+    return resized
+
 
 if __name__ == '__main__':
     # ===> 获取配置文件参数
     parser = argparse.ArgumentParser(description='train')
     parser.add_argument('--config', type=str, default='config/det.json',
                         help='train config file path')
-    parser.add_argument('-m','--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\DBNet\checkpoint\latest.pth')
-    parser.add_argument('-i','--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs\img_3.jpg')
+    parser.add_argument('-m','--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\det-model.bin')
+    parser.add_argument('-i','--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs\img_500.jpg')
     args = parser.parse_args()
 
-    img = cv2.imread(args.img_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    model = DetInfer(args.model_path)
-    box_list, score_list = model.predict(img, is_output_polygon=True)
-    img = draw_ocr_box_txt(img, box_list)
-    img = draw_bbox(img, box_list)
-    plt.imshow(img)
-    plt.show()
+    for i in range(31,41):
+        img = cv2.imread(r'F:\CAIL\CAIL2020\cocr\data\xxsb\img_%d.jpg' % i)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if img.shape[0] > 1500:
+            img = resize(img, img.shape[0]*100./1024)
+        model = DetInfer(args.model_path)
+        box_list, score_list = model.predict(img, is_output_polygon=True)
+        img = draw_ocr_box_txt(img, box_list)
+        img = draw_bbox(img, box_list)
+        plt.imshow(img)
+        plt.show()
