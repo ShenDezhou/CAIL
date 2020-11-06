@@ -12,8 +12,5 @@ RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN pip install -r requirements.txt -i https://pypi.douban.com/simple --trusted-host pypi.douban.com
 RUN pip install torch==1.5.1 torchvision==0.6.1 -i https://pypi.douban.com/simple
 
-
-
-
 # Run when the container launches
 CMD ["python", "one_for_all_inference.py"]

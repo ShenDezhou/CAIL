@@ -537,7 +537,7 @@ def main(eval_dataset_directory, detector_pretrained_model_file, recognizer_pret
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-e', '--eval_dataset_directory', default='config/bert_config.json',
+        '-e', '--eval_dataset_directory', default='xxsb/',
         help='model config file')
     parser.add_argument(
         '-d', '--detector_pretrained_model_file', default=r'model/det-model.bin',

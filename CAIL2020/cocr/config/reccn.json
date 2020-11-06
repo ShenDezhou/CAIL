@@ -59,7 +59,7 @@
       },
       "loader": {
         "type": "DataLoader",
-        "batch_size": 64,
+        "batch_size": 32,
         "shuffle": "True",
         "num_workers": 4,
         "collate_fn": {

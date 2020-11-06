@@ -83,3 +83,5 @@ yum install docker-ce-19.03.13 docker-ce-cli-19.03.13 containerd.io
 #停删镜像
 docker stop $(docker ps -a -q)
 docker rm -vf $(docker ps -a -q)
+
+docker run --rm -v /pos_a:/daas/data pytorch:1.0 python one_for_all_inference.py -e data/
