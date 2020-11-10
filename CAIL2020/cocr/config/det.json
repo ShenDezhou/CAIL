@@ -11,15 +11,15 @@
       "neck",
       "head"
     ],
-    "print_interval": 1,
-    "val_interval": 10,
+    "print_interval": 10,
+    "val_interval": 1,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },
   "SEED": 927,
   "optimizer": {
     "type": "Adam",
-    "lr": 1e-4,
+    "lr": 1e-3,
     "weight_decay": 0
   },
   "model": {

@@ -242,9 +242,10 @@ def train(net, optimizer, loss_func, train_loader, eval_loader, to_use_device,
                 global_state['global_step'] = global_step
                 net_save_path = f"{train_options.checkpoint_save_dir}/model.bin"
                 save_checkpoint(net_save_path, net, optimizer, logger, cfg, global_state=global_state)
-                if train_options.checkpoint_save_dir == 'HighestAcc':
+                if train_options.ckpt_save_type == 'HighestAcc':
                     # val
                     eval_dict = evaluate(net, eval_loader, to_use_device, logger, post_process, metric)
+                    logger.info(eval_dict)
                     if eval_dict['hmean'] > best_model['hmean']:
                         best_model.update(eval_dict)
                         best_model['best_model_epoch'] = epoch

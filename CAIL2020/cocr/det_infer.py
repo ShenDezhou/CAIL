@@ -81,8 +81,8 @@ if __name__ == '__main__':
     parser.add_argument('-i','--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs\img_500.jpg')
     args = parser.parse_args()
 
-    for i in range(31,41):
-        img = cv2.imread(r'F:\CAIL\CAIL2020\cocr\data\xxsb\img_%d.jpg' % i)
+    for i in range(1,11):
+        img = cv2.imread(r'F:\CAIL\CAIL2020\cocr\data\icdar2015\detection\test\imgs\img_%d.jpg' % i)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if img.shape[0] > 1500:
             img = resize(img, img.shape[0]*100./1024)
