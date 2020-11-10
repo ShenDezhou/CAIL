@@ -31,7 +31,8 @@
     "type": "RecModel",
     "backbone": {
       "type": "ResNet",
-      "layers": 18
+      "layers": 18,
+      "bert_model_path": "../roberta3_ext"
     },
     "neck": {
       "type": "RNN"
@@ -51,7 +52,7 @@
     "train": {
       "dataset": {
         "type": "RecTextLineDataset",
-        "file": "data/recognitioncn/train.txt",
+        "file": "data/baidu2019/train.txt",
         "input_h": 32,
         "mean": 0.5,
         "std": 0.5,
@@ -71,7 +72,7 @@
     "eval": {
       "dataset": {
         "type": "RecTextLineDataset",
-        "file": "data/recognitioncn/test.txt",
+        "file": "data/baidu2019/test.txt",
         "input_h": 32,
         "mean": 0.5,
         "std": 0.5,

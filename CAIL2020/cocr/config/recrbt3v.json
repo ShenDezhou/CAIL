@@ -1,9 +1,9 @@
 {
-  "exp_name": "CRNN4",
+  "exp_name": "CBRNN4",
   "train_options": {
     "resume_from": "",
     "third_party_name": "",
-    "checkpoint_save_dir": "model/CRNN4/",
+    "checkpoint_save_dir": "model/CBRNN4/",
     "device": "cuda:0",
     "epochs": 100,
     "fine_tune_stage": [
@@ -11,8 +11,8 @@
       "neck",
       "head"
     ],
-    "print_interval": 100,
-    "val_interval": 1000,
+    "print_interval": 1000,
+    "val_interval": 10000,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },
@@ -31,7 +31,8 @@
     "type": "RecModel",
     "backbone": {
       "type": "ResNet",
-      "layers": 18
+      "layers": 18,
+      "bert_model_path": "../roberta3_ext"
     },
     "neck": {
       "type": "RNN"

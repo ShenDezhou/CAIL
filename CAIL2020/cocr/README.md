@@ -81,7 +81,11 @@ yum install docker-ce-19.03.13 docker-ce-cli-19.03.13 containerd.io
 
 
 #停删镜像
-docker stop $(docker ps -a -q)
-docker rm -vf $(docker ps -a -q)
+docker stop $(docker ps -aq)
+docker rm -vf $(docker ps -aq)
 
 docker run --rm -v /pos_a:/daas/data pytorch:1.0 python one_for_all_inference.py -e data/
+
+
+docker pull pytorch/pytorch:1.5.1-cuda10.1-cudnn7-devel
+docker commit [OPTIONS]  CONTAINER(容器名或容器ID)  [REPOSITORY[:TAG]](镜像名或镜像ID)
