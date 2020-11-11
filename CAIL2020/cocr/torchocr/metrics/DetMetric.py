@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 from torchocr.metrics.iou_utils import DetectionIoUEvaluator
 
@@ -51,11 +52,12 @@ class DetMetric():
             else:
                 pred = []
                 # print(pred_polygons.shape)
-                for i in range(pred_polygons.shape[0]):
-                    if pred_scores[i] >= box_thresh:
-                        # print(pred_polygons[i,:,:].tolist())
-                        pred.append(dict(points=pred_polygons[i, :, :].astype(np.int)))
-                # pred = [dict(points=pred_polygons[i,:,:].tolist()) if pred_scores[i] >= box_thresh for i in range(pred_polygons.shape[0])]
+                if isinstance(pred_polygons_batch, torch.Tensor):
+                    for i in range(pred_polygons.shape[0]):
+                        if pred_scores[i] >= box_thresh:
+                            # print(pred_polygons[i,:,:].tolist())
+                            pred.append(dict(points=pred_polygons[i, :, :].astype(np.int)))
+                    # pred = [dict(points=pred_polygons[i,:,:].tolist()) if pred_scores[i] >= box_thresh for i in range(pred_polygons.shape[0])]
             results.append(self.evaluator.evaluate_image(gt, pred))
         return results
 

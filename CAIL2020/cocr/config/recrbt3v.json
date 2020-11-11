@@ -12,7 +12,7 @@
       "head"
     ],
     "print_interval": 1000,
-    "val_interval": 10000,
+    "val_interval": 4000,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },

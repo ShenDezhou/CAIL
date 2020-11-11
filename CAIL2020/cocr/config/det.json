@@ -5,21 +5,21 @@
     "third_party_name": "",
     "checkpoint_save_dir": "model/DBNet/",
     "device": "cuda:0",
-    "epochs": 100,
+    "epochs": 1000,
     "fine_tune_stage": [
       "backbone",
       "neck",
       "head"
     ],
-    "print_interval": 10,
-    "val_interval": 1,
+    "print_interval": 50,
+    "val_interval": 25,
     "ckpt_save_type": "HighestAcc",
     "ckpt_save_epoch": 1
   },
   "SEED": 927,
   "optimizer": {
     "type": "Adam",
-    "lr": 1e-3,
+    "lr": 1e-4,
     "weight_decay": 0
   },
   "model": {
