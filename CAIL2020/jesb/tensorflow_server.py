@@ -113,7 +113,7 @@ def strQ2B(ustring):
 
 def augment(word, line):
     line = strQ2B(line)
-    augdigit = re.compile("([0-9]*"+word+")")
+    augdigit = re.compile("([0-9]*"+word+"[0-9]*)")
     augword = augdigit.search(line)
     #找到了多个匹配，不修改
     if augword and len(augword.groups()) == 1:
@@ -186,7 +186,7 @@ class TorchResource:
                     if len(entities) != 0:
                         for entity in entities:
                             #是数字金额需要增强逻辑
-                            if digit_regex.match(entity['word']) and len(entity['word']) >= 5:
+                            if digit_regex.match(entity['word']) and len(entity['word']) >= 1:
                                 aug_word = augment(entity['word'], line)
                                 list_amounts.append(aug_word)
                             else:
