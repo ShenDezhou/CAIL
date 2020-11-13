@@ -96,7 +96,7 @@ def decode(logits, lengths, matrix):
         return paths
 
 #digit regex[0-9]
-digit_regex = re.compile("[0-9,]+")
+digit_regex = re.compile("[0-9,，]+")
 
 def strQ2B(ustring):
     """全角转半角"""
@@ -111,8 +111,9 @@ def strQ2B(ustring):
         rstring += unichr(inside_code)
     return rstring
 
+#模型提取数字不正确，前后补数字
 def augment(word, line):
-    line = strQ2B(line)
+    #line = strQ2B(line)
     augdigit = re.compile("([0-9]*"+word+"[0-9]*)")
     augword = augdigit.search(line)
     #找到了多个匹配，不修改
