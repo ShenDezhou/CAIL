@@ -20,7 +20,7 @@ from dataclean import cleanall, shortenlines
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
 logger = logging.getLogger()
 cors_allow_all = CORS(allow_all_origins=True,
-                      allow_origins_list=['http://localhost:8081'],
+                      allow_origins_list=['*'],
                       allow_all_headers=True,
                       allow_all_methods=True,
                       allow_credentials_all_origins=True
@@ -28,7 +28,10 @@ cors_allow_all = CORS(allow_all_origins=True,
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '-c', '--config_file', default='config/bert_config.json',
+    '-p', '--port', default=58080,
+    help='falcon server port')
+parser.add_argument(
+    '-c', '--config_file', default='config/bert_config_l.json',
     help='model config file')
 args = parser.parse_args()
 model_config=args.config_file
@@ -47,7 +50,7 @@ class TorchResource:
         with open(model_config) as fin:
             self.config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
         if torch.cuda.is_available():
-            self.device = torch.device('gpu')
+            self.device = torch.device('cuda:0')
         else:
             self.device = torch.device('cpu')
         # 1. Load data
@@ -79,7 +82,7 @@ class TorchResource:
 
     def on_get(self, req, resp):
         logger.info("...")
-        resp.set_header('Access-Control-Allow-Origin', 'http://localhost:8081')
+        resp.set_header('Access-Control-Allow-Origin', '*')
         resp.set_header('Access-Control-Allow-Methods', '*')
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials','true')
@@ -93,19 +96,19 @@ class TorchResource:
 
     def on_post(self, req, resp):
         """Handles POST requests"""
-        resp.set_header('Access-Control-Allow-Origin', 'http://localhost:8081')
+        resp.set_header('Access-Control-Allow-Origin', '*')
         resp.set_header('Access-Control-Allow-Methods', '*')
         resp.set_header('Access-Control-Allow-Headers', '*')
         resp.set_header('Access-Control-Allow-Credentials', 'true')
         resp.set_header("Cache-Control", "no-cache")
         data = req.stream.read(req.content_length)
         jsondata = json.loads(data)
-        clean_title = shortenlines(jsondata.title)
-        clean_content = cleanall(jsondata.content)
+        clean_title = shortenlines(jsondata['title'])
+        clean_content = cleanall(jsondata['content'])
         resp.media = self.bert_classification(clean_title, clean_content)
 
 if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
     api.req_options.auto_parse_form_urlencoded = True
     api.add_route('/z', TorchResource())
-    waitress.serve(api, port=58080, threads=48, url_scheme='http')
+    waitress.serve(api, port=args.port, threads=48, url_scheme='http')

@@ -16,3 +16,7 @@
 #BERT ACC:71.89%
 #BERT LARGE:75.16%
 
+# Docker large:
+`docker run -d -it -v/mnt/data/htfldocker/data:/workspace/data -v /mnt/data/wwm_large_ext:/workspace/wwm_large_ext -v /mnt/data/htfl/model/bertl:/workspace/model/bert/  --gpus all --network host contractclassification:1.0 python3 torch_server.py -p 58081`
+
+# 默认加载大模型
