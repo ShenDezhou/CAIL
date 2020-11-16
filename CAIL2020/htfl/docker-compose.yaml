@@ -1,0 +1,11 @@
+services:
+  web:
+    image: contractclassification:1.0
+    environment:
+      - gpus=all
+    network_mode: "host"
+    volumes:
+      - /mnt/data/htfldocker/data:/workspace/data
+      - /mnt/data/wwm_large_ext:/workspace/wwm_large_ext
+      - /mnt/data/htfl/model/bertl:/workspace/model/bert/
+    command: python3 torch_server.py -p 58081

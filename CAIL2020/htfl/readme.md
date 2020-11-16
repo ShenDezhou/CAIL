@@ -17,6 +17,19 @@
 #BERT LARGE:75.16%
 
 # Docker large:
+`docker build -t contractclassification:1.0 . --network host`
 `docker run -d -it -v/mnt/data/htfldocker/data:/workspace/data -v /mnt/data/wwm_large_ext:/workspace/wwm_large_ext -v /mnt/data/htfl/model/bertl:/workspace/model/bert/  --gpus all --network host contractclassification:1.0 python3 torch_server.py -p 58081`
+`docker run -d -it -v/mnt/data/htfldocker/data:/workspace/data -v /mnt/data/roberta_wwm_ext:/workspace/roberta_wwm_ext -v /mnt/data/htfl/model/bert:/workspace/model/bert/  --gpus all --network host contractclassification:1.0 python3 torch_server.py -c config/bert_config.json -p 58080`
+
+* data:日志目录
+
+* 大模型
+* wwm_large_ext: RoBERTa-large模型目录
+* model/bertl/model.bin: 合同分类模型文件
+
+* 小模型
+* roberta_wwm_ext： RoBERTa模型目录
+* model/bert/model.bin: 合同分类模型文件
 
 # 默认加载大模型
+`docker save contractclassification:1.0 > 20200601.tar`
