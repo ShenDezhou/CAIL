@@ -31,7 +31,7 @@ from torchocr.networks import build_model
 from torchocr.datasets.RecDataSet import RecDataProcess
 from torchocr.utils import CTCLabelConverter
 
-# default_font_for_annotate = ImageFont.truetype('doc/田氏颜体大字库2.0.ttf', 20)
+# default_font_for_annotate = ImageFont.truetype('doc/2.ttf', 20)
 
 def get_data(_to_eval_directory, _to_eval_file, _transform):
     """
@@ -343,7 +343,7 @@ class DetInfer:
         self.model.to(self.device)
         self.model.eval()
 
-        self.resize = ResizeShortSize(736, False)
+        self.resize = ResizeShortSize(736, False)#736, False
         self.post_proess = build_post_process(cfg.post_process)
         self.transform = transforms.Compose([
             transforms.ToTensor(),

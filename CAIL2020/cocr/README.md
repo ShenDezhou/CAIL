@@ -8,7 +8,8 @@
 yum install docker-ce-19.03.13 docker-ce-cli-19.03.13 containerd.io
 
 
-#停删镜像
+# Stop running contrainers
+
 docker stop $(docker ps -aq)
 docker rm -vf $(docker ps -aq)
 
@@ -23,9 +24,12 @@ docker run --rm -v /pos_a:/daas/data pytorch:1.0 python one_for_all_inference.py
 * some tips: `docker commit [OPTIONS]  CONTAINER(容器名或容器ID)  [REPOSITORY[:TAG]](镜像名或镜像ID)`
 
 # centos install gpu-docker tools
+
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | sudo tee /etc/yum.repos.d/nvidia-docker.repo
+
 # install nvidia-container-toolkit
+
 sudo yum install -y nvidia-container-toolkit
 sudo systemctl restart docker
 

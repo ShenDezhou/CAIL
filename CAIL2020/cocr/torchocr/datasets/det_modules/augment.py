@@ -206,8 +206,11 @@ class ResizeShortSize:
         :param size: resize尺寸,数字或者list的形式，如果为list形式，就是[w,h]
         :return:
         """
-        self.config = short_size
-        self.short_size = self.config.short_size
+        if isinstance(short_size, int):
+            self.short_size = short_size
+        else:
+            self.config = short_size
+            self.short_size = self.config.short_size
         self.resize_text_polys = resize_text_polys
 
     def __call__(self, data: dict) -> dict:

@@ -51,12 +51,18 @@ if __name__ == '__main__':
     # cfg = parse_args()
     parser = argparse.ArgumentParser(description='train')
     parser.add_argument('--config', type=str, default='config/rec.json', help='train config file path')
-    parser.add_argument('--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\CRNN\checkpoint\latest.pth')
-    parser.add_argument('--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\icdar2015\recognition\train\img_11_1.jpg')
+    parser.add_argument('--model_path', required=False, type=str, help='rec model path', default=r'F:\CAIL\CAIL2020\cocr\model\rec-model.bin')
+    parser.add_argument('--img_path', required=False, type=str, help='img path for predict', default=r'F:\CAIL\CAIL2020\cocr\data\t2\img_1.jpg')
 
     args = parser.parse_args()
-
     img = cv2.imread(args.img_path)
     model = RecInfer(args.model_path)
     out = model.predict(img)
     print(out)
+
+    # for i in range(212023,212035):
+    #     image_path = r'F:\CAIL\CAIL2020\cocr\data\t2\img_%d.jpg' % i
+    #     img = cv2.imread(image_path)
+    #     model = RecInfer(args.model_path)
+    #     out = model.predict(img)
+    #     print(out)

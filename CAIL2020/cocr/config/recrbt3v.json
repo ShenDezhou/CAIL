@@ -1,7 +1,7 @@
 {
   "exp_name": "CBRNN4",
   "train_options": {
-    "resume_from": "",
+    "resume_from": "model/CBRNN4/best.bin",
     "third_party_name": "",
     "checkpoint_save_dir": "model/CBRNN4/",
     "device": "cuda:0",

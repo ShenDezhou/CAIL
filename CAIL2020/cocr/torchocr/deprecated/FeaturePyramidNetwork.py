@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# @author :adolf
 import torch.nn.functional as F
 from torch import nn, Tensor
 

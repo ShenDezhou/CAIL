@@ -318,7 +318,7 @@ def main():
     # ===> whether to resume from checkpoint
     resume_from = train_options.resume_from
     if resume_from:
-        net, _resumed_optimizer,global_state = load_checkpoint(net, resume_from, to_use_device, optimizer,
+        net, _resumed_optimizer, global_state = load_checkpoint(net, resume_from, to_use_device, optimizer,
                                                                  third_name=train_options.third_party_name)
         if _resumed_optimizer:
             optimizer = _resumed_optimizer
