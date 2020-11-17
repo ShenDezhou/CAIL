@@ -1,0 +1,641 @@
+2020-11-12 04:40:14,186 - torchocr - INFO - namespace(SEED=927, dataset=namespace(alphabet='torchocr/datasets/alphabets/chinese4049.txt', eval=namespace(dataset=namespace(augmentation='False', file='data/recognitioncn/test.txt', input_h=32, mean=0.5, std=0.5, type='RecTextLineDataset'), loader=namespace(batch_size=4, collate_fn=namespace(img_w=120, type='RecCollateFn'), num_workers=4, shuffle='False', type='RecDataLoader')), train=namespace(dataset=namespace(augmentation='False', file='data/recognitioncn/train.txt', input_h=32, mean=0.5, std=0.5, type='RecTextLineDataset'), loader=namespace(batch_size=32, collate_fn=namespace(img_w=120, type='RecCollateFn'), num_workers=4, shuffle='True', type='DataLoader'))), exp_name='CBRNN4', loss=namespace(blank_idx=0, type='CTCLoss'), lr_scheduler=namespace(gamma=0.5, step_size=60, type='StepLR'), model=namespace(backbone=namespace(bert_model_path='../roberta3_ext', layers=18, type='ResNet'), head=namespace(n_class=4049, type='CTC'), in_channels=3, neck=namespace(type='RNN'), type='RecModel'), optimizer=namespace(lr=0.0001, type='Adam', weight_decay=0), train_options=namespace(checkpoint_save_dir='model/CBRNN4/', ckpt_save_epoch=1, ckpt_save_type='HighestAcc', device='cuda:0', epochs=100, fine_tune_stage=['backbone', 'neck', 'head'], print_interval=1000, resume_from='model/CBRNN4/best.bin', third_party_name='', val_interval=4000))
+2020-11-12 04:40:24,436 - torchocr - INFO - net resume from model/CBRNN4/best.bin
+2020-11-12 04:40:25,302 - torchocr - INFO - Training...
+2020-11-12 04:40:25,302 - torchocr - INFO - train dataset has 188560 samples, 5893 in dataloader
+2020-11-12 04:40:25,302 - torchocr - INFO - eval dataset has 892 samples, 223 in dataloader
+2020-11-12 04:42:50,354 - torchocr - INFO - [69/100] - [1000/5893] - lr:0.0001 - loss:0.4180 - acc:0.8750 - norm_edit_dis:0.9374 - time:145.0510
+2020-11-12 04:45:16,149 - torchocr - INFO - [69/100] - [2000/5893] - lr:0.0001 - loss:0.2556 - acc:0.7188 - norm_edit_dis:0.9317 - time:145.7943
+2020-11-12 04:47:39,971 - torchocr - INFO - [69/100] - [3000/5893] - lr:0.0001 - loss:0.2501 - acc:0.7500 - norm_edit_dis:0.9391 - time:143.8215
+2020-11-12 04:50:04,197 - torchocr - INFO - [69/100] - [4000/5893] - lr:0.0001 - loss:0.1567 - acc:0.8750 - norm_edit_dis:0.9788 - time:144.2253
+2020-11-12 04:50:04,800 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 04:50:04,801 - torchocr - INFO - start evaluate
+2020-11-12 04:50:09,651 - torchocr - INFO - eval_loss:0.3890862165127501
+2020-11-12 04:50:09,651 - torchocr - INFO - eval_acc:0.7713004484304933
+2020-11-12 04:50:09,651 - torchocr - INFO - norm_edit_dis:0.9206284705539716
+2020-11-12 04:50:09,651 - torchocr - INFO - 大处理 -> 大处理
+2020-11-12 04:50:09,652 - torchocr - INFO - １５９２１ -> １５９２１
+2020-11-12 04:50:09,652 - torchocr - INFO - 护肤造型 -> 护肤造型
+2020-11-12 04:50:09,652 - torchocr - INFO - 口年惠仁药店 -> 口平惠仁药店
+2020-11-12 04:50:09,652 - torchocr - INFO - 发罗斯玛洛什　冰淇淋　酸梅汤　冷饮　电话１８６９０１１１９７０ -> 我罗斯玛洛什　冰淇淋　酸梅汤　冷饮　电话　１８６９０１１１９７０
+2020-11-12 04:50:09,652 - torchocr - INFO - 小桶８０元 -> 小桶８０元
+2020-11-12 04:50:09,652 - torchocr - INFO - 石 -> 石
+2020-11-12 04:50:09,652 - torchocr - INFO - 人防按钮　　防爆地漏 -> 人防按钮　防爆地漏
+2020-11-12 04:50:09,652 - torchocr - INFO - ２４自助服务 -> ２４自助服务
+2020-11-12 04:50:09,652 - torchocr - INFO - 帆布座垫 -> 帆布座垫
+2020-11-12 04:52:34,236 - torchocr - INFO - [69/100] - [5000/5893] - lr:0.0001 - loss:0.2032 - acc:0.9062 - norm_edit_dis:0.9561 - time:150.0379
+2020-11-12 04:57:09,928 - torchocr - INFO - [70/100] - [1000/5893] - lr:0.0001 - loss:0.5774 - acc:0.7500 - norm_edit_dis:0.8768 - time:146.7279
+2020-11-12 04:59:37,743 - torchocr - INFO - [70/100] - [2000/5893] - lr:0.0001 - loss:0.1509 - acc:0.9062 - norm_edit_dis:0.9747 - time:147.8140
+2020-11-12 05:02:03,334 - torchocr - INFO - [70/100] - [3000/5893] - lr:0.0001 - loss:0.3913 - acc:0.7812 - norm_edit_dis:0.8826 - time:145.5902
+2020-11-12 05:04:27,411 - torchocr - INFO - [70/100] - [4000/5893] - lr:0.0001 - loss:0.6511 - acc:0.6875 - norm_edit_dis:0.8847 - time:144.0771
+2020-11-12 05:04:28,067 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 05:04:28,067 - torchocr - INFO - start evaluate
+2020-11-12 05:04:33,072 - torchocr - INFO - eval_loss:0.39879375564836533
+2020-11-12 05:04:33,072 - torchocr - INFO - eval_acc:0.7769058295964125
+2020-11-12 05:04:33,072 - torchocr - INFO - norm_edit_dis:0.9191899878352163
+2020-11-12 05:04:33,073 - torchocr - INFO - ｈｔＣ -> ｈｔｃ
+2020-11-12 05:04:33,073 - torchocr - INFO - 宏鑫汽车维修 -> 宏鑫汽车维修
+2020-11-12 05:04:33,073 - torchocr - INFO - 宾冷饮店 -> 宾冷饮店
+2020-11-12 05:04:33,073 - torchocr - INFO - ＹＥＳＵＰ -> ＹＥＳＵＰ
+2020-11-12 05:04:33,073 - torchocr - INFO - Ｍｉｓｓ　ｋｏｒｅａ -> Ｍｉｓｓ　ｋｏｒｅａ
+2020-11-12 05:04:33,074 - torchocr - INFO - 年末大促销 -> 年末大促销
+2020-11-12 05:04:33,074 - torchocr - INFO - 祥 -> 祥
+2020-11-12 05:04:33,074 - torchocr - INFO - 行动 -> 行动
+2020-11-12 05:04:33,074 - torchocr - INFO - 阳光心园 -> 阳光心园
+2020-11-12 05:04:33,074 - torchocr - INFO - 第３２１２０５５０５号投注站 -> 第３２１２０５５０５号投注站
+2020-11-12 05:04:33,708 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 05:06:59,880 - torchocr - INFO - [70/100] - [5000/5893] - lr:0.0001 - loss:0.6434 - acc:0.7500 - norm_edit_dis:0.9087 - time:152.4678
+2020-11-12 05:11:36,072 - torchocr - INFO - [71/100] - [1000/5893] - lr:0.0001 - loss:0.5843 - acc:0.6562 - norm_edit_dis:0.8638 - time:145.4434
+2020-11-12 05:14:02,854 - torchocr - INFO - [71/100] - [2000/5893] - lr:0.0001 - loss:0.0720 - acc:0.9062 - norm_edit_dis:0.9774 - time:146.7813
+2020-11-12 05:16:27,491 - torchocr - INFO - [71/100] - [3000/5893] - lr:0.0001 - loss:0.4625 - acc:0.6875 - norm_edit_dis:0.8996 - time:144.6357
+2020-11-12 05:18:54,867 - torchocr - INFO - [71/100] - [4000/5893] - lr:0.0001 - loss:0.4830 - acc:0.7500 - norm_edit_dis:0.9007 - time:147.3755
+2020-11-12 05:18:55,521 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 05:18:55,522 - torchocr - INFO - start evaluate
+2020-11-12 05:19:00,320 - torchocr - INFO - eval_loss:0.38872304578226125
+2020-11-12 05:19:00,320 - torchocr - INFO - eval_acc:0.7982062780269058
+2020-11-12 05:19:00,320 - torchocr - INFO - norm_edit_dis:0.928888491008021
+2020-11-12 05:19:00,320 - torchocr - INFO - ＩＮＴＥＲＶＥＴ　ＲＡＲ -> ＩＮＴＥＲＮＥＴ　ＢＡＲ
+2020-11-12 05:19:00,321 - torchocr - INFO - 牛 -> 牛
+2020-11-12 05:19:00,321 - torchocr - INFO - 菜家发门水超门 -> 帘到家线下体验店
+2020-11-12 05:19:00,321 - torchocr - INFO - 合德 -> 合德
+2020-11-12 05:19:00,321 - torchocr - INFO - １３２５号 -> １３２２５号
+2020-11-12 05:19:00,321 - torchocr - INFO - ２４自助服务 -> ２４自助服务
+2020-11-12 05:19:00,321 - torchocr - INFO - 动力十足 -> 动力十足
+2020-11-12 05:19:00,321 - torchocr - INFO - 蜀晨化工 -> 蜀晨化工
+2020-11-12 05:19:00,322 - torchocr - INFO - 好 -> 好
+2020-11-12 05:19:00,322 - torchocr - INFO - 凭本布有效身份证明　３０分钟放款 -> 凭本市有效身份证明３０分钟放款
+2020-11-12 05:19:00,953 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 05:21:24,635 - torchocr - INFO - [71/100] - [5000/5893] - lr:0.0001 - loss:0.4451 - acc:0.7500 - norm_edit_dis:0.9061 - time:149.7679
+2020-11-12 05:25:59,001 - torchocr - INFO - [72/100] - [1000/5893] - lr:0.0001 - loss:0.3587 - acc:0.7500 - norm_edit_dis:0.9278 - time:144.6702
+2020-11-12 05:28:26,093 - torchocr - INFO - [72/100] - [2000/5893] - lr:0.0001 - loss:0.5537 - acc:0.7188 - norm_edit_dis:0.8571 - time:147.0910
+2020-11-12 05:30:52,072 - torchocr - INFO - [72/100] - [3000/5893] - lr:0.0001 - loss:0.1871 - acc:0.8438 - norm_edit_dis:0.9431 - time:145.9785
+2020-11-12 05:33:18,983 - torchocr - INFO - [72/100] - [4000/5893] - lr:0.0001 - loss:0.2310 - acc:0.8125 - norm_edit_dis:0.9494 - time:146.9104
+2020-11-12 05:33:19,630 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 05:33:19,630 - torchocr - INFO - start evaluate
+2020-11-12 05:33:24,393 - torchocr - INFO - eval_loss:0.3615864382079498
+2020-11-12 05:33:24,393 - torchocr - INFO - eval_acc:0.7713004484304933
+2020-11-12 05:33:24,393 - torchocr - INFO - norm_edit_dis:0.9257144069255347
+2020-11-12 05:33:24,394 - torchocr - INFO - 欢迎光临 -> 欢迎光临
+2020-11-12 05:33:24,394 - torchocr - INFO - 中央空调 -> 中央空调
+2020-11-12 05:33:24,394 - torchocr - INFO - 民发设计公社 -> 美发设计公社
+2020-11-12 05:33:24,394 - torchocr - INFO - 正东弟　砂　锅　鱼 -> 王东弟　砂　锅　鱼
+2020-11-12 05:33:24,394 - torchocr - INFO - 年末大促销 -> 年末大促销
+2020-11-12 05:33:24,396 - torchocr - INFO - 品牌集合特卖 -> 品牌集合特卖
+2020-11-12 05:33:24,396 - torchocr - INFO - ＴＳＩＮＧＴＡＯ -> ＴＳＩＮＧＴＡＯ
+2020-11-12 05:33:24,396 - torchocr - INFO - 新业大楼 -> 新业大楼
+2020-11-12 05:33:24,396 - torchocr - INFO - ＮＥＴＴＥＬＨＯＦＦ　Ｃｏｍｍｕｔａｔｏｒｓ　＆　Ｃｏｍｐｏｎｅｎｔｓ -> ＮＥＴＴＥＬＨＯＦＦ　Ｃｏｍｍｕｔａｔｏｒｓ　＆　Ｃｏｍｐｏｎｅｎｔｓ
+2020-11-12 05:33:24,396 - torchocr - INFO - ２８ -> ２８
+2020-11-12 05:35:49,509 - torchocr - INFO - [72/100] - [5000/5893] - lr:0.0001 - loss:0.3690 - acc:0.8438 - norm_edit_dis:0.9328 - time:150.5248
+2020-11-12 05:40:27,282 - torchocr - INFO - [73/100] - [1000/5893] - lr:0.0001 - loss:0.5793 - acc:0.7188 - norm_edit_dis:0.8806 - time:147.3350
+2020-11-12 05:42:53,807 - torchocr - INFO - [73/100] - [2000/5893] - lr:0.0001 - loss:0.9022 - acc:0.6875 - norm_edit_dis:0.8603 - time:146.5243
+2020-11-12 05:45:20,211 - torchocr - INFO - [73/100] - [3000/5893] - lr:0.0001 - loss:0.5294 - acc:0.7500 - norm_edit_dis:0.8699 - time:146.4033
+2020-11-12 05:47:44,960 - torchocr - INFO - [73/100] - [4000/5893] - lr:0.0001 - loss:0.6417 - acc:0.7500 - norm_edit_dis:0.8776 - time:144.7476
+2020-11-12 05:47:45,570 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 05:47:45,570 - torchocr - INFO - start evaluate
+2020-11-12 05:47:50,447 - torchocr - INFO - eval_loss:0.34378924909373537
+2020-11-12 05:47:50,448 - torchocr - INFO - eval_acc:0.7926008968609866
+2020-11-12 05:47:50,448 - torchocr - INFO - norm_edit_dis:0.934218815918171
+2020-11-12 05:47:50,448 - torchocr - INFO - 蓝动广型 -> 鹰明广告
+2020-11-12 05:47:50,448 - torchocr - INFO - ｌｉａ -> ｌｉｏ
+2020-11-12 05:47:50,448 - torchocr - INFO - ＴＣＬ -> ＴＣＬ
+2020-11-12 05:47:50,448 - torchocr - INFO - Ｚｈａｎｌａｎｌｕ　Ｓｕｂ－Ｄｉｓｔｒｉｃｔ　Ｗｏｒｔｋ　Ｃｏｍｍｉｔｔｅｅ -> Ｚｈａｎｌａｎｌｕ　Ｓｕｂ－Ｄｉｓｔｒｉｃｔ　Ｗｏｒｋ　Ｃｏｍｍｉｔｔｅｅ
+2020-11-12 05:47:50,449 - torchocr - INFO - ＪＩＴＳＵ -> ＪＩＴＳＵ
+2020-11-12 05:47:50,449 - torchocr - INFO - Ｂｒｅａｄ -> Ｂｒｅａｄ
+2020-11-12 05:47:50,449 - torchocr - INFO - 醇 -> 醇
+2020-11-12 05:47:50,449 - torchocr - INFO - 时尚小海鲜 -> 时尚小海鲜
+2020-11-12 05:47:50,449 - torchocr - INFO - ｅｌｉｔｅｐａｌ -> ｅｌｉｔｅＰａｌ
+2020-11-12 05:47:50,449 - torchocr - INFO - 轮胎行 -> 轮胎行
+2020-11-12 05:50:15,930 - torchocr - INFO - [73/100] - [5000/5893] - lr:0.0001 - loss:0.9022 - acc:0.7188 - norm_edit_dis:0.8435 - time:150.9699
+2020-11-12 05:54:53,767 - torchocr - INFO - [74/100] - [1000/5893] - lr:0.0001 - loss:0.3504 - acc:0.8125 - norm_edit_dis:0.9382 - time:145.1795
+2020-11-12 05:57:18,360 - torchocr - INFO - [74/100] - [2000/5893] - lr:0.0001 - loss:0.4255 - acc:0.9062 - norm_edit_dis:0.9394 - time:144.5928
+2020-11-12 05:59:44,436 - torchocr - INFO - [74/100] - [3000/5893] - lr:0.0001 - loss:0.4403 - acc:0.7812 - norm_edit_dis:0.9021 - time:146.0748
+2020-11-12 06:02:10,001 - torchocr - INFO - [74/100] - [4000/5893] - lr:0.0001 - loss:0.3351 - acc:0.8750 - norm_edit_dis:0.9415 - time:145.5645
+2020-11-12 06:02:10,664 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 06:02:10,665 - torchocr - INFO - start evaluate
+2020-11-12 06:02:15,658 - torchocr - INFO - eval_loss:0.3766403417009025
+2020-11-12 06:02:15,659 - torchocr - INFO - eval_acc:0.7993273542600897
+2020-11-12 06:02:15,659 - torchocr - INFO - norm_edit_dis:0.9271184919621404
+2020-11-12 06:02:15,659 - torchocr - INFO - 手工生鲜水饺 -> 手工生鲜水饺
+2020-11-12 06:02:15,659 - torchocr - INFO - 崔氏燃具经营部 -> 崔氏燃具经营部
+2020-11-12 06:02:15,659 - torchocr - INFO - 社会主区理代化程国而好力奋４ -> 社会主义现代化强国而努力奋斗
+2020-11-12 06:02:15,660 - torchocr - INFO - 怡升 -> 怡升
+2020-11-12 06:02:15,660 - torchocr - INFO - Ｋｏｏｌｓｐａｃｅ -> Ｋｏｏｌｓｐａｃｅ
+2020-11-12 06:02:15,660 - torchocr - INFO - 身堂 -> 身堂
+2020-11-12 06:02:15,660 - torchocr - INFO - 换胎 -> 换胎
+2020-11-12 06:02:15,660 - torchocr - INFO - 福气多欢迎您 -> 福气多欢迎您
+2020-11-12 06:02:15,660 - torchocr - INFO - 石材工艺等各类装饰工程石材 -> 石材工艺等各类装饰工程石材
+2020-11-12 06:02:15,660 - torchocr - INFO - 科 -> 科
+2020-11-12 06:02:16,324 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 06:04:42,179 - torchocr - INFO - [74/100] - [5000/5893] - lr:0.0001 - loss:0.1935 - acc:0.8438 - norm_edit_dis:0.9488 - time:152.1775
+2020-11-12 06:09:20,266 - torchocr - INFO - [75/100] - [1000/5893] - lr:0.0001 - loss:0.5253 - acc:0.7500 - norm_edit_dis:0.8739 - time:146.5864
+2020-11-12 06:11:46,618 - torchocr - INFO - [75/100] - [2000/5893] - lr:0.0001 - loss:0.1532 - acc:0.8750 - norm_edit_dis:0.9651 - time:146.3512
+2020-11-12 06:14:13,157 - torchocr - INFO - [75/100] - [3000/5893] - lr:0.0001 - loss:0.0915 - acc:0.9375 - norm_edit_dis:0.9898 - time:146.5390
+2020-11-12 06:16:39,162 - torchocr - INFO - [75/100] - [4000/5893] - lr:0.0001 - loss:0.4349 - acc:0.7812 - norm_edit_dis:0.9141 - time:146.0044
+2020-11-12 06:16:39,757 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 06:16:39,758 - torchocr - INFO - start evaluate
+2020-11-12 06:16:44,512 - torchocr - INFO - eval_loss:0.3642329101496681
+2020-11-12 06:16:44,512 - torchocr - INFO - eval_acc:0.7847533632286996
+2020-11-12 06:16:44,513 - torchocr - INFO - norm_edit_dis:0.923494214730755
+2020-11-12 06:16:44,513 - torchocr - INFO - ＪＤ -> ＪＤ
+2020-11-12 06:16:44,513 - torchocr - INFO - 抚顺银行 -> 抚顺银行
+2020-11-12 06:16:44,513 - torchocr - INFO - 家政服务 -> 家政服务
+2020-11-12 06:16:44,513 - torchocr - INFO - 健身工作室 -> 健身工作室
+2020-11-12 06:16:44,513 - torchocr - INFO - ＳＯＵＲＣＥ -> ＳＯＵＲＣＥ
+2020-11-12 06:16:44,514 - torchocr - INFO - 波饮批激发　特色小吃 -> 冷饮　冰激凌　特色小吃
+2020-11-12 06:16:44,514 - torchocr - INFO - 茗之源 -> 茗之源
+2020-11-12 06:16:44,514 - torchocr - INFO - 北京工商 -> 北京工商
+2020-11-12 06:16:44,514 - torchocr - INFO - ＩＩＴＲＡＬ　ＲＡＮＳ　ＯＦ　ＣＨＩＮＡ -> ＩＣＵＬＴＵＲＡＬ　ＢＡＮＫ　ＯＦ　ＣＨＩＮＡ
+2020-11-12 06:16:44,514 - torchocr - INFO - 让孩子 -> 让孩子
+2020-11-12 06:19:10,728 - torchocr - INFO - [75/100] - [5000/5893] - lr:0.0001 - loss:0.7227 - acc:0.8438 - norm_edit_dis:0.8891 - time:151.5653
+2020-11-12 06:23:48,339 - torchocr - INFO - [76/100] - [1000/5893] - lr:0.0001 - loss:0.3497 - acc:0.8125 - norm_edit_dis:0.9442 - time:147.3951
+2020-11-12 06:26:14,314 - torchocr - INFO - [76/100] - [2000/5893] - lr:0.0001 - loss:0.8126 - acc:0.6875 - norm_edit_dis:0.8549 - time:145.9745
+2020-11-12 06:28:40,678 - torchocr - INFO - [76/100] - [3000/5893] - lr:0.0001 - loss:0.3944 - acc:0.8125 - norm_edit_dis:0.9295 - time:146.3637
+2020-11-12 06:31:06,831 - torchocr - INFO - [76/100] - [4000/5893] - lr:0.0001 - loss:0.3727 - acc:0.6875 - norm_edit_dis:0.9148 - time:146.1444
+2020-11-12 06:31:07,486 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 06:31:07,486 - torchocr - INFO - start evaluate
+2020-11-12 06:31:12,319 - torchocr - INFO - eval_loss:0.3718796508280235
+2020-11-12 06:31:12,319 - torchocr - INFO - eval_acc:0.7769058295964125
+2020-11-12 06:31:12,320 - torchocr - INFO - norm_edit_dis:0.9233823397398647
+2020-11-12 06:31:12,320 - torchocr - INFO - 女 -> 女
+2020-11-12 06:31:12,320 - torchocr - INFO - Ｃｈｕｎｌａｎ -> Ｃｈｕｎｔａｎ
+2020-11-12 06:31:12,320 - torchocr - INFO - 健康养生馆 -> 健康养生馆
+2020-11-12 06:31:12,320 - torchocr - INFO - 合德 -> 合德
+2020-11-12 06:31:12,320 - torchocr - INFO - ＴＣＬ -> ＴＣＬ
+2020-11-12 06:31:12,320 - torchocr - INFO - 宗申 -> 宗申
+2020-11-12 06:31:12,320 - torchocr - INFO - 长宁公安分局 -> 长宁公安分局
+2020-11-12 06:31:12,320 - torchocr - INFO - 烙馍村 -> 烙馍村
+2020-11-12 06:31:12,320 - torchocr - INFO - 动力十足 -> 动力十足
+2020-11-12 06:31:12,321 - torchocr - INFO - 合德 -> 合德
+2020-11-12 06:33:38,922 - torchocr - INFO - [76/100] - [5000/5893] - lr:0.0001 - loss:0.4347 - acc:0.7188 - norm_edit_dis:0.8889 - time:152.0895
+2020-11-12 06:38:19,416 - torchocr - INFO - [77/100] - [1000/5893] - lr:0.0001 - loss:0.4832 - acc:0.7812 - norm_edit_dis:0.9138 - time:148.6559
+2020-11-12 06:40:45,358 - torchocr - INFO - [77/100] - [2000/5893] - lr:0.0001 - loss:0.2932 - acc:0.7500 - norm_edit_dis:0.9093 - time:145.9410
+2020-11-12 06:43:13,113 - torchocr - INFO - [77/100] - [3000/5893] - lr:0.0001 - loss:0.3491 - acc:0.7812 - norm_edit_dis:0.9127 - time:147.7545
+2020-11-12 06:45:40,353 - torchocr - INFO - [77/100] - [4000/5893] - lr:0.0001 - loss:0.2320 - acc:0.8438 - norm_edit_dis:0.9558 - time:147.2392
+2020-11-12 06:45:41,088 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 06:45:41,089 - torchocr - INFO - start evaluate
+2020-11-12 06:45:46,155 - torchocr - INFO - eval_loss:0.34270947617155
+2020-11-12 06:45:46,156 - torchocr - INFO - eval_acc:0.7914798206278026
+2020-11-12 06:45:46,156 - torchocr - INFO - norm_edit_dis:0.931723989565749
+2020-11-12 06:45:46,156 - torchocr - INFO - 养皮 -> 养生
+2020-11-12 06:45:46,156 - torchocr - INFO - Ｈ９０３ -> Ｈ９０２３
+2020-11-12 06:45:46,157 - torchocr - INFO - 天天鲜 -> 天天鲜
+2020-11-12 06:45:46,157 - torchocr - INFO - 台香 -> 台香
+2020-11-12 06:45:46,157 - torchocr - INFO - 锁 -> 锁
+2020-11-12 06:45:46,157 - torchocr - INFO - ＣＨＩＮＡ　ＷＥＬＦＡＲＥ　ＬＯＴＴＥＲＹ -> ＣＨＩＮＡ　ＷＥＬＦＡＲＥ　ＬＯＴＴＥＲＹ
+2020-11-12 06:45:46,157 - torchocr - INFO - ＣＨＩＮＡ　ＷＥＬＦＡＲＥ　ＬＯＴＴＥＲＹ -> ＣＨＩＮＡ　ＷＥＬＦＡＲＥ　ＬＯＴＴＥＲＹ
+2020-11-12 06:45:46,157 - torchocr - INFO - 丰度 -> 丰度
+2020-11-12 06:45:46,157 - torchocr - INFO - 一条龙 -> 一条龙
+2020-11-12 06:45:46,158 - torchocr - INFO - 紫阳意县公馆 -> 紫阳宫养生馆
+2020-11-12 06:48:12,717 - torchocr - INFO - [77/100] - [5000/5893] - lr:0.0001 - loss:0.4013 - acc:0.7500 - norm_edit_dis:0.9135 - time:152.3631
+2020-11-12 06:52:51,113 - torchocr - INFO - [78/100] - [1000/5893] - lr:0.0001 - loss:0.3082 - acc:0.8750 - norm_edit_dis:0.9426 - time:147.3779
+2020-11-12 06:55:18,750 - torchocr - INFO - [78/100] - [2000/5893] - lr:0.0001 - loss:0.3113 - acc:0.7188 - norm_edit_dis:0.9023 - time:147.6368
+2020-11-12 06:57:45,495 - torchocr - INFO - [78/100] - [3000/5893] - lr:0.0001 - loss:0.3977 - acc:0.7500 - norm_edit_dis:0.8978 - time:146.7434
+2020-11-12 07:00:09,247 - torchocr - INFO - [78/100] - [4000/5893] - lr:0.0001 - loss:0.4230 - acc:0.7188 - norm_edit_dis:0.8701 - time:143.7516
+2020-11-12 07:00:09,906 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 07:00:09,907 - torchocr - INFO - start evaluate
+2020-11-12 07:00:14,743 - torchocr - INFO - eval_loss:0.3451665338502587
+2020-11-12 07:00:14,744 - torchocr - INFO - eval_acc:0.7937219730941704
+2020-11-12 07:00:14,744 - torchocr - INFO - norm_edit_dis:0.9310872214084907
+2020-11-12 07:00:14,744 - torchocr - INFO - 颐天超市 -> 颐天超市
+2020-11-12 07:00:14,744 - torchocr - INFO - ＭＡＲＳＨＡＬ　ＣＥＲＡＭＩＣＳ -> ＭＡＲＳＨＡＬ　ＣＥＲＡＭＩＣＳ
+2020-11-12 07:00:14,744 - torchocr - INFO - ＣＯＯＬ爽来袭 -> ＣＯＯＬ爽来袭
+2020-11-12 07:00:14,744 - torchocr - INFO - 中国福利彩票 -> 中国福利彩票
+2020-11-12 07:00:14,744 - torchocr - INFO - 小拇指 -> 小拇指
+2020-11-12 07:00:14,744 - torchocr - INFO - 辛酯 -> 辛酯
+2020-11-12 07:00:14,744 - torchocr - INFO - ０２１００８２４７ -> ＱＱ７１９００８２４７
+2020-11-12 07:00:14,745 - torchocr - INFO - 受理部 -> 受理部
+2020-11-12 07:00:14,745 - torchocr - INFO - 儿推世家 -> 儿推世家
+2020-11-12 07:00:14,745 - torchocr - INFO - 时 -> 时
+2020-11-12 07:02:42,763 - torchocr - INFO - [78/100] - [5000/5893] - lr:0.0001 - loss:0.1749 - acc:0.9062 - norm_edit_dis:0.9699 - time:153.5155
+2020-11-12 07:07:20,619 - torchocr - INFO - [79/100] - [1000/5893] - lr:0.0001 - loss:0.1564 - acc:0.8750 - norm_edit_dis:0.9632 - time:147.0544
+2020-11-12 07:09:46,837 - torchocr - INFO - [79/100] - [2000/5893] - lr:0.0001 - loss:0.2282 - acc:0.8125 - norm_edit_dis:0.9448 - time:146.2177
+2020-11-12 07:12:13,353 - torchocr - INFO - [79/100] - [3000/5893] - lr:0.0001 - loss:0.3649 - acc:0.7812 - norm_edit_dis:0.9470 - time:146.5153
+2020-11-12 07:14:40,692 - torchocr - INFO - [79/100] - [4000/5893] - lr:0.0001 - loss:0.2980 - acc:0.8125 - norm_edit_dis:0.9442 - time:147.3380
+2020-11-12 07:14:41,316 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 07:14:41,317 - torchocr - INFO - start evaluate
+2020-11-12 07:14:46,078 - torchocr - INFO - eval_loss:0.3553697302892612
+2020-11-12 07:14:46,078 - torchocr - INFO - eval_acc:0.7757847533632287
+2020-11-12 07:14:46,078 - torchocr - INFO - norm_edit_dis:0.9246170912671985
+2020-11-12 07:14:46,079 - torchocr - INFO - 断桥铝塑钢不锈钢 -> 断桥铝塑钢不锈钢
+2020-11-12 07:14:46,079 - torchocr - INFO - 家政服务 -> 家政服务
+2020-11-12 07:14:46,079 - torchocr - INFO - 徐盈路 -> 徐盈路
+2020-11-12 07:14:46,079 - torchocr - INFO - 爱料集室 -> 营养丰富
+2020-11-12 07:14:46,079 - torchocr - INFO - ６５ -> ６５
+2020-11-12 07:14:46,079 - torchocr - INFO - 多多花商店 -> 多多惠商店
+2020-11-12 07:14:46,079 - torchocr - INFO - 盈遇巨际水会 -> 盈通国际水会
+2020-11-12 07:14:46,079 - torchocr - INFO - ｏｄｉａｎ -> ｏｄｉａｎ
+2020-11-12 07:14:46,079 - torchocr - INFO - ＣＨＩＮＡ　　ＷＥＬＦＡＲＥ　ＬＯＴＴＥＲＹ -> ＣＨＩＮＡ　ＷＥＬＦＡＲＥ　ＬＯＴＴＥＲＹ
+2020-11-12 07:14:46,080 - torchocr - INFO - 器材 -> 器材
+2020-11-12 07:17:10,307 - torchocr - INFO - [79/100] - [5000/5893] - lr:0.0001 - loss:0.4390 - acc:0.8125 - norm_edit_dis:0.9016 - time:149.6143
+2020-11-12 07:21:46,546 - torchocr - INFO - [80/100] - [1000/5893] - lr:0.0001 - loss:0.1873 - acc:0.8438 - norm_edit_dis:0.9761 - time:145.4631
+2020-11-12 07:24:13,615 - torchocr - INFO - [80/100] - [2000/5893] - lr:0.0001 - loss:0.3197 - acc:0.7188 - norm_edit_dis:0.9264 - time:147.0675
+2020-11-12 07:26:41,461 - torchocr - INFO - [80/100] - [3000/5893] - lr:0.0001 - loss:0.5671 - acc:0.7500 - norm_edit_dis:0.9054 - time:147.8459
+2020-11-12 07:29:10,115 - torchocr - INFO - [80/100] - [4000/5893] - lr:0.0001 - loss:0.5868 - acc:0.6562 - norm_edit_dis:0.8569 - time:148.6534
+2020-11-12 07:29:10,760 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 07:29:10,761 - torchocr - INFO - start evaluate
+2020-11-12 07:29:15,787 - torchocr - INFO - eval_loss:0.35339718198637593
+2020-11-12 07:29:15,787 - torchocr - INFO - eval_acc:0.781390134529148
+2020-11-12 07:29:15,787 - torchocr - INFO - norm_edit_dis:0.9299139798012521
+2020-11-12 07:29:15,788 - torchocr - INFO - 洁洁能源式体闲餐屋 -> 吉吉熊意式休闲餐厅
+2020-11-12 07:29:15,788 - torchocr - INFO - ＯＦ -> ＯＦ
+2020-11-12 07:29:15,788 - torchocr - INFO - 托老托幼　居家 -> 托老托幼　居家养
+2020-11-12 07:29:15,788 - torchocr - INFO - 生活馆 -> 生活馆
+2020-11-12 07:29:15,788 - torchocr - INFO - 大闸镇芳动保障事务所 -> 大团镇劳动保障事务所
+2020-11-12 07:29:15,788 - torchocr - INFO - ＢＵＬＬ -> ＢＵＬＬ
+2020-11-12 07:29:15,788 - torchocr - INFO - ＵＬＬ公牛 -> ＵＬＬ公牛
+2020-11-12 07:29:15,788 - torchocr - INFO - ＴＥＣＨＭＡＩＮ -> ＴＥＣＨＭＩＮ
+2020-11-12 07:29:15,788 - torchocr - INFO - 诚口凉 -> 进口零
+2020-11-12 07:29:15,788 - torchocr - INFO - 韩国小馆 -> 韩国小馆
+2020-11-12 07:31:40,584 - torchocr - INFO - [80/100] - [5000/5893] - lr:0.0001 - loss:0.5830 - acc:0.6875 - norm_edit_dis:0.8496 - time:150.4682
+2020-11-12 07:36:17,118 - torchocr - INFO - [81/100] - [1000/5893] - lr:0.0001 - loss:0.1714 - acc:0.8438 - norm_edit_dis:0.9649 - time:146.0886
+2020-11-12 07:38:44,200 - torchocr - INFO - [81/100] - [2000/5893] - lr:0.0001 - loss:0.1210 - acc:0.8125 - norm_edit_dis:0.9712 - time:147.0812
+2020-11-12 07:41:10,386 - torchocr - INFO - [81/100] - [3000/5893] - lr:0.0001 - loss:0.3520 - acc:0.7812 - norm_edit_dis:0.9262 - time:146.1850
+2020-11-12 07:43:37,260 - torchocr - INFO - [81/100] - [4000/5893] - lr:0.0001 - loss:0.2398 - acc:0.8438 - norm_edit_dis:0.9480 - time:146.8738
+2020-11-12 07:43:37,901 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 07:43:37,901 - torchocr - INFO - start evaluate
+2020-11-12 07:43:42,739 - torchocr - INFO - eval_loss:0.34581285846344456
+2020-11-12 07:43:42,739 - torchocr - INFO - eval_acc:0.7926008968609866
+2020-11-12 07:43:42,739 - torchocr - INFO - norm_edit_dis:0.9289580397242313
+2020-11-12 07:43:42,739 - torchocr - INFO - 国话费充值 -> 国话费充值
+2020-11-12 07:43:42,739 - torchocr - INFO - Ｃｈｕｎｔａｎ -> Ｃｈｕｎｔａｎ
+2020-11-12 07:43:42,740 - torchocr - INFO - Ｈｏｕｒ -> Ｈｏｕｒ
+2020-11-12 07:43:42,740 - torchocr - INFO - 特产超市 -> 特产超市
+2020-11-12 07:43:42,740 - torchocr - INFO - 新业大楼 -> 新业大楼
+2020-11-12 07:43:42,740 - torchocr - INFO - 小时Ｈｏｕｒ -> 小时Ｈｏｕｒ
+2020-11-12 07:43:42,740 - torchocr - INFO - 粉馆 -> 粉馆
+2020-11-12 07:43:42,740 - torchocr - INFO - 装 -> 装
+2020-11-12 07:43:42,740 - torchocr - INFO - １５８００３５８７１７ -> １５８００３５８７１７
+2020-11-12 07:43:42,740 - torchocr - INFO - ＣＡＰＩＴＡＬ　ＩＮＤＵＳＴＲＹ　ＦＩＮＡＮＣＩＡＬ　ＣＥＮＴＥＲ -> ＣＡＰＩＴＡＬ　ＩＮＤＵＳＴＲＹ　ＦＩＮＡＮＣＩＡＬ　ＣＥＮＴＥＲ
+2020-11-12 07:46:10,719 - torchocr - INFO - [81/100] - [5000/5893] - lr:0.0001 - loss:0.3734 - acc:0.7188 - norm_edit_dis:0.9029 - time:153.4583
+2020-11-12 07:50:49,786 - torchocr - INFO - [82/100] - [1000/5893] - lr:0.0001 - loss:0.2531 - acc:0.8438 - norm_edit_dis:0.9516 - time:147.2023
+2020-11-12 07:53:16,679 - torchocr - INFO - [82/100] - [2000/5893] - lr:0.0001 - loss:0.2607 - acc:0.8438 - norm_edit_dis:0.9410 - time:146.8927
+2020-11-12 07:55:41,928 - torchocr - INFO - [82/100] - [3000/5893] - lr:0.0001 - loss:0.4066 - acc:0.6875 - norm_edit_dis:0.8998 - time:145.2482
+2020-11-12 07:58:08,960 - torchocr - INFO - [82/100] - [4000/5893] - lr:0.0001 - loss:0.4030 - acc:0.8438 - norm_edit_dis:0.9327 - time:147.0318
+2020-11-12 07:58:09,627 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 07:58:09,628 - torchocr - INFO - start evaluate
+2020-11-12 07:58:14,677 - torchocr - INFO - eval_loss:0.32692190171052354
+2020-11-12 07:58:14,677 - torchocr - INFO - eval_acc:0.804932735426009
+2020-11-12 07:58:14,678 - torchocr - INFO - norm_edit_dis:0.9351325178636244
+2020-11-12 07:58:14,678 - torchocr - INFO - 活鱼现杀 -> 活鱼现杀
+2020-11-12 07:58:14,678 - torchocr - INFO - 囍 -> 囍
+2020-11-12 07:58:14,678 - torchocr - INFO - 路 -> 路
+2020-11-12 07:58:14,679 - torchocr - INFO - 特产超市 -> 特产超市
+2020-11-12 07:58:14,679 - torchocr - INFO - 全国 -> 全国
+2020-11-12 07:58:14,679 - torchocr - INFO - 上海锦尚　信勇 -> 上海锦尚　信勇
+2020-11-12 07:58:14,679 - torchocr - INFO - ＮＡＩＥＲ -> ＮＡＩＥＲ
+2020-11-12 07:58:14,679 - torchocr - INFO - 请上２楼 -> 请上２楼
+2020-11-12 07:58:14,679 - torchocr - INFO - 福 -> 福
+2020-11-12 07:58:14,679 - torchocr - INFO - 炒菜 -> 炒菜
+2020-11-12 07:58:15,348 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 08:00:40,954 - torchocr - INFO - [82/100] - [5000/5893] - lr:0.0001 - loss:0.1016 - acc:0.9062 - norm_edit_dis:0.9797 - time:151.9933
+2020-11-12 08:05:14,264 - torchocr - INFO - [83/100] - [1000/5893] - lr:0.0001 - loss:0.6821 - acc:0.8125 - norm_edit_dis:0.8944 - time:143.7024
+2020-11-12 08:07:38,887 - torchocr - INFO - [83/100] - [2000/5893] - lr:0.0001 - loss:0.2320 - acc:0.7188 - norm_edit_dis:0.9288 - time:144.6223
+2020-11-12 08:10:04,717 - torchocr - INFO - [83/100] - [3000/5893] - lr:0.0001 - loss:0.2537 - acc:0.8438 - norm_edit_dis:0.9448 - time:145.8289
+2020-11-12 08:12:29,998 - torchocr - INFO - [83/100] - [4000/5893] - lr:0.0001 - loss:0.1952 - acc:0.8750 - norm_edit_dis:0.9458 - time:145.2807
+2020-11-12 08:12:30,634 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 08:12:30,635 - torchocr - INFO - start evaluate
+2020-11-12 08:12:35,240 - torchocr - INFO - eval_loss:0.3608690722262896
+2020-11-12 08:12:35,241 - torchocr - INFO - eval_acc:0.8004484304932735
+2020-11-12 08:12:35,241 - torchocr - INFO - norm_edit_dis:0.9286559897694937
+2020-11-12 08:12:35,241 - torchocr - INFO - 启缘 -> 启缘
+2020-11-12 08:12:35,241 - torchocr - INFO - ＳＨＡＮＧＨＡＩ　ＴＯＢＡＣＣＯ　ＳＡＬＥ　ＮＥＴＷＯＲＫ　ＵＮＩＴＳ -> ＳＨＡＮＧＨＡＩ　ＴＯＢＡＣＣＯ　ＳＡＬＥ　ＮＥＴＷＯＲＫ　ＵＮＩＴＳ
+2020-11-12 08:12:35,241 - torchocr - INFO - 牌 -> 牛
+2020-11-12 08:12:35,241 - torchocr - INFO - 美容 -> 美容
+2020-11-12 08:12:35,241 - torchocr - INFO - ＷＥＤＤＩＮＧＰＨＯＴＯ -> ＷＥＤＤＩＮＧＰＨＯＴＯ
+2020-11-12 08:12:35,242 - torchocr - INFO - Ｅ－２５ -> Ｅ－２５
+2020-11-12 08:12:35,242 - torchocr - INFO - 本店外卖 -> 本店外卖
+2020-11-12 08:12:35,242 - torchocr - INFO - 舞台灯光音响 -> 舞台灯光音响
+2020-11-12 08:12:35,242 - torchocr - INFO - 颐天超市 -> 颐天超市
+2020-11-12 08:12:35,242 - torchocr - INFO - 浦电路店 -> 浦电路店
+2020-11-12 08:15:02,616 - torchocr - INFO - [83/100] - [5000/5893] - lr:0.0001 - loss:0.4008 - acc:0.7500 - norm_edit_dis:0.9183 - time:152.6175
+2020-11-12 08:19:39,147 - torchocr - INFO - [84/100] - [1000/5893] - lr:0.0001 - loss:0.2032 - acc:0.8125 - norm_edit_dis:0.9530 - time:146.7928
+2020-11-12 08:22:04,638 - torchocr - INFO - [84/100] - [2000/5893] - lr:0.0001 - loss:0.2179 - acc:0.8125 - norm_edit_dis:0.9449 - time:145.4906
+2020-11-12 08:24:29,936 - torchocr - INFO - [84/100] - [3000/5893] - lr:0.0001 - loss:0.1327 - acc:0.8438 - norm_edit_dis:0.9734 - time:145.2975
+2020-11-12 08:26:55,098 - torchocr - INFO - [84/100] - [4000/5893] - lr:0.0001 - loss:0.2190 - acc:0.8438 - norm_edit_dis:0.9295 - time:145.1617
+2020-11-12 08:26:55,712 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 08:26:55,713 - torchocr - INFO - start evaluate
+2020-11-12 08:27:00,528 - torchocr - INFO - eval_loss:0.3067149326916275
+2020-11-12 08:27:00,528 - torchocr - INFO - eval_acc:0.8127802690582959
+2020-11-12 08:27:00,529 - torchocr - INFO - norm_edit_dis:0.9407793681222805
+2020-11-12 08:27:00,529 - torchocr - INFO - 医 -> 医
+2020-11-12 08:27:00,529 - torchocr - INFO - Ｈｏｕｒ -> Ｈｏｕｒ
+2020-11-12 08:27:00,529 - torchocr - INFO - １３０５０２９００５１０１ -> １３０５０２９００５１０１
+2020-11-12 08:27:00,529 - torchocr - INFO - 炒菜 -> 炒菜
+2020-11-12 08:27:00,529 - torchocr - INFO - 租 -> 租
+2020-11-12 08:27:00,529 - torchocr - INFO - 工商工作站 -> 工商工作站
+2020-11-12 08:27:00,529 - torchocr - INFO - 文达具理　黄高阳众花品排架 -> 女性调理　熏蒸泥灸　祛湿排寒
+2020-11-12 08:27:00,529 - torchocr - INFO - 烫染工作室 -> 烫染工作室
+2020-11-12 08:27:00,529 - torchocr - INFO - 云星特水装 -> ＣＹＳＯ晨陽水漆
+2020-11-12 08:27:00,530 - torchocr - INFO - 老货 -> 老货
+2020-11-12 08:27:01,168 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 08:29:28,211 - torchocr - INFO - [84/100] - [5000/5893] - lr:0.0001 - loss:0.3920 - acc:0.7812 - norm_edit_dis:0.9216 - time:153.1117
+2020-11-12 08:34:04,374 - torchocr - INFO - [85/100] - [1000/5893] - lr:0.0001 - loss:0.3431 - acc:0.8750 - norm_edit_dis:0.9503 - time:145.4868
+2020-11-12 08:36:31,197 - torchocr - INFO - [85/100] - [2000/5893] - lr:0.0001 - loss:0.1516 - acc:0.8438 - norm_edit_dis:0.9582 - time:146.8224
+2020-11-12 08:38:57,900 - torchocr - INFO - [85/100] - [3000/5893] - lr:0.0001 - loss:0.3549 - acc:0.8125 - norm_edit_dis:0.9313 - time:146.7016
+2020-11-12 08:41:22,571 - torchocr - INFO - [85/100] - [4000/5893] - lr:0.0001 - loss:0.2521 - acc:0.7812 - norm_edit_dis:0.9570 - time:144.6710
+2020-11-12 08:41:23,176 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 08:41:23,177 - torchocr - INFO - start evaluate
+2020-11-12 08:41:27,956 - torchocr - INFO - eval_loss:0.35202398884210384
+2020-11-12 08:41:27,957 - torchocr - INFO - eval_acc:0.7903587443946188
+2020-11-12 08:41:27,957 - torchocr - INFO - norm_edit_dis:0.926139859212445
+2020-11-12 08:41:27,957 - torchocr - INFO - 特价鞋子　衣服 -> 特价鞋子　衣服
+2020-11-12 08:41:27,957 - torchocr - INFO - 动力十足 -> 动力十足
+2020-11-12 08:41:27,957 - torchocr - INFO - 名烟名酒 -> 名烟名酒
+2020-11-12 08:41:27,957 - torchocr - INFO - 加盟热线 -> 加盟热线
+2020-11-12 08:41:27,957 - torchocr - INFO - Ｈｏｕｒ -> Ｈｏｕｒ
+2020-11-12 08:41:27,957 - torchocr - INFO - 新业大楼 -> 新业大楼
+2020-11-12 08:41:27,958 - torchocr - INFO - ＹＨ -> ＹＨ
+2020-11-12 08:41:27,958 - torchocr - INFO - ９０ -> ９０
+2020-11-12 08:41:27,958 - torchocr - INFO - ８／１３６４０７９　４５４６ -> ８　／１３６　４０７９　４５４６
+2020-11-12 08:41:27,958 - torchocr - INFO - ｎｄ -> ｎｄ
+2020-11-12 08:43:53,850 - torchocr - INFO - [85/100] - [5000/5893] - lr:0.0001 - loss:0.2873 - acc:0.8125 - norm_edit_dis:0.9448 - time:151.2782
+2020-11-12 08:48:32,377 - torchocr - INFO - [86/100] - [1000/5893] - lr:0.0001 - loss:0.9225 - acc:0.7812 - norm_edit_dis:0.8573 - time:146.9674
+2020-11-12 08:50:58,656 - torchocr - INFO - [86/100] - [2000/5893] - lr:0.0001 - loss:0.1857 - acc:0.9062 - norm_edit_dis:0.9610 - time:146.2790
+2020-11-12 08:53:23,856 - torchocr - INFO - [86/100] - [3000/5893] - lr:0.0001 - loss:0.1713 - acc:0.8125 - norm_edit_dis:0.9627 - time:145.1989
+2020-11-12 08:55:51,349 - torchocr - INFO - [86/100] - [4000/5893] - lr:0.0001 - loss:0.3346 - acc:0.8438 - norm_edit_dis:0.9363 - time:147.4931
+2020-11-12 08:55:51,980 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 08:55:51,981 - torchocr - INFO - start evaluate
+2020-11-12 08:55:56,861 - torchocr - INFO - eval_loss:0.3223561702187553
+2020-11-12 08:55:56,861 - torchocr - INFO - eval_acc:0.8116591928251121
+2020-11-12 08:55:56,862 - torchocr - INFO - norm_edit_dis:0.9351460436665341
+2020-11-12 08:55:56,862 - torchocr - INFO - ＭＡＲＳＨＡＬ　ＣＥＲＡＭＩＣＳ -> ＭＡＲＳＨＡＬ　ＣＥＲＡＭＩＣＳ
+2020-11-12 08:55:56,862 - torchocr - INFO - 订聪 -> 订餐
+2020-11-12 08:55:56,862 - torchocr - INFO - 上海新联纺物业管理安装有限公司 -> 上海新联纺物业管理发展有限公司
+2020-11-12 08:55:56,862 - torchocr - INFO - ＲＥＣＲＵＩＴ -> ＲＥＣＲＵＩＴ
+2020-11-12 08:55:56,862 - torchocr - INFO - １９０８２３８１５８ -> １８６０８２２８１５８
+2020-11-12 08:55:56,863 - torchocr - INFO - 系 -> 系
+2020-11-12 08:55:56,863 - torchocr - INFO - 粉馆欢迎光临 -> 粉馆　欢迎光临
+2020-11-12 08:55:56,863 - torchocr - INFO - 金叶 -> 金叶
+2020-11-12 08:55:56,863 - torchocr - INFO - 精品店 -> 精品店
+2020-11-12 08:55:56,863 - torchocr - INFO - 怀德大街 -> 怀德大街
+2020-11-12 08:58:25,421 - torchocr - INFO - [86/100] - [5000/5893] - lr:0.0001 - loss:0.1539 - acc:0.8438 - norm_edit_dis:0.9688 - time:154.0708
+2020-11-12 09:03:02,666 - torchocr - INFO - [87/100] - [1000/5893] - lr:0.0001 - loss:0.3695 - acc:0.7188 - norm_edit_dis:0.9269 - time:147.8306
+2020-11-12 09:05:28,631 - torchocr - INFO - [87/100] - [2000/5893] - lr:0.0001 - loss:0.0689 - acc:0.9688 - norm_edit_dis:0.9911 - time:145.9642
+2020-11-12 09:07:54,302 - torchocr - INFO - [87/100] - [3000/5893] - lr:0.0001 - loss:0.2112 - acc:0.8750 - norm_edit_dis:0.9575 - time:145.6707
+2020-11-12 09:10:20,935 - torchocr - INFO - [87/100] - [4000/5893] - lr:0.0001 - loss:0.2001 - acc:0.8125 - norm_edit_dis:0.9495 - time:146.6321
+2020-11-12 09:10:21,560 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 09:10:21,561 - torchocr - INFO - start evaluate
+2020-11-12 09:10:26,597 - torchocr - INFO - eval_loss:0.3087832807321018
+2020-11-12 09:10:26,597 - torchocr - INFO - eval_acc:0.820627802690583
+2020-11-12 09:10:26,597 - torchocr - INFO - norm_edit_dis:0.9389715326159035
+2020-11-12 09:10:26,598 - torchocr - INFO - Ｃｈｕｎｉａｎ -> Ｃｈｕｎｔａｎ
+2020-11-12 09:10:26,598 - torchocr - INFO - 金吉马健身 -> 金吉鸟健身
+2020-11-12 09:10:26,598 - torchocr - INFO - 良孖足道 -> 良孖足道
+2020-11-12 09:10:26,598 - torchocr - INFO - 鸡 -> 鸡
+2020-11-12 09:10:26,598 - torchocr - INFO - 公 -> 公
+2020-11-12 09:10:26,598 - torchocr - INFO - ８日 -> ８日
+2020-11-12 09:10:26,599 - torchocr - INFO - 鹰明广告 -> 鹰明广告
+2020-11-12 09:10:26,599 - torchocr - INFO - 常实业有限公司 -> 常实业有限公司
+2020-11-12 09:10:26,599 - torchocr - INFO - 乳制品批发站 -> 乳制品批发站
+2020-11-12 09:10:26,599 - torchocr - INFO - 福 -> 福
+2020-11-12 09:10:27,242 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 09:12:54,639 - torchocr - INFO - [87/100] - [5000/5893] - lr:0.0001 - loss:0.2448 - acc:0.8125 - norm_edit_dis:0.9331 - time:153.7026
+2020-11-12 09:17:35,530 - torchocr - INFO - [88/100] - [1000/5893] - lr:0.0001 - loss:0.2897 - acc:0.8125 - norm_edit_dis:0.9390 - time:150.8883
+2020-11-12 09:19:58,770 - torchocr - INFO - [88/100] - [2000/5893] - lr:0.0001 - loss:0.2101 - acc:0.8750 - norm_edit_dis:0.9607 - time:143.2394
+2020-11-12 09:22:27,199 - torchocr - INFO - [88/100] - [3000/5893] - lr:0.0001 - loss:0.5244 - acc:0.8125 - norm_edit_dis:0.9133 - time:148.4285
+2020-11-12 09:24:53,083 - torchocr - INFO - [88/100] - [4000/5893] - lr:0.0001 - loss:0.7790 - acc:0.7500 - norm_edit_dis:0.9059 - time:145.8835
+2020-11-12 09:24:53,717 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 09:24:53,717 - torchocr - INFO - start evaluate
+2020-11-12 09:24:58,569 - torchocr - INFO - eval_loss:0.31339874064744005
+2020-11-12 09:24:58,569 - torchocr - INFO - eval_acc:0.8094170403587444
+2020-11-12 09:24:58,569 - torchocr - INFO - norm_edit_dis:0.9362096518946821
+2020-11-12 09:24:58,569 - torchocr - INFO - 剪神 -> 剪神
+2020-11-12 09:24:58,569 - torchocr - INFO - Ｐｈａｎ -> ｐｈｏｎｅ
+2020-11-12 09:24:58,569 - torchocr - INFO - 服务项目 -> 服务项目
+2020-11-12 09:24:58,569 - torchocr - INFO - 永 -> 永
+2020-11-12 09:24:58,570 - torchocr - INFO - 浦电路店 -> 浦电路店
+2020-11-12 09:24:58,570 - torchocr - INFO - 手机专卖 -> 手机专卖
+2020-11-12 09:24:58,570 - torchocr - INFO - 特 -> 特
+2020-11-12 09:24:58,570 - torchocr - INFO - 精业集团 -> 精业集团
+2020-11-12 09:24:58,570 - torchocr - INFO - 健康家具 -> 健康家具
+2020-11-12 09:24:58,570 - torchocr - INFO - 微地产 -> 微地产
+2020-11-12 09:27:25,690 - torchocr - INFO - [88/100] - [5000/5893] - lr:0.0001 - loss:0.3085 - acc:0.8438 - norm_edit_dis:0.9303 - time:152.6066
+2020-11-12 09:32:02,537 - torchocr - INFO - [89/100] - [1000/5893] - lr:0.0001 - loss:0.2065 - acc:0.8438 - norm_edit_dis:0.9628 - time:146.9474
+2020-11-12 09:34:28,461 - torchocr - INFO - [89/100] - [2000/5893] - lr:0.0001 - loss:0.1431 - acc:0.8750 - norm_edit_dis:0.9737 - time:145.9231
+2020-11-12 09:36:54,536 - torchocr - INFO - [89/100] - [3000/5893] - lr:0.0001 - loss:0.1759 - acc:0.8125 - norm_edit_dis:0.9431 - time:146.0738
+2020-11-12 09:39:21,941 - torchocr - INFO - [89/100] - [4000/5893] - lr:0.0001 - loss:0.1918 - acc:0.9062 - norm_edit_dis:0.9830 - time:147.4047
+2020-11-12 09:39:22,633 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 09:39:22,634 - torchocr - INFO - start evaluate
+2020-11-12 09:39:27,589 - torchocr - INFO - eval_loss:0.32919209935199134
+2020-11-12 09:39:27,589 - torchocr - INFO - eval_acc:0.8071748878923767
+2020-11-12 09:39:27,589 - torchocr - INFO - norm_edit_dis:0.9375839481524262
+2020-11-12 09:39:27,589 - torchocr - INFO - 图书 -> 图书
+2020-11-12 09:39:27,590 - torchocr - INFO - 韩国小馆 -> 韩国小馆
+2020-11-12 09:39:27,590 - torchocr - INFO - 营养丰富 -> 营养丰富
+2020-11-12 09:39:27,590 - torchocr - INFO - 重庆酸菜鱼 -> 重庆酸菜鱼
+2020-11-12 09:39:27,590 - torchocr - INFO - 福 -> 福
+2020-11-12 09:39:27,590 - torchocr - INFO - ＴＳＩＮＧＴＡＯ -> ＴＳＩＮＧＴＡＯ
+2020-11-12 09:39:27,590 - torchocr - INFO - 蜂 -> 蜂
+2020-11-12 09:39:27,590 - torchocr - INFO - 天玛电动车 -> 天玛电动车
+2020-11-12 09:39:27,590 - torchocr - INFO - 记 -> 记
+2020-11-12 09:39:27,590 - torchocr - INFO - 盛祥 -> 盛祥
+2020-11-12 09:41:53,543 - torchocr - INFO - [89/100] - [5000/5893] - lr:0.0001 - loss:0.2890 - acc:0.7812 - norm_edit_dis:0.9018 - time:151.6006
+2020-11-12 09:46:30,460 - torchocr - INFO - [90/100] - [1000/5893] - lr:0.0001 - loss:0.3410 - acc:0.8750 - norm_edit_dis:0.9332 - time:145.6488
+2020-11-12 09:48:58,904 - torchocr - INFO - [90/100] - [2000/5893] - lr:0.0001 - loss:0.2879 - acc:0.8125 - norm_edit_dis:0.9391 - time:148.4433
+2020-11-12 09:51:24,712 - torchocr - INFO - [90/100] - [3000/5893] - lr:0.0001 - loss:0.2187 - acc:0.7500 - norm_edit_dis:0.9441 - time:145.8074
+2020-11-12 09:53:50,087 - torchocr - INFO - [90/100] - [4000/5893] - lr:0.0001 - loss:0.4554 - acc:0.8125 - norm_edit_dis:0.9003 - time:145.3741
+2020-11-12 09:53:50,735 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 09:53:50,736 - torchocr - INFO - start evaluate
+2020-11-12 09:53:55,620 - torchocr - INFO - eval_loss:0.28672741191104606
+2020-11-12 09:53:55,620 - torchocr - INFO - eval_acc:0.8116591928251121
+2020-11-12 09:53:55,620 - torchocr - INFO - norm_edit_dis:0.9458219056543482
+2020-11-12 09:53:55,620 - torchocr - INFO - 大桶１５０元 -> 大通１５０元
+2020-11-12 09:53:55,621 - torchocr - INFO - 不计成有 -> 不计成本
+2020-11-12 09:53:55,621 - torchocr - INFO - 月有保健与促生 -> 具有保健与促生
+2020-11-12 09:53:55,621 - torchocr - INFO - ＢＲＡＮＣＨ　ＷＯＲＫ　ＳＴＡＴＩＯＮ -> ＢＲＡＮＣＨ　ＷＯＲＫ　ＳＴＡＴＩ
+2020-11-12 09:53:55,621 - torchocr - INFO - 会友 -> 会友
+2020-11-12 09:53:55,621 - torchocr - INFO - 中山南一路９０ -> 中山南一路９０
+2020-11-12 09:53:55,621 - torchocr - INFO - 周易起 -> 周易起
+2020-11-12 09:53:55,621 - torchocr - INFO - ９６７ -> ９６７
+2020-11-12 09:53:55,621 - torchocr - INFO - 夜宵　烧烤　炒菜 -> 夜宵　烧烤　炒菜
+2020-11-12 09:53:55,621 - torchocr - INFO - 辛酯 -> 辛酯
+2020-11-12 09:56:22,234 - torchocr - INFO - [90/100] - [5000/5893] - lr:0.0001 - loss:0.2135 - acc:0.8125 - norm_edit_dis:0.9494 - time:152.1465
+2020-11-12 10:00:59,066 - torchocr - INFO - [91/100] - [1000/5893] - lr:0.0001 - loss:0.5566 - acc:0.7188 - norm_edit_dis:0.8887 - time:146.3248
+2020-11-12 10:03:26,757 - torchocr - INFO - [91/100] - [2000/5893] - lr:0.0001 - loss:1.0726 - acc:0.6875 - norm_edit_dis:0.8332 - time:147.6908
+2020-11-12 10:05:55,204 - torchocr - INFO - [91/100] - [3000/5893] - lr:0.0001 - loss:0.1840 - acc:0.8438 - norm_edit_dis:0.9658 - time:148.4464
+2020-11-12 10:08:22,278 - torchocr - INFO - [91/100] - [4000/5893] - lr:0.0001 - loss:0.3131 - acc:0.8438 - norm_edit_dis:0.9308 - time:147.0735
+2020-11-12 10:08:22,913 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 10:08:22,913 - torchocr - INFO - start evaluate
+2020-11-12 10:08:27,970 - torchocr - INFO - eval_loss:0.2926295367377547
+2020-11-12 10:08:27,970 - torchocr - INFO - eval_acc:0.7937219730941704
+2020-11-12 10:08:27,971 - torchocr - INFO - norm_edit_dis:0.9339120555636773
+2020-11-12 10:08:27,971 - torchocr - INFO - 营业中 -> 营业中
+2020-11-12 10:08:27,971 - torchocr - INFO - ７１３１３ -> ７　１３１３
+2020-11-12 10:08:27,971 - torchocr - INFO - 光明 -> 光明
+2020-11-12 10:08:27,971 - torchocr - INFO - 烫发 -> 烫发
+2020-11-12 10:08:27,971 - torchocr - INFO - 螺杆 -> 螺杆
+2020-11-12 10:08:27,971 - torchocr - INFO - ｍｙｎｇｇｏ -> ｍｙｎｑｇｏ
+2020-11-12 10:08:27,972 - torchocr - INFO - 九鼎６Ｄ环保饲料　被 -> 九鼎６Ｄ环保饲料　　减
+2020-11-12 10:08:27,972 - torchocr - INFO - 招聘 -> 招聘
+2020-11-12 10:08:27,972 - torchocr - INFO - 监刷机 -> 取款机
+2020-11-12 10:08:27,972 - torchocr - INFO - 我和你 -> 我和你
+2020-11-12 10:10:53,787 - torchocr - INFO - [91/100] - [5000/5893] - lr:0.0001 - loss:0.2055 - acc:0.8125 - norm_edit_dis:0.9581 - time:151.5078
+2020-11-12 10:15:31,297 - torchocr - INFO - [92/100] - [1000/5893] - lr:0.0001 - loss:0.1775 - acc:0.9062 - norm_edit_dis:0.9714 - time:146.8241
+2020-11-12 10:17:56,176 - torchocr - INFO - [92/100] - [2000/5893] - lr:0.0001 - loss:0.1047 - acc:0.8125 - norm_edit_dis:0.9588 - time:144.8778
+2020-11-12 10:20:22,323 - torchocr - INFO - [92/100] - [3000/5893] - lr:0.0001 - loss:0.2926 - acc:0.8125 - norm_edit_dis:0.9424 - time:146.1469
+2020-11-12 10:22:48,509 - torchocr - INFO - [92/100] - [4000/5893] - lr:0.0001 - loss:0.2647 - acc:0.8125 - norm_edit_dis:0.9466 - time:146.1854
+2020-11-12 10:22:49,153 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 10:22:49,153 - torchocr - INFO - start evaluate
+2020-11-12 10:22:54,259 - torchocr - INFO - eval_loss:0.2906111752371107
+2020-11-12 10:22:54,260 - torchocr - INFO - eval_acc:0.827354260089686
+2020-11-12 10:22:54,260 - torchocr - INFO - norm_edit_dis:0.943635011801725
+2020-11-12 10:22:54,260 - torchocr - INFO - 家菜 -> 家菜
+2020-11-12 10:22:54,260 - torchocr - INFO - 盲　１的１店等便发站 -> 第１３１９０１０５号投注站
+2020-11-12 10:22:54,260 - torchocr - INFO - Ｌｅａｒｎｉｎｇ -> Ｌｅａｒｎｉｎｇ
+2020-11-12 10:22:54,260 - torchocr - INFO - 怡寶 -> 怡寶
+2020-11-12 10:22:54,260 - torchocr - INFO - 染发 -> 染发
+2020-11-12 10:22:54,260 - torchocr - INFO - 易车港二手车市场 -> 易车港二手车市场
+2020-11-12 10:22:54,261 - torchocr - INFO - 小拇指 -> 小拇指
+2020-11-12 10:22:54,261 - torchocr - INFO - 消火栓 -> 消火栓
+2020-11-12 10:22:54,261 - torchocr - INFO - 养生 -> 养生
+2020-11-12 10:22:54,261 - torchocr - INFO - 会友 -> 会友
+2020-11-12 10:22:54,913 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 10:25:23,826 - torchocr - INFO - [92/100] - [5000/5893] - lr:0.0001 - loss:0.2147 - acc:0.8125 - norm_edit_dis:0.9441 - time:155.3159
+2020-11-12 10:29:59,896 - torchocr - INFO - [93/100] - [1000/5893] - lr:0.0001 - loss:0.2988 - acc:0.8438 - norm_edit_dis:0.9419 - time:146.0170
+2020-11-12 10:32:27,643 - torchocr - INFO - [93/100] - [2000/5893] - lr:0.0001 - loss:0.4641 - acc:0.7812 - norm_edit_dis:0.8998 - time:147.7468
+2020-11-12 10:34:52,385 - torchocr - INFO - [93/100] - [3000/5893] - lr:0.0001 - loss:0.2260 - acc:0.7812 - norm_edit_dis:0.9509 - time:144.7410
+2020-11-12 10:37:19,954 - torchocr - INFO - [93/100] - [4000/5893] - lr:0.0001 - loss:0.5467 - acc:0.8125 - norm_edit_dis:0.9357 - time:147.5685
+2020-11-12 10:37:20,604 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 10:37:20,605 - torchocr - INFO - start evaluate
+2020-11-12 10:37:25,480 - torchocr - INFO - eval_loss:0.26820314950059115
+2020-11-12 10:37:25,480 - torchocr - INFO - eval_acc:0.8183856502242153
+2020-11-12 10:37:25,480 - torchocr - INFO - norm_edit_dis:0.9402945760170469
+2020-11-12 10:37:25,481 - torchocr - INFO - 背媒推护吉法联骨 -> 传统挂炉古法醇香
+2020-11-12 10:37:25,481 - torchocr - INFO - 中央空调 -> 中央空调
+2020-11-12 10:37:25,481 - torchocr - INFO - 烫染工作室 -> 烫染工作室
+2020-11-12 10:37:25,481 - torchocr - INFO - 严禁未成年入内 -> 严禁未成年入内
+2020-11-12 10:37:25,481 - torchocr - INFO - 支部委员会 -> 支部委员会
+2020-11-12 10:37:25,481 - torchocr - INFO - 重庆老火锅 -> 重庆老火锅
+2020-11-12 10:37:25,481 - torchocr - INFO - Ｅ－２５ -> Ｅ－２５
+2020-11-12 10:37:25,482 - torchocr - INFO - 重庆水煮印 -> 重庆水煮雨
+2020-11-12 10:37:25,482 - torchocr - INFO - ＢＵＬＬ -> ＢＵＬＬ
+2020-11-12 10:37:25,482 - torchocr - INFO - 福 -> 福
+2020-11-12 10:39:51,466 - torchocr - INFO - [93/100] - [5000/5893] - lr:0.0001 - loss:0.1051 - acc:0.8438 - norm_edit_dis:0.9691 - time:151.5111
+2020-11-12 10:44:27,686 - torchocr - INFO - [94/100] - [1000/5893] - lr:0.0001 - loss:0.2448 - acc:0.8750 - norm_edit_dis:0.9458 - time:146.7983
+2020-11-12 10:46:54,293 - torchocr - INFO - [94/100] - [2000/5893] - lr:0.0001 - loss:0.2364 - acc:0.9062 - norm_edit_dis:0.9644 - time:146.6070
+2020-11-12 10:49:18,816 - torchocr - INFO - [94/100] - [3000/5893] - lr:0.0001 - loss:0.2035 - acc:0.7500 - norm_edit_dis:0.9488 - time:144.5224
+2020-11-12 10:51:45,175 - torchocr - INFO - [94/100] - [4000/5893] - lr:0.0001 - loss:0.6372 - acc:0.7812 - norm_edit_dis:0.8909 - time:146.3577
+2020-11-12 10:51:45,798 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 10:51:45,798 - torchocr - INFO - start evaluate
+2020-11-12 10:51:50,653 - torchocr - INFO - eval_loss:0.28625575223553407
+2020-11-12 10:51:50,654 - torchocr - INFO - eval_acc:0.820627802690583
+2020-11-12 10:51:50,654 - torchocr - INFO - norm_edit_dis:0.9433098983659534
+2020-11-12 10:51:50,654 - torchocr - INFO - ３１３１８１８ -> ３１３１８１８
+2020-11-12 10:51:50,654 - torchocr - INFO - ＦＵＳＨＵＮ -> ＦＵＳＨＵＮ
+2020-11-12 10:51:50,654 - torchocr - INFO - １３２５号 -> １３２２５号
+2020-11-12 10:51:50,654 - torchocr - INFO - 请上２楼 -> 请上２楼
+2020-11-12 10:51:50,654 - torchocr - INFO - 君天副食批发 -> 君天副食批发
+2020-11-12 10:51:50,654 - torchocr - INFO - 中 -> 中
+2020-11-12 10:51:50,655 - torchocr - INFO - 紫阳宫养生馆 -> 紫阳宫养生馆
+2020-11-12 10:51:50,655 - torchocr - INFO - 必 -> 必
+2020-11-12 10:51:50,655 - torchocr - INFO - ４００－０９８０－７１１ -> ４００－０９８０－７１１
+2020-11-12 10:51:50,655 - torchocr - INFO - ９０ -> ９０
+2020-11-12 10:54:17,839 - torchocr - INFO - [94/100] - [5000/5893] - lr:0.0001 - loss:0.1511 - acc:0.8750 - norm_edit_dis:0.9682 - time:152.6637
+2020-11-12 10:58:54,251 - torchocr - INFO - [95/100] - [1000/5893] - lr:0.0001 - loss:0.1390 - acc:0.7812 - norm_edit_dis:0.9478 - time:145.5628
+2020-11-12 11:01:21,315 - torchocr - INFO - [95/100] - [2000/5893] - lr:0.0001 - loss:0.1787 - acc:0.8438 - norm_edit_dis:0.9601 - time:147.0628
+2020-11-12 11:03:47,668 - torchocr - INFO - [95/100] - [3000/5893] - lr:0.0001 - loss:0.0783 - acc:0.9375 - norm_edit_dis:0.9901 - time:146.3519
+2020-11-12 11:06:15,664 - torchocr - INFO - [95/100] - [4000/5893] - lr:0.0001 - loss:0.3721 - acc:0.7812 - norm_edit_dis:0.9382 - time:147.9958
+2020-11-12 11:06:16,317 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 11:06:16,318 - torchocr - INFO - start evaluate
+2020-11-12 11:06:21,317 - torchocr - INFO - eval_loss:0.28919484150218006
+2020-11-12 11:06:21,318 - torchocr - INFO - eval_acc:0.8172645739910314
+2020-11-12 11:06:21,318 - torchocr - INFO - norm_edit_dis:0.9399492979807798
+2020-11-12 11:06:21,318 - torchocr - INFO - 永 -> 永
+2020-11-12 11:06:21,318 - torchocr - INFO - 万和厨卫 -> 万和厨卫
+2020-11-12 11:06:21,319 - torchocr - INFO - 重庆老火锅 -> 重庆老火锅
+2020-11-12 11:06:21,319 - torchocr - INFO - 冷饮沙激凌　特色小吃 -> 冷饮　冰激凌　特色小吃
+2020-11-12 11:06:21,319 - torchocr - INFO - 九鼎６Ｄ环保饲料　减 -> 九鼎６Ｄ环保饲料　　减
+2020-11-12 11:06:21,319 - torchocr - INFO - 发罗斯玛洛什　冰淇淋　酸梅汤　冷饮　电话　１８６９０１１１９７０ -> 我罗斯玛洛什　冰淇淋　酸梅汤　冷饮　电话　１８６９０１１１９７０
+2020-11-12 11:06:21,319 - torchocr - INFO - １００ -> １００
+2020-11-12 11:06:21,319 - torchocr - INFO - 白瑞 -> 白马
+2020-11-12 11:06:21,320 - torchocr - INFO - 记 -> 记
+2020-11-12 11:06:21,320 - torchocr - INFO - １０ -> １０
+2020-11-12 11:08:46,872 - torchocr - INFO - [95/100] - [5000/5893] - lr:0.0001 - loss:0.1088 - acc:0.8125 - norm_edit_dis:0.9739 - time:151.2072
+2020-11-12 11:13:23,469 - torchocr - INFO - [96/100] - [1000/5893] - lr:0.0001 - loss:0.2856 - acc:0.8125 - norm_edit_dis:0.9420 - time:146.7555
+2020-11-12 11:15:49,187 - torchocr - INFO - [96/100] - [2000/5893] - lr:0.0001 - loss:0.2961 - acc:0.7500 - norm_edit_dis:0.9226 - time:145.7169
+2020-11-12 11:18:15,295 - torchocr - INFO - [96/100] - [3000/5893] - lr:0.0001 - loss:0.1326 - acc:0.8438 - norm_edit_dis:0.9714 - time:146.1074
+2020-11-12 11:20:41,985 - torchocr - INFO - [96/100] - [4000/5893] - lr:0.0001 - loss:0.4512 - acc:0.7812 - norm_edit_dis:0.8965 - time:146.6898
+2020-11-12 11:20:42,615 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 11:20:42,616 - torchocr - INFO - start evaluate
+2020-11-12 11:20:47,523 - torchocr - INFO - eval_loss:0.26789661541199017
+2020-11-12 11:20:47,524 - torchocr - INFO - eval_acc:0.8374439461883408
+2020-11-12 11:20:47,524 - torchocr - INFO - norm_edit_dis:0.9465619251626793
+2020-11-12 11:20:47,524 - torchocr - INFO - ＯＦ -> ＯＦ
+2020-11-12 11:20:47,524 - torchocr - INFO - 蜂之语 -> 蜂之语
+2020-11-12 11:20:47,524 - torchocr - INFO - 粉馆 -> 粉馆
+2020-11-12 11:20:47,525 - torchocr - INFO - 中国建设银行 -> 中国建设银行
+2020-11-12 11:20:47,525 - torchocr - INFO - 莫小姐 -> 莫小姐
+2020-11-12 11:20:47,525 - torchocr - INFO - 怡寶 -> 怡寶
+2020-11-12 11:20:47,525 - torchocr - INFO - 年末大促销 -> 年末大促销
+2020-11-12 11:20:47,525 - torchocr - INFO - 诚信遮阳蓬 -> 诚信遮阳蓬
+2020-11-12 11:20:47,525 - torchocr - INFO - 登记工 -> 登记站
+2020-11-12 11:20:47,526 - torchocr - INFO - 订餐 -> 订餐
+2020-11-12 11:20:48,174 - torchocr - INFO - models saved to model/CBRNN4//best.bin
+2020-11-12 11:23:14,565 - torchocr - INFO - [96/100] - [5000/5893] - lr:0.0001 - loss:0.4645 - acc:0.7812 - norm_edit_dis:0.9276 - time:152.5791
+2020-11-12 11:27:51,172 - torchocr - INFO - [97/100] - [1000/5893] - lr:0.0001 - loss:0.1981 - acc:0.8125 - norm_edit_dis:0.9550 - time:146.4938
+2020-11-12 11:30:17,953 - torchocr - INFO - [97/100] - [2000/5893] - lr:0.0001 - loss:0.4347 - acc:0.9062 - norm_edit_dis:0.9427 - time:146.7802
+2020-11-12 11:32:43,587 - torchocr - INFO - [97/100] - [3000/5893] - lr:0.0001 - loss:0.2237 - acc:0.8438 - norm_edit_dis:0.9560 - time:145.6334
+2020-11-12 11:35:11,084 - torchocr - INFO - [97/100] - [4000/5893] - lr:0.0001 - loss:0.3201 - acc:0.7188 - norm_edit_dis:0.9303 - time:147.4962
+2020-11-12 11:35:11,721 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 11:35:11,722 - torchocr - INFO - start evaluate
+2020-11-12 11:35:16,615 - torchocr - INFO - eval_loss:0.2753207870939696
+2020-11-12 11:35:16,616 - torchocr - INFO - eval_acc:0.8026905829596412
+2020-11-12 11:35:16,616 - torchocr - INFO - norm_edit_dis:0.9375763056302401
+2020-11-12 11:35:16,616 - torchocr - INFO - 诚 -> 诚
+2020-11-12 11:35:16,616 - torchocr - INFO - ２２６ -> ２２６
+2020-11-12 11:35:16,616 - torchocr - INFO - 金豆豆便利店 -> 金豆豆便利店
+2020-11-12 11:35:16,617 - torchocr - INFO - 内衣店 -> 内衣店
+2020-11-12 11:35:16,617 - torchocr - INFO - 海辉修　宏街山告 -> 色印刷宣传画册
+2020-11-12 11:35:16,617 - torchocr - INFO - 园林　发电机 -> 园林　发电机
+2020-11-12 11:35:16,617 - torchocr - INFO - 欢迎新老顾客前来购买本店另 -> 欢迎新老顾客前来购买　本店另
+2020-11-12 11:35:16,617 - torchocr - INFO - 兰州拉面 -> 兰州拉面
+2020-11-12 11:35:16,617 - torchocr - INFO - 酸菜鱼 -> 酸菜鱼
+2020-11-12 11:35:16,617 - torchocr - INFO - 怡升 -> 怡升
+2020-11-12 11:37:41,967 - torchocr - INFO - [97/100] - [5000/5893] - lr:0.0001 - loss:0.4471 - acc:0.7188 - norm_edit_dis:0.8983 - time:150.8827
+2020-11-12 11:42:19,170 - torchocr - INFO - [98/100] - [1000/5893] - lr:0.0001 - loss:0.1593 - acc:0.9062 - norm_edit_dis:0.9724 - time:146.2396
+2020-11-12 11:44:44,939 - torchocr - INFO - [98/100] - [2000/5893] - lr:0.0001 - loss:0.2818 - acc:0.7188 - norm_edit_dis:0.9186 - time:145.7685
+2020-11-12 11:47:15,025 - torchocr - INFO - [98/100] - [3000/5893] - lr:0.0001 - loss:0.0661 - acc:0.9375 - norm_edit_dis:0.9906 - time:150.0846
+2020-11-12 11:49:41,700 - torchocr - INFO - [98/100] - [4000/5893] - lr:0.0001 - loss:0.1951 - acc:0.8750 - norm_edit_dis:0.9594 - time:146.6752
+2020-11-12 11:49:42,349 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 11:49:42,350 - torchocr - INFO - start evaluate
+2020-11-12 11:49:47,219 - torchocr - INFO - eval_loss:0.3095780604209901
+2020-11-12 11:49:47,220 - torchocr - INFO - eval_acc:0.8251121076233184
+2020-11-12 11:49:47,220 - torchocr - INFO - norm_edit_dis:0.9408434425555658
+2020-11-12 11:49:47,220 - torchocr - INFO - 永 -> 永
+2020-11-12 11:49:47,220 - torchocr - INFO - 阳光房 -> 阳光房
+2020-11-12 11:49:47,221 - torchocr - INFO - 时间 -> 时间
+2020-11-12 11:49:47,221 - torchocr - INFO - 联大饭 -> 消火栓
+2020-11-12 11:49:47,221 - torchocr - INFO - 小时Ｈｏｕｒ -> 小时Ｈｏｕｒ
+2020-11-12 11:49:47,221 - torchocr - INFO - 订餐电话　１３９１２３１５９２６ -> 订餐电话　１３９１２３１５９２６
+2020-11-12 11:49:47,221 - torchocr - INFO - ＣＥＬＥＳＴＥＷＥＤＤＩＮＧＰＨＯＴＯ -> ＣＥＬＥＳＴＥＷＥＤＤＩＮＧＰＨＯＴＯ
+2020-11-12 11:49:47,221 - torchocr - INFO - 合平价菜场 -> 合平价菜场
+2020-11-12 11:49:47,222 - torchocr - INFO - Ｋｏｏｌｓｐａｃｅ -> Ｋｏｏｌｓｐａｃｅ
+2020-11-12 11:49:47,222 - torchocr - INFO - ２ｈｏｍ -> ｐｈｏｎｅ
+2020-11-12 11:52:13,490 - torchocr - INFO - [98/100] - [5000/5893] - lr:0.0001 - loss:0.1914 - acc:0.7812 - norm_edit_dis:0.9473 - time:151.7886
+2020-11-12 11:56:53,799 - torchocr - INFO - [99/100] - [1000/5893] - lr:0.0001 - loss:0.1234 - acc:0.9062 - norm_edit_dis:0.9699 - time:149.5954
+2020-11-12 11:59:20,737 - torchocr - INFO - [99/100] - [2000/5893] - lr:0.0001 - loss:0.1203 - acc:0.9062 - norm_edit_dis:0.9793 - time:146.9367
+2020-11-12 12:01:46,371 - torchocr - INFO - [99/100] - [3000/5893] - lr:0.0001 - loss:0.3008 - acc:0.8438 - norm_edit_dis:0.9537 - time:145.6334
+2020-11-12 12:04:11,507 - torchocr - INFO - [99/100] - [4000/5893] - lr:0.0001 - loss:0.2544 - acc:0.8750 - norm_edit_dis:0.9328 - time:145.1360
+2020-11-12 12:04:12,131 - torchocr - INFO - models saved to model/CBRNN4//model.bin
+2020-11-12 12:04:12,132 - torchocr - INFO - start evaluate
+2020-11-12 12:04:17,103 - torchocr - INFO - eval_loss:0.29704490887531554
+2020-11-12 12:04:17,103 - torchocr - INFO - eval_acc:0.8228699551569507
+2020-11-12 12:04:17,103 - torchocr - INFO - norm_edit_dis:0.9407923015443558
+2020-11-12 12:04:17,103 - torchocr - INFO - 请注意你的行为举止 -> 清注意你的行为举止
+2020-11-12 12:04:17,103 - torchocr - INFO - ４ -> ４
+2020-11-12 12:04:17,103 - torchocr - INFO - 车友 -> 车友
+2020-11-12 12:04:17,103 - torchocr - INFO - ＳＯＵＲＣＥ -> ＳＯＵＲＣＥ
+2020-11-12 12:04:17,104 - torchocr - INFO - ＫＥＮＤＡ　建大轮胎 -> ＫＥＮＤＡ　建大轮胎
+2020-11-12 12:04:17,104 - torchocr - INFO - 世缘 -> 世缘
+2020-11-12 12:04:17,104 - torchocr - INFO - 儿童健康调 -> 儿童健康调
+2020-11-12 12:04:17,104 - torchocr - INFO - １３２５号 -> １３２２５号
+2020-11-12 12:04:17,104 - torchocr - INFO - 成记窝窝头 -> 成记窝窝头
+2020-11-12 12:04:17,104 - torchocr - INFO - Ｌｅａｒｎｉｎｇ -> Ｌｅａｒｎｉｎｇ
+2020-11-12 12:06:43,544 - torchocr - INFO - [99/100] - [5000/5893] - lr:0.0001 - loss:0.2969 - acc:0.8750 - norm_edit_dis:0.9518 - time:152.0361
+2020-11-12 12:08:51,473 - torchocr - INFO - best_acc: 0
+2020-11-12 12:08:51,473 - torchocr - INFO - eval_loss: 0.26789661541199017
+2020-11-12 12:08:51,473 - torchocr - INFO - model_path: 
+2020-11-12 12:08:51,473 - torchocr - INFO - eval_acc: 0.8374439461883408
+2020-11-12 12:08:51,473 - torchocr - INFO - eval_ned: 0.0
+2020-11-12 12:08:51,473 - torchocr - INFO - norm_edit_dis: 0.9465619251626793
+2020-11-12 12:08:51,474 - torchocr - INFO - best_model_epoch: 96
+2020-11-12 12:08:51,474 - torchocr - INFO - models: model/CBRNN4//model.bin

@@ -2,7 +2,6 @@
 *.pth
 *.pyc
 *.pyo
-*.log
 *.tmp
 *.pkl
 *_local*
