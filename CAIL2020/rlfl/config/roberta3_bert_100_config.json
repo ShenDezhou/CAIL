@@ -10,7 +10,7 @@
   "batch_size": 2,
 
   "bert_model_path": "../roberta3_ext/",
-  "trained_weight":"",
+  "trained_weight":"model/rbt3l/model.bin",
   "hidden_size": 768,
   "num_classes": 100,
   "dropout": 0.05,

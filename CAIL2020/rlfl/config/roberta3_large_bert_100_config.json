@@ -4,8 +4,8 @@
   "model_path": "model/rbt3l/",
   "log_path": "log/",
 
-  "train_file_path": "data_cv/train.data",
-  "valid_file_path": "data_cv/test.data",
+  "train_file_path": "data_cv/train_100.data",
+  "valid_file_path": "data_cv/test_100.data",
 
   "batch_size": 2,
 
