@@ -1,0 +1,11 @@
+services:
+  web:
+    image: case4classification:1.0
+    environment:
+      - gpus=all
+    network_mode: "host"
+    container_name: case4classification_rbt3l
+    volumes:
+      - /mnt/data/roberta3_large_ext:/workspace/roberta3_large_ext
+      - /mnt/data/ayfl4/model/rbt3l:/workspace/model/rbt3l/
+    command: python3 torch_server.py -c config/roberta3_large_bert_config.json -p 58084

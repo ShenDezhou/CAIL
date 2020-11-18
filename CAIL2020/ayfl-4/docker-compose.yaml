@@ -1,0 +1,11 @@
+services:
+  web:
+    image: case4classification:1.0
+    environment:
+      - gpus=all
+    network_mode: "host"
+    container_name: case4classification_large
+    volumes:
+      - /mnt/data/wwm_large_ext:/workspace/wwm_large_ext
+      - /mnt/data/ayfl4/model/bert:/workspace/model/bert/
+    command: python3 torch_server.py -p 58083
