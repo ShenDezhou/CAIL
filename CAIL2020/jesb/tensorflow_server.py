@@ -29,10 +29,10 @@ cors_allow_all = CORS(allow_all_origins=True,
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '-j', '--json_file', default='model_data/money_maps.json',
+    '-m', '--model_folder', default='model_data',
     help='model config file')
 parser.add_argument(
-    '-p', '--pb_path', default='model_data/money_model.pb',
+    '-p', '--port', default=58085,
     help='model config file')
 parser.add_argument(
     '-b', '--batch_size', default=1,
@@ -44,8 +44,8 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-json_file=args.json_file
-pb_path = args.pb_path
+# json_file=args.json_file
+# pb_path = args.pb_path
 batch_size=args.batch_size
 num_tags=args.num_tags
 
@@ -126,7 +126,7 @@ class TorchResource:
 
     def __init__(self):
         logger.info("...")
-        with open(args.json_file, "r") as f:  # with open(FLAGS.map_file, "rb") as f:
+        with open(os.path.join(args.model_folder,'money_maps.json'), "r") as f:  # with open(FLAGS.map_file, "rb") as f:
             self.char_to_id, self.id_to_char, self.tag_to_id, self.id_to_tag = json.load(f)  # pickle.load(f)
             print('json file loaded')
 
@@ -143,7 +143,7 @@ class TorchResource:
 
         with tf.Graph().as_default():
             output_graph_def = tf.GraphDef()
-            with open(pb_path, "rb") as f:
+            with open(os.path.join(args.model_folder, 'money_model.pb'), "rb") as f:
                 output_graph_def.ParseFromString(f.read())
                 tf.import_graph_def(output_graph_def, name="")
 
@@ -192,7 +192,7 @@ class TorchResource:
                                 list_amounts.append(aug_word)
                             else:
                                 list_amounts.append(entity['word'])
-                            print(entity['word'])
+                            #print(entity['word'])
                 return {"answer":list_amounts}
 
     def on_get(self, req, resp):
@@ -230,4 +230,4 @@ if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
     api.req_options.auto_parse_form_urlencoded = True
     api.add_route('/z', TorchResource())
-    waitress.serve(api, port=58084, threads=48, url_scheme='http')
+    waitress.serve(api, port=args.port, threads=48, url_scheme='http')
