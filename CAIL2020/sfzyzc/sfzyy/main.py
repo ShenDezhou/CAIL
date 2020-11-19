@@ -10,7 +10,6 @@ from ruleresult.CompResult import CompResult
 from rulereason.CheckReason import CheckReason
 from rulefact.CompFact import CompFact
 
-#from filter.CheckWordImportance import CheckWordImportance
 import fire
 
 input_path = "/data/data.json"
@@ -115,54 +114,6 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
                             dup.add(line)
 
                 data['text'] = collected
-                #####OUTPUT#######
-                #head
-                # summary = []
-                # # 1. 纠纷理由
-                # if which_reason:
-                #     summary.append("原被告系%s纠纷关系。" % which_reason)
-                # else:
-                #     summary.append(reason.checkArgueReason(text))
-                # print(summary)
-                #
-                # #body
-                # # 2.原告诉称; 3.查明 4.本院认为 5.6.法律依据、判决结果
-                # def filtertool(somelist):
-                #     newlist = [line for line in somelist if importance.checkImportance(line)]
-                #     if len(newlist)==0:
-                #         return somelist
-                #     return newlist
-                #
-                # summary.extend(filtertool(proposed))
-                # summary.extend(filtertool(facts))
-                # summary.extend(filtertool(opinions))
-                # summary.extend(trialresults)
-                #
-                # if len(collected) < 1000:
-                #     pass
-                # else:
-                #     # collected = [sent for sent in collected if len(sent) > 0]
-                #
-                #     sentrank = []
-                #     for sentence in collected:
-                #         sentrank.append(rank.checkRank(sentence))
-                #     rank2sent = dict()
-                #     for key, v in zip(sentrank, collected):
-                #         try:
-                #             rank2sent[key].append(v)
-                #         except KeyError:
-                #             rank2sent[key] = [v]
-                #     for key in sorted(rank2sent.keys()):
-                #         summary.extend(rank2sent[key])
-                #
-                # # 过滤
-                # # summary = [line for line in summary if importance.checkImportance(line)]
-                # # summary = filter.checkWordImportance(summary)
-                # summary = "".join(summary)
-                # result = dict(
-                #     id=id,
-                #     summary=summary
-                # )
                 fw.write(json.dumps(data, ensure_ascii=False) + '\n')
 
 if __name__ == '__main__':

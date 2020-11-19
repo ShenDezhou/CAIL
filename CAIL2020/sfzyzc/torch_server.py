@@ -31,6 +31,9 @@ cors_allow_all = CORS(allow_all_origins=True,
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
+    '-p', '--port', default=58089,
+    help='falcon server port')
+parser.add_argument(
     '-c', '--config_file', default='config/bert_config.json',
     help='model config file')
 args = parser.parse_args()
@@ -109,4 +112,4 @@ if __name__ == "__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
     api.req_options.auto_parse_form_urlencoded = True
     api.add_route('/z', TorchResource())
-    waitress.serve(api, port=58082, threads=48, url_scheme='http')
+    waitress.serve(api, port=args.port, threads=48, url_scheme='http')

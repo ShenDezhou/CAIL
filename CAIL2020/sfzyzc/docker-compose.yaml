@@ -1,0 +1,12 @@
+services:
+  web:
+    image: caseabstract:1.0
+    environment:
+      - gpus=all
+    network_mode: "host"
+    volumes:
+      - /mnt/data/sfzy/data:/workspace/data
+      - /mnt/data/roberta_wwm_ext:/workspace/roberta_wwm_ext
+      - /mnt/data/sfzy/sfzyzb/model/bert:/workspace/sfzyzb/model/bert
+      - /mnt/data/sfzy/sfzyza/model/bert:/workspace/sfzyza/model/bert
+    command: python3 torch_server.py -p 58089
