@@ -10,7 +10,6 @@ from torch import nn
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from transformers.modeling_bert import BertModel
-import torch_xla.core.xla_model as xm
 
 class BertForClassification(nn.Module):
     """BERT with simple linear model."""
@@ -151,10 +150,11 @@ class BertXForClassification(nn.Module):
         logits = self.fc3(x)        # logits: (batch_size, num_classes)
         return logits
 
-from resnet import resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
-
-resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
-
+# from resnet import ResNet,BasicBlock,Bottleneck, resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
+#
+# resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
+from resnetv import ResNet
+from FPN import FPN
 class BertYForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
@@ -173,11 +173,14 @@ class BertYForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
 
-        hidden_size = config.num_fc_hidden_size
+        hidden_size = config.fc_hidden
         target_class = config.num_classes
         # self.resnet = resnet18(num_classes=hidden_size)
-        self.resnet = resnet_pool[config.resnet_type](num_classes=hidden_size)
+        #self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
+        self.resnet = ResNet(config.in_channels, 18)
+        self.fpn = FPN([64]* 4, 4)
 
+        self.fpn_seq = FPN([128] * 4, 4)
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         self.fc1 = nn.Linear(hidden_size, target_class)
@@ -199,7 +202,7 @@ class BertYForClassification(nn.Module):
             input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
-            # encoder_hidden_states=False
+            output_hidden_states=True
         )
         # bert_output[0]: (batch_size, sequence_length, hidden_size)
         # encoded_output = bert_output[0]
@@ -207,17 +210,27 @@ class BertYForClassification(nn.Module):
         # encoded_output = encoded_output.view(batch_size, 1, encoded_output.shape[1], -1)
 
         # ids: (batch_size, max_seq_len)
-        s1_embed = bert_output[0]
+        x = bert_output[2]
         # s2_embed = self.embedding(s2_ids)
         # embed: (batch_size, max_seq_len, hidden_size)
         # s1_packed: PackedSequence = pack_padded_sequence(
         #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
-        if torch.cuda.is_available():
-            x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
-        else:
-            x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
-
+        # if torch.cuda.is_available():
+        #     x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
+        # else:
+        #     x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
+        #x = s1_embed.transpose(1, 2)
+        x = [l.unsqueeze(1) for l in x[-3:]]
+        x = torch.cat(x, dim=1)
         x = self.resnet(x)
+        x = x.permute((0,3,1,2))
+        x = x[:,0:64,:,:], x[:,64:64+64,:,:], x[:,128:128+64,:,:], x[:,192:,:,:]
+        x = self.fpn(x)
+
+        x = x.permute((0, 2, 3, 1))
+        x = x[:, 0:128, :, :], x[:, 128:128 + 128, :, :], x[:, 256:256 + 128, :, :], x[:, 384:, :, :]
+        x = self.fpn_seq(x)
+        x = x.flatten(start_dim=1)
         x = self.dropout(x)
         logits = self.fc1(x)        # logits: (batch_size, num_classes)
         return logits

@@ -4,16 +4,18 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/valid.csv",
-  "valid_file_path": "data/dev.csv",
+  "train_file_path": "data/train.csv",
+  "valid_file_path": "data/valid.csv",
 
   "batch_size": 2,
 
-  "bert_model_path": "F:/wwm_large_ext",
+  "bert_model_path": "../roberta_wwm_large_ext",
   "trained_weight":"",
 
-  "num_fc_hidden_size": 16,
-  "resnet_type": 0,
+  "in_channels": 3,
+  "layers": 18,
+  "fc_hidden": 224,
+
 
   "hidden_size": 1024,
   "num_classes": 2,
@@ -23,8 +25,13 @@
   "num_epoch": 10,
   "num_warmup_steps": 20,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 2,
+  "gradient_accumulation_steps": 32,
   "max_grad_norm": 7e-3,
+  "num_cores": 8,
+  "serial_load": false,
+  "metrics_debug": false,
+  "log_steps": 100,
 
   "experiment_name": "BERT"
+
 }

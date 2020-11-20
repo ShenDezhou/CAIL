@@ -161,6 +161,41 @@ class Data:
                 sc_list, bc_list, label_list)
         return dataset
 
+    def load_file_test(self,
+                  file_path='SMP-CAIL2020-train.csv') -> TensorDataset:
+        """Load SMP-CAIL2020-Argmine train file and construct TensorDataset.
+
+        Args:
+            file_path: train file with last column as label
+            train:
+                If True, train file with last column as label
+                Otherwise, test file without last column as label
+
+        Returns:
+            BERT model:
+            Train:
+                torch.utils.data.TensorDataset
+                    each record: (input_ids, input_mask, segment_ids, label)
+            Test:
+                torch.utils.data.TensorDataset
+                    each record: (input_ids, input_mask, segment_ids)
+            RNN model:
+            Train:
+                torch.utils.data.TensorDataset
+                    each record: (s1_ids, s2_ids, s1_length, s2_length, label)
+            Test:
+                torch.utils.data.TensorDataset
+                    each record: (s1_ids, s2_ids, s1_length, s2_length)
+        """
+        sc_list, bc_list, label_list = self._load_file_test(file_path)
+        if self.model_type == 'bert':
+            dataset = self._convert_sentence_pair_to_bert_dataset(
+                sc_list, bc_list, label_list)
+        else:  # rnn
+            dataset = self._convert_sentence_pair_to_rnn_dataset(
+                sc_list, bc_list, label_list)
+        return dataset
+
     def load_train_and_valid_files(self, train_file, valid_file):
         """Load all files for SMP-CAIL2020-Argmine.
 
@@ -187,18 +222,7 @@ class Data:
             sc_col = sc_col[:max_seq_len//2 + 1]
         if len(bc_col) > max_seq_len // 2:
             bc_col = bc_col[:max_seq_len//2]
-        # if len(sc_col) + len(bc_col) > max_seq_len:
-        #     sc_summary, bc_summary = self.summarizer.summarize([sc_col, bc_col])
-        #     ratio = (len(sc_summary) + len(bc_summary)) * 1.0 / max_seq_len
-        #     sc_dest = int(len(sc_summary) // ratio)
-        #     bc_dest = int(len(bc_summary) // ratio)
-        #     if len(sc_summary) > sc_dest:
-        #         x = (len(sc_summary) - sc_dest//3 * 2)//2
-        #         sc_summary = sc_summary[:sc_dest//3] +sc_summary[x:x+sc_dest//3] + sc_summary[-sc_dest//3:]
-        #     if len(bc_summary) > bc_dest:
-        #         x = (len(bc_summary) - sc_dest // 3 * 2) // 2
-        #         bc_summary = bc_summary[:bc_dest//3] + bc_summary[x:x+bc_dest//3] +  bc_summary[-bc_dest//3:]
-        #     return sc_summary, bc_summary
+
         return sc_col, bc_col
 
     def _load_file(self, filename, train: bool = True):
@@ -256,6 +280,33 @@ class Data:
                 else:  # test
                     sc_list.append(sc_tokens)
                     bc_list.append(bc_tokens)
+        return sc_list, bc_list, label_list
+
+    def _load_file_test(self, filename):
+        """Load SMP-CAIL2020-Argmine train/test file.
+
+        For train file,
+        The ratio between positive samples and negative samples is 1:4
+        Copy positive 3 times so that positive:negative = 1:1
+
+        Args:
+            filename: SMP-CAIL2020-Argmine file
+            train:
+                If True, train file with last column as label
+                Otherwise, test file without last column as label
+
+        Returns:
+            sc_list, bc_list, label_list with the same length
+            sc_list, bc_list: List[List[str]], list of word tokens list
+            label_list: List[int], list of labels
+        """
+        data_frame = pd.read_csv(filename)
+        sc_list, bc_list, label_list = [], [], []
+        for row in data_frame.itertuples(index=False):
+            sc_tokens = self.tokenizer.tokenize(row[0])
+            bc_tokens = self.tokenizer.tokenize(row[1])
+            sc_list.append(sc_tokens)
+            bc_list.append(bc_tokens)
         return sc_list, bc_list, label_list
 
     def _convert_sentence_pair_to_bert_dataset(

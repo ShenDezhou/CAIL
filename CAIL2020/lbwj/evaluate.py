@@ -87,6 +87,26 @@ def evaluate(model, data_loader, device) -> List[str]:
         answer_list.append(LABELS[answer])
     return answer_list
 
+def evaluate_fortest(model, data_loader, device) -> List[str]:
+    """Evaluate model on data loader in device.
+
+    Args:
+        model: model to be evaluate
+        data_loader: torch.utils.data.DataLoader
+        device: cuda or cpu
+
+    Returns:
+        answer list
+    """
+    model.eval()
+    outputs = torch.tensor([], dtype=torch.float).to(device)
+    for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
+        batch = tuple(t.to(device) for t in batch)
+        with torch.no_grad():
+            logits = model(*batch)
+        outputs = torch.cat([outputs, logits[:, 1]])
+    return outputs.tolist()
+
 
 if __name__ == '__main__':
     acc, f1_score = eval_file(
