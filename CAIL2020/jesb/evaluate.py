@@ -21,19 +21,21 @@ def compare(s,t):
     c = 0
     for i in s:
         ii = strQ2B(i)
-        if ii in t:
+        if ii in t or ii+'元' in t:
             c+= 1
+            print('c', ii, t)
         else:
-            print(ii, t)
+            print('w', ii, t)
 
-    return c*1.0/len(s)
+    return c
 
 
 http = urllib3.PoolManager()
-url = "http://localhost:58084/z"
-df = pandas.read_csv("data/contract_amount_test.csv", encoding='utf-8')
+url = "http://192.168.0.161:58084/z"
+df = pandas.read_csv("data/contract_amount_goldtest.csv", encoding='utf-8')
 correct = 0
 total = len(df)
+total_item = 0
 for x, row in df.iterrows():
     contract = row[0]
     indexes = row[1].split(";")
@@ -50,7 +52,7 @@ for x, row in df.iterrows():
     model_predict = result["answer"]
 
     correct += compare(tags,model_predict)
-
-    print("correct", correct, x)
-print("ACC", float(correct*1.0/total))
+    total_item += len(tags)
+    print("correct/total", correct, total_item)
+print("ACC=", float(correct*1.0/total_item))
 
