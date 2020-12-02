@@ -1,19 +1,19 @@
 {
-  "model_type": "bert",
+  "model_type": "bertxl",
   "max_seq_len": 1024,
   "model_path": "sfzyza/model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/train.csv",
-  "valid_file_path": "data/valid.csv",
+  "train_file_path": "data/core_summary_valid.csv",
+  "valid_file_path": "data/core_summary_valid.csv",
 
   "batch_size": 2,
 
-  "bert_model_path": "/mnt/data/torchcail/bert-base-chinese",
+  "bert_model_path": "F:/4_model/xlnet_base",
   "trained_weight":"",
   "hidden_size": 768,
-  "num_classes": 2,
-  "dropout": 0.50,
+  "num_classes": 1024,
+  "dropout": 0.050,
 
   "lr": 1e-5,
   "num_epoch": 50,
@@ -22,5 +22,5 @@
   "gradient_accumulation_steps": 16,
   "max_grad_norm": 1e-3,
 
-  "experiment_name": "BERT"
+  "experiment_name": "BERTXL"
 }
