@@ -29,7 +29,7 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification
+from model import BertForClassification, BertXLForClassification
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
@@ -50,7 +50,8 @@ import torch_xla.utils.utils as xu
 
 
 MODEL_MAP = {
-    'bert': BertForClassification
+    'bert': BertForClassification,
+    'bertxl': BertXLForClassification
 }
 # Define Parameters
 
