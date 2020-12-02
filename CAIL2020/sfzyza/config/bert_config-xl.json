@@ -15,7 +15,7 @@
   "num_classes": 1024,
   "dropout": 0.05,
 
-  "lr": 1e-3,
+  "lr": 1e-4,
   "num_epoch": 10,
   "log_steps": 100,
   "serial_load": true,

@@ -152,16 +152,14 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (s1_ids, s2_ids, s1_length, s2_length)
         """
+        sc_list, label_list = self._load_file(file_path, train)
         if 'bert' == self.model_type:
-            sc_list, label_list = self._load_file(file_path, train)
             dataset = self._convert_sentence_pair_to_bert_dataset(
                 sc_list,  label_list)
         elif 'bertxl' == self.model_type:
-            sc_list, label_list = self._load_xl_file(file_path, train)
             dataset = self._convert_sentence_pair_to_bertxl_dataset(
                 sc_list,  label_list)
         else:  # rnn
-            sc_list, label_list = self._load_file(file_path, train)
             dataset = self._convert_sentence_pair_to_rnn_dataset(
                 sc_list,  label_list)
         return dataset
@@ -218,7 +216,7 @@ class Data:
                     if loop*self.max_seq_len>=len(sc_tokens):
                         break
                     sc_ = sc_tokens[loop*self.max_seq_len:(loop+1)*self.max_seq_len]
-                    if len(sc_) < self.max_seq_len * 0.8:
+                    if len(sc_) < self.max_seq_len * 0.1:
                         break
                     label_ = []
                     for sc in sc_:
@@ -261,14 +259,22 @@ class Data:
             if train:
                 sc_tokens = self.tokenizer.tokenize(str(row[0]))
                 bc_tokens = self.tokenizer.tokenize(str(row[1]))
-                labels = []
-                for sc in sc_tokens:
-                    if sc in bc_tokens:
-                        labels.append(1)
-                    else:
-                        labels.append(0)
-                sc_list.append(sc_tokens)
-                label_list.append(labels)
+                loop = 0
+                while loop < 20:
+                    if loop * self.max_seq_len >= len(sc_tokens):
+                        break
+                    sc_ = sc_tokens[loop * self.max_seq_len:(loop + 1) * self.max_seq_len]
+                    if len(sc_) < self.max_seq_len * 0.8:
+                        break
+                    label_ = []
+                    for sc in sc_:
+                        if sc in bc_tokens:
+                            label_.append(1)
+                        else:
+                            label_.append(0)
+                    sc_list.append(sc_)
+                    label_list.append(label_)
+                    loop += 1
             else:
                 # 0 segment id, 1 content line
                 sc_tokens = self.tokenizer.tokenize(str(row[1]))
