@@ -26,14 +26,14 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification,RnnForSentencePairClassification, BertXLForClassification
+from model import BertForClassification,RnnForSentencePairClassification, BertXLForClassification, BertXLCForClassification
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BertForClassification,
-    'bertxl': BertXLForClassification,
+    'bertxl': BertXLCForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
