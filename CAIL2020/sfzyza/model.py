@@ -47,7 +47,10 @@ class BertForClassification(nn.Module):
 
         self.flatten_capsules = FlattenCaps()
 
-        self.W_doc = nn.Parameter(torch.FloatTensor(147328, self.num_compressed_capsule))
+        if config.hidden_size == 768:
+            self.W_doc = nn.Parameter(torch.FloatTensor(147328, self.num_compressed_capsule))
+        else:#1024
+            self.W_doc = nn.Parameter(torch.FloatTensor(196480, self.num_compressed_capsule))
         torch.nn.init.xavier_uniform_(self.W_doc)
 
         self.fc_capsules_doc_child = FCCaps(config, output_capsule_num=config.num_classes,
@@ -509,8 +512,8 @@ class BertXLForClassification(nn.Module):
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         # 1-7: 228; 8-14: 1691
-        self.linear = nn.Linear(config.hidden_size, 1)
-        self.linear_last = nn.Linear(config.max_seq_len, config.num_classes)
+        self.linear = nn.Linear(config.hidden_size, config.num_classes)
+        # self.linear_last = nn.Linear(config.max_seq_len, config.num_classes)
         #self.bn = nn.BatchNorm1d(config.num_classes)
         self.num_classes = config.num_classes
 
@@ -560,10 +563,11 @@ class BertXLForClassification(nn.Module):
         # # 228 + 768 ->
         # pooled_output = torch.cat([con_cnn_feats, pooled_output], dim=1)
 
+        encoded_output = torch.mean(encoded_output, dim=1)
         pooled_output = self.dropout(encoded_output)
+
+        # logits = logits.squeeze(dim=2)
         logits = self.linear(pooled_output)
-        logits = logits.squeeze(dim=2)
-        logits = self.linear_last(logits)
         #logits = self.bn(logits)
         logits = nn.functional.softmax(logits, dim=-1)
         # logits: (batch_size, num_classes)

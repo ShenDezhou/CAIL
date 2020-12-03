@@ -1,22 +1,27 @@
 {
-  "model_type": "bertxl",
+  "model_type": "bert",
   "max_seq_len": 512,
-  "model_path": "model/bertxl/",
+  "model_path": "model/rbt3l/",
   "log_path": "log/",
 
   "train_file_path": "data/core_summary_train.csv",
   "valid_file_path": "data/core_summary_valid.csv",
 
-  "batch_size": 2,
+  "batch_size": 24,
 
-  "bert_model_path": "../xlnet_base",
+  "bert_model_path": "../roberta3_large_ext",
   "trained_weight":"",
-  "hidden_size": 768,
+  "hidden_size": 1024,
   "num_classes": 512,
   "dropout": 0.05,
 
-  "lr": 1e-4,
-  "num_epoch": 3,
+  "is_AKDE": true,
+  "dim_capsule": 16,
+  "num_compressed_capsule": 128,
+
+
+  "lr": 1e-3,
+  "num_epoch": 10,
   "log_steps": 100,
   "serial_load": true,
   "metrics_debug": false,
@@ -26,5 +31,5 @@
   "max_grad_norm": 4e-3,
   "num_cores": 8,
 
-  "experiment_name": "BERTXL"
+  "experiment_name": "BERT"
 }
