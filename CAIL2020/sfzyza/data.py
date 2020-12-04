@@ -216,7 +216,7 @@ class Data:
                     if loop*self.max_seq_len>=len(sc_tokens):
                         break
                     sc_ = sc_tokens[loop*self.max_seq_len:(loop+1)*self.max_seq_len]
-                    if len(sc_) < self.max_seq_len * 0.1:
+                    if len(sc_) < min(self.max_seq_len * 0.5, 256):
                         break
                     label_ = []
                     for sc in sc_:
@@ -234,52 +234,6 @@ class Data:
                 sc_list.append(sc_tokens)
         return sc_list, label_list
 
-    def _load_xl_file(self, filename, train: bool = True):
-        """Load SMP-CAIL2020-Argmine train/test file.
-
-        For train file,
-        The ratio between positive samples and negative samples is 1:4
-        Copy positive 3 times so that positive:negative = 1:1
-
-        Args:
-            filename: SMP-CAIL2020-Argmine file
-            train:
-                If True, train file with last column as label
-                Otherwise, test file without last column as label
-
-        Returns:
-            sc_list, bc_list, label_list with the same length
-            sc_list, bc_list: List[List[str]], list of word tokens list
-            label_list: List[int], list of labels
-        """
-        data_frame = pd.read_csv(filename)
-
-        sc_list, label_list = [], []
-        for row in data_frame.itertuples(index=False):
-            if train:
-                sc_tokens = self.tokenizer.tokenize(str(row[0]))
-                bc_tokens = self.tokenizer.tokenize(str(row[1]))
-                loop = 0
-                while loop < 20:
-                    if loop * self.max_seq_len >= len(sc_tokens):
-                        break
-                    sc_ = sc_tokens[loop * self.max_seq_len:(loop + 1) * self.max_seq_len]
-                    if len(sc_) < self.max_seq_len * 0.8:
-                        break
-                    label_ = []
-                    for sc in sc_:
-                        if sc in bc_tokens:
-                            label_.append(1)
-                        else:
-                            label_.append(0)
-                    sc_list.append(sc_)
-                    label_list.append(label_)
-                    loop += 1
-            else:
-                # 0 segment id, 1 content line
-                sc_tokens = self.tokenizer.tokenize(str(row[1]))
-                sc_list.append(sc_tokens)
-        return sc_list, label_list
 
     def _convert_sentence_pair_to_bert_dataset(
             self, s1_list,  label_list=None):

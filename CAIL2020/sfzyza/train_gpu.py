@@ -8,13 +8,15 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
-from typing import Dict
+import itertools
+from typing import Dict, List
 import argparse
 import json
 import os
 from copy import deepcopy
 from types import SimpleNamespace
 
+import pandas
 import torch
 from torch import nn
 from torch.optim import Adam
@@ -25,17 +27,67 @@ from transformers.optimization import (
     AdamW, get_linear_schedule_with_warmup, get_constant_schedule)
 
 from data import Data
-from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
+from evaluate import calculate_accuracy_f1
 from model import BertForClassification,RnnForSentencePairClassification, BertXLForClassification, BertXLCForClassification
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
-    'bert': BertForClassification,
-    'bertxl': BertXLCForClassification,
+    'bert': BertXLForClassification,
+    'bertxl': BertXLForClassification,
     'rnn': RnnForSentencePairClassification
 }
+
+def evaluate(model, data_loader, device) -> List[str]:
+    """Evaluate model on data loader in device.
+
+    Args:
+        model: model to be evaluate
+        data_loader: torch.utils.data.DataLoader
+        device: cuda or cpu
+
+    Returns:
+        answer list
+    """
+    model.eval()
+    outputs = torch.tensor([], dtype=torch.float).to(device)
+    for batch in data_loader:
+        batch = tuple(t.to(device) for t in batch)
+        with torch.no_grad():
+            logits = model(*batch[:-1])
+        outputs = torch.cat([outputs, logits[:, :]])
+    answer_list = []
+
+    for i in range(len(outputs)):
+        logits = outputs[i].char().data.cpu().numpy().round().tolist()
+        answer_list.append(logits)
+    return list(itertools.chain(*answer_list))
+
+def get_labels_from_file(data_loader) -> List[str]:
+    """Evaluate model on data loader in device.
+
+    Args:
+        model: model to be evaluate
+        data_loader: torch.utils.data.DataLoader
+        device: cuda or cpu
+
+    Returns:
+        answer list
+    """
+    outputs = torch.tensor([], dtype=torch.float)
+    for batch in data_loader:
+        # batch = tuple(t.to(device) for t in batch)
+        logits = batch[-1]
+        outputs = torch.cat([outputs, logits[:, :]])
+    answer_list = []
+    for i in range(len(outputs)):
+        logits = outputs[i].char().tolist()
+        # answer = int(torch.argmax(logits, dim=-1))
+        answer_list.append(logits)
+
+    return list(itertools.chain(*answer_list))
+
 
 
 class Trainer:
@@ -124,8 +176,8 @@ class Trainer:
         valid_predictions = evaluate(
             model=self.model, data_loader=self.data_loader['valid_valid'],
             device=self.device)
-        train_answers = get_labels_from_file(self.config.train_file_path)
-        valid_answers = get_labels_from_file(self.config.valid_file_path)
+        train_answers = get_labels_from_file(self.data_loader['valid_train'])
+        valid_answers = get_labels_from_file(self.data_loader['valid_valid'])
         train_acc, train_f1 = calculate_accuracy_f1(
             train_answers, train_predictions)
         valid_acc, valid_f1 = calculate_accuracy_f1(
@@ -222,12 +274,12 @@ class Trainer:
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
             # if epoch >= 2:
-            # results = self._epoch_evaluate_update_description_log(
-            #     tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
+            results = self._epoch_evaluate_update_description_log(
+                tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
 
-            self.save_model(os.path.join(
-                self.config.model_path, self.config.experiment_name,
-                self.config.model_type + '-' + str(epoch + 1) + '.bin'))
+            #self.save_model(os.path.join(
+            #    self.config.model_path, self.config.experiment_name,
+            #    self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
             # if results[-3] > best_train_f1:
             #     best_model_state_dict = deepcopy(self.model.state_dict())

@@ -407,7 +407,11 @@ class BertXLForClassification(nn.Module):
                 config.dropout: float between 0 and 1
         """
         super().__init__()
-        self.bert = AutoModel.from_pretrained(config.bert_model_path)
+        if 'xl' in config.model_type:
+            self.bert = AutoModel.from_pretrained(config.bert_model_path)
+        else:
+            self.bert = BertModel.from_pretrained(config.bert_model_path)
+
         for param in self.bert.parameters():
             param.requires_grad = True
 
@@ -466,7 +470,11 @@ class BertXLCForClassification(nn.Module):
                 config.dropout: float between 0 and 1
         """
         super().__init__()
-        self.bert = AutoModel.from_pretrained(config.bert_model_path)
+        if 'xl' in config.model_type:
+            self.bert = AutoModel.from_pretrained(config.bert_model_path)
+        else:
+            self.bert = BertModel.from_pretrained(config.bert_model_path)
+
         for param in self.bert.parameters():
             param.requires_grad = True
         self.dropout = nn.Dropout(config.dropout)

@@ -7,7 +7,7 @@
   "train_file_path": "data/core_summary_train.csv",
   "valid_file_path": "data/core_summary_valid.csv",
 
-  "batch_size": 16,
+  "batch_size": 4,
 
   "bert_model_path": "../roberta3_large_ext",
   "trained_weight":"",
