@@ -1,6 +1,6 @@
 
-from gbtimportance.CheckImportance import CheckImportance
-from gbtrank.CompRank import CompRank
+# from gbtimportance.CheckImportance import CheckImportance
+# from gbtrank.CompRank import CompRank
 
 import json
 
@@ -10,7 +10,7 @@ from ruleresult.CompResult import CompResult
 from rulereason.CheckReason import CheckReason
 from rulefact.CompFact import CompFact
 
-from filter.CheckWordImportance import CheckWordImportance
+# from filter.CheckWordImportance import CheckWordImportance
 import fire
 
 input_path = "/data/data.json"
@@ -18,14 +18,14 @@ output_path = "/output/result.json"
 
 def main(in_file='/data/SMP-CAIL2020-test1.csv',
          out_file='/output/result1.csv'):
-    importance = CheckImportance(cwd='gbtimportance')
-    rank = CompRank(cwd='gbtrank')
+    # importance = CheckImportance(cwd='gbtimportance')
+    # rank = CompRank(cwd='gbtrank')
     courtresult = CompResult()
     reason = CheckReason()
     propose = CompPropose()
     fact = CompFact()
     opinion = CompOpinion()
-    filter = CheckWordImportance()
+    # filter = CheckWordImportance()
     with open(out_file, 'w', encoding='utf8') as fw:
         with open(in_file, 'r', encoding="utf8") as f:
             for line in f:
@@ -50,8 +50,8 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
 
                 #1. 纠纷原因
                 for i, sentence in enumerate(text):
-                    if reason.isArgueReason(sentence["sentence"]):
-                        which_reason = reason.isArgueReason(sentence["sentence"])
+                    which_reason = reason.isArgueReason(sentence["sentence"])
+                    if which_reason:
                         break
 
                 data['reason']=which_reason
