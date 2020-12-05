@@ -50,9 +50,8 @@ class Segment_Abstract(object):
 
         # 1. 纠纷原因
         for i, sentence in enumerate(text):
-            argreason = self.reason.isArgueReason(sentence["sentence"])
-            if argreason:
-                which_reason = argreason
+            which_reason = self.reason.isArgueReason(sentence["sentence"])
+            if which_reason:
                 break
 
         data['reason'] = which_reason
@@ -101,8 +100,8 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
 
                 #1. 纠纷原因
                 for i, sentence in enumerate(text):
-                    if reason.isArgueReason(sentence["sentence"]):
-                        which_reason = reason.isArgueReason(sentence["sentence"])
+                    which_reason = reason.isArgueReason(sentence["sentence"])
+                    if which_reason:
                         break
 
                 data['reason']=which_reason
