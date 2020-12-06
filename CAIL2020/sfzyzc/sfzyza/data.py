@@ -40,6 +40,7 @@ import pandas as pd
 
 from torch.utils.data import TensorDataset
 from transformers import BertTokenizer
+from transformers import AutoTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
@@ -116,8 +117,10 @@ class Data:
                 Otherwise, use Tokenizer as tokenizer
         """
         self.model_type = model_type
-        if 'bert' in self.model_type:
+        if 'bert' == self.model_type:
             self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
+        elif 'bertxl' == self.model_type:
+            self.tokenizer = AutoTokenizer.from_pretrained(config.bert_model_path)
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)
         self.max_seq_len = max_seq_len
@@ -150,8 +153,11 @@ class Data:
                     each record: (s1_ids, s2_ids, s1_length, s2_length)
         """
         sc_list, label_list = self._load_file(file_path, train)
-        if 'bert' in self.model_type:
+        if 'bert' == self.model_type:
             dataset = self._convert_sentence_pair_to_bert_dataset(
+                sc_list,  label_list)
+        elif 'bertxl' == self.model_type:
+            dataset = self._convert_sentence_pair_to_bertxl_dataset(
                 sc_list,  label_list)
         else:  # rnn
             dataset = self._convert_sentence_pair_to_rnn_dataset(
@@ -210,7 +216,7 @@ class Data:
                     if loop*self.max_seq_len>=len(sc_tokens):
                         break
                     sc_ = sc_tokens[loop*self.max_seq_len:(loop+1)*self.max_seq_len]
-                    if len(sc_) < self.max_seq_len * 0.8:
+                    if len(sc_) < min(self.max_seq_len * 0.5, 256):
                         break
                     label_ = []
                     for sc in sc_:
@@ -227,6 +233,7 @@ class Data:
                 sc_tokens = self.tokenizer.tokenize(str(row[1]))
                 sc_list.append(sc_tokens)
         return sc_list, label_list
+
 
     def _convert_sentence_pair_to_bert_dataset(
             self, s1_list,  label_list=None):
@@ -249,6 +256,72 @@ class Data:
         all_label_list = []
         for i, _ in tqdm(enumerate(s1_list), ncols=80):
             tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
+            segment_ids = [0] * len(tokens)
+            # tokens += s2_list[i] + ['[SEP]']
+            # segment_ids += [1] * (len(s2_list[i]) + 1)
+
+            if len(tokens) > self.max_seq_len:
+                tokens = tokens[:self.max_seq_len//2] + tokens[-self.max_seq_len//2:]
+                assert len(tokens) == self.max_seq_len
+                segment_ids = segment_ids[:self.max_seq_len//2] + segment_ids[-self.max_seq_len//2:]
+
+
+
+            input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+            input_mask = [1] * len(input_ids)
+            tokens_len = len(input_ids)
+            input_ids += [0] * (self.max_seq_len - tokens_len)
+            segment_ids += [0] * (self.max_seq_len - tokens_len)
+            input_mask += [0] * (self.max_seq_len - tokens_len)
+
+
+            all_input_ids.append(input_ids)
+            all_input_mask.append(input_mask)
+            all_segment_ids.append(segment_ids)
+
+            if label_list:  # train
+                label_list_ = [1] + label_list[i] + [1]
+                label_list_ += [0] * (self.max_seq_len - tokens_len)
+                if len(label_list_) > self.max_seq_len:
+                    label_list_ = label_list_[:self.max_seq_len // 2] + label_list_[-self.max_seq_len // 2:]
+
+                all_label_list.append(label_list_)
+
+
+        all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
+        all_input_mask = torch.tensor(all_input_mask, dtype=torch.long)
+        all_segment_ids = torch.tensor(all_segment_ids, dtype=torch.long)
+
+        if label_list:  # train
+            all_label_ids = torch.tensor(all_label_list, dtype=torch.float)
+            return TensorDataset(
+                all_input_ids, all_input_mask, all_segment_ids,
+                all_label_ids)
+        # test
+        return TensorDataset(
+            all_input_ids, all_input_mask, all_segment_ids)
+
+    def _convert_sentence_pair_to_bertxl_dataset(
+            self, s1_list,  label_list=None):
+        """Convert sentence pairs to dataset for BERT model.
+
+        Args:
+            sc_list, bc_list: List[List[str]], list of word tokens list
+            label_list: train: List[int], list of labels
+                        test: []
+
+        Returns:
+            Train:
+                torch.utils.data.TensorDataset
+                    each record: (input_ids, input_mask, segment_ids, label)
+            Test:
+                torch.utils.data.TensorDataset
+                    each record: (input_ids, input_mask, segment_ids)
+        """
+        all_input_ids, all_input_mask, all_segment_ids = [], [], []
+        all_label_list = []
+        for i, _ in tqdm(enumerate(s1_list), ncols=80):
+            tokens = s1_list[i]
             segment_ids = [0] * len(tokens)
             # tokens += s2_list[i] + ['[SEP]']
             # segment_ids += [1] * (len(s2_list[i]) + 1)

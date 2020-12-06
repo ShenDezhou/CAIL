@@ -8,8 +8,6 @@ from falcon_cors import CORS
 import json
 import waitress
 
-import os
-# os.chdir('sfzyy')
 import sys
 
 sys.path.append('sfzyy')
