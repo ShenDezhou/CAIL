@@ -1,12 +1,6 @@
-import json
 import os
-
-import numpy
 import thulac
 import psutil
-from sklearn.feature_extraction.text import TfidfVectorizer as TFIDF
-import joblib
-from sklearn.ensemble import GradientBoostingClassifier
 import re
 
 #training score : 0.88
