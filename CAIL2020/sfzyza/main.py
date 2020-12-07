@@ -23,7 +23,7 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertForClassification, RnnForSentencePairClassification, LogisticRegression
+from model import BertForClassification,BertXLForClassification, RnnForSentencePairClassification, LogisticRegression
 from utils import load_torch_model
 
 
@@ -31,6 +31,7 @@ from utils import load_torch_model
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
     'bert': BertForClassification,
+    'bertxl': BertXLForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression
 }
@@ -43,7 +44,7 @@ def remove(text):
 def main(in_file='/data/SMP-CAIL2020-test1.csv',
          temp_file="data/para_content_test.csv",
          out_file='/output/result1.csv',
-         model_config='config/bert_config.json'):
+         model_config='config/robert3_config.json'):
     """Test model for given test set on 1 GPU or CPU.
 
     Args:

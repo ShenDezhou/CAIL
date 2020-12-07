@@ -1,7 +1,7 @@
 {
   "model_type": "bert",
   "max_seq_len": 512,
-  "model_path": "model/rbt3/",
+  "model_path": "sfzyza/model/rbt3/",
   "log_path": "log/",
 
   "train_file_path": "data/core_summary_train.csv",
@@ -9,7 +9,7 @@
 
   "batch_size": 16,
 
-  "bert_model_path": "../roberta3_ext",
+  "bert_model_path": "./roberta3_ext",
   "trained_weight":"",
   "hidden_size": 768,
   "num_classes": 512,
