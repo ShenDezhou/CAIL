@@ -31,7 +31,7 @@ def compare(s,t):
 
 
 http = urllib3.PoolManager()
-url = "http://192.168.0.161:58084/z"
+url = "http://192.168.4.250:58085/z"
 df = pandas.read_csv("data/contract_amount_goldtest.csv", encoding='utf-8')
 correct = 0
 total = len(df)
