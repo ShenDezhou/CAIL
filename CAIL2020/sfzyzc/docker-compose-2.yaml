@@ -7,7 +7,7 @@ services:
     volumes:
       - /mnt/data/sfzy/data:/workspace/data
       - /mnt/data/roberta_wwm_ext:/workspace/roberta_wwm_ext
-      - /mnt/data/xlnet_base:/workspace/xlnet_base
+      - /mnt/data/roberta3_ext:/workspace/roberta3_ext
       - /mnt/data/sfzy/sfzyzb/model/bert:/workspace/sfzyzb/model/bert
-      - /mnt/data/sfzy/sfzyza/model/bertxl:/workspace/sfzyza/model/bertxl
+      - /mnt/data/sfzy/sfzyza/model/rbt3:/workspace/sfzyza/model/rbt3
     command: python3 torch_server.py -p 58096

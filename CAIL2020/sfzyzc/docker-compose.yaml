@@ -1,6 +1,6 @@
 services:
   web:
-    image: caseabstract:1.1
+    image: caseabstract:1.0
     environment:
       - gpus=all
     network_mode: "host"

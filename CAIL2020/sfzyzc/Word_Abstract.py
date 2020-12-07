@@ -23,14 +23,14 @@ from torch.utils.data import DataLoader
 
 from sfzyza.data import Data
 from sfzyza.evaluate import evaluate
-from sfzyza.model import BertForClassification, RnnForSentencePairClassification, LogisticRegression
+from sfzyza.model import BertForClassification, BertXLForClassification, RnnForSentencePairClassification, LogisticRegression
 from sfzyza.utils import load_torch_model
 
 
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
-    'bert': BertForClassification,
+    'bert': BertXLForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression
 }
@@ -43,7 +43,7 @@ def remove(text):
 
 class Word_Abstract(object):
 
-    def __init__(self, model_config='sfzyza/config/bert_config-l.json'):
+    def __init__(self, model_config='sfzyza/config/robert3_config.json'):
         # 0. Load config
         with open(model_config) as fin:
             config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
