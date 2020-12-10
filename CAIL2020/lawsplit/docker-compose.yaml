@@ -1,0 +1,8 @@
+services:
+  web:
+    image: lawarticlesplit:1.0
+    environment:
+      - gpus=all
+    network_mode: "host"
+    container_name: lawarticlesplit
+    command: python3 torch_server.py -p 58097
