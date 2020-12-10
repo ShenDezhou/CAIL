@@ -36,6 +36,10 @@ class TypeArticle():
         print('source:', contract_title, ', target:', civilcode[index], ', weighted f1:', element)
         return index, civilcode[index]
 
+    def get_type(self, contract_title):
+        index, typename = self.get_weighted_score(contract_title, self.contract_type)
+        return index, typename
+
     def findArticles_default(self, contract_title):
         type_range = self.type_range_df[self.type_range_df['type'] == 0]
 
