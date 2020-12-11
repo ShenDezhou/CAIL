@@ -50,7 +50,7 @@ def get_csv_logger(log_file_name,
     return logger
 
 
-def load_torch_model(model, model_path):
+def load_torch_model(model, model_path, device=torch.device('cpu')):
     """Load state dict to model.
 
     Args:
@@ -60,7 +60,7 @@ def load_torch_model(model, model_path):
     Returns:
         loaded model
     """
-    pretrained_model_dict = torch.load(model_path)
+    pretrained_model_dict = torch.load(model_path, map_location=device)
     new_state_dict = OrderedDict()
     for k, value in pretrained_model_dict.items():
         # name = k[7:]  # remove `module.`

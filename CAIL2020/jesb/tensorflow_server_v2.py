@@ -168,7 +168,7 @@ class TorchResource:
         # 2. Load model
         self.model = MODEL_MAP[self.config.model_type](self.config)
         self.model = load_torch_model(
-            self.model, model_path=os.path.join(self.config.model_path, 'model.bin'))
+            self.model, model_path=os.path.join(self.config.model_path, 'model.bin'), device=self.device)
         self.model.to(self.device)
         logger.info("###")
 
@@ -241,7 +241,7 @@ class TorchResource:
                     entities = result['entities']
 
                     if len(entities) != 0:
-                        list_original.append(original)
+                        list_original.extend([original] * len(entities))
                         for entity in entities:
                             #是数字金额需要增强逻辑
                             if digit_regex.match(entity['word']) and len(entity['word']) >= 1:
