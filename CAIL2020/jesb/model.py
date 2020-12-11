@@ -370,10 +370,16 @@ class RnnForSentencePairClassification(nn.Module):
         super().__init__()
         self.embedding = nn.Embedding(
             config.vocab_size, config.hidden_size, padding_idx=0)
-        self.rnn = nn.GRU(
-            config.hidden_size, hidden_size=config.hidden_size,
-            bidirectional=False, batch_first=True)
-        self.linear = nn.Linear(config.hidden_size , config.num_classes)
+        self.rnn_type = config.rnn_type
+        if config.rnn_type=='GRU':
+            self.rnn = nn.GRU(
+                config.hidden_size, hidden_size=config.hidden_size,
+                bidirectional=False, batch_first=True)
+        else:
+            self.rnn = nn.LSTM(
+                config.hidden_size, hidden_size=config.hidden_size,
+                bidirectional=False, batch_first=True)
+        self.linear = nn.Linear(config.hidden_size, config.num_classes)
         self.dropout = nn.Dropout(config.dropout)
         self.num_classes = config.num_classes
 
@@ -400,7 +406,11 @@ class RnnForSentencePairClassification(nn.Module):
         #     s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
         # packed: (sum(lengths), hidden_size)
         self.rnn.flatten_parameters()
-        _, s1_hidden = self.rnn(s1_packed)
+        if self.rnn_type == 'GRU':
+            _, s1_hidden = self.rnn(s1_packed)
+        else:
+            _, s1_hidden = self.rnn(s1_packed)
+            s1_hidden= s1_hidden[0]
         # _, s2_hidden = self.rnn(s2_packed)
         hidden = s1_hidden.view(batch_size, -1)
         # s2_hidden = s2_hidden.view(batch_size, -1)
@@ -419,12 +429,12 @@ class LogisticRegression(nn.Module):
         self.embedding = nn.Embedding(
             config.vocab_size, config.hidden_size, padding_idx=0)
         self.dropout = nn.Dropout(config.dropout)
-        self.fc1 = nn.Linear(config.vocab_size, config.num_classes)
+        self.fc1 = nn.Linear(config.hidden_size * config.max_seq_len, config.num_classes)
 
-    def forward(self, s1_ids, s2_ids, s1_lengths, s2_lengths, **kwargs):
+    def forward(self, s1_ids,s1_lengths, **kwargs):
         batch_size = s1_ids.shape[0]
         s1_embed = self.embedding(s1_ids)
-        s2_embed = self.embedding(s2_ids)
+        # s2_embed = self.embedding(s2_ids)
         # embed: (batch_size, max_seq_len, hidden_size)
         # s1_packed: PackedSequence = pack_padded_sequence(
         #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
@@ -432,9 +442,9 @@ class LogisticRegression(nn.Module):
         #     s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
         # _, s1_hidden = self.rnn(s1_packed)
         # _, s2_hidden = self.rnn(s2_packed)
-        s1_hidden = s1_embed.view(batch_size, -1)
-        s2_hidden = s2_embed.view(batch_size, -1)
-        hidden = torch.cat([s1_hidden, s2_hidden], dim=-1)
+        hidden = s1_embed.view(batch_size, -1)
+        # s2_hidden = s2_embed.view(batch_size, -1)
+        # hidden = torch.cat([s1_hidden, s2_hidden], dim=-1)
 
         # x = torch.squeeze(hidden)  # (batch, vocab_size)
         x = self.dropout(hidden)
@@ -466,7 +476,7 @@ class CharCNN(nn.Module):
         # self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
 
         self.dropout = nn.Dropout(config.dropout)
-        self.fc1 = nn.Linear(output_channel, hidden_size)
+        self.fc1 = nn.Linear(output_channel, target_class)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, target_class)
 
@@ -496,6 +506,7 @@ class CharCNN(nn.Module):
         x = F.max_pool1d(x, x.size(2)).squeeze(2)
         x = F.relu(self.fc1(x.view(x.size(0), -1)))
         x = self.dropout(x)
-        x = F.relu(self.fc2(x))
-        x = self.dropout(x)
-        return self.fc3(x)
+        # x = F.relu(self.fc2(x))
+        # x = self.dropout(x)
+        # x = self.fc3(x)
+        return x

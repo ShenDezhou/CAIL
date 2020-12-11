@@ -1,15 +1,15 @@
 {
   "model_type": "bert",
   "max_seq_len": 100,
-  "model_path": "model/bert/",
+  "model_path": "model/qabert/",
   "log_path": "log/",
 
   "train_file_path": "data/contract_type_train.csv",
   "valid_file_path": "data/contract_type_valid.csv",
 
-  "batch_size": 128,
+  "batch_size": 64,
 
-  "bert_model_path": "F:\\4_model\\roberta3_ext",
+  "bert_model_path": "F:\\4_model\\qaberta_wwm_ext",
   "trained_weight":"",
   "hidden_size": 768,
   "num_classes": 3,
@@ -27,5 +27,5 @@
   "metrics_debug": false,
   "log_steps": 100,
 
-  "experiment_name": "BERT"
+  "experiment_name": "QABERT"
 }

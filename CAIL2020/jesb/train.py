@@ -230,9 +230,9 @@ def main(config_file='config/bert_config.json'):
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
-    if config.model_type in ['rnn', 'lr','cnn']:  # build vocab for rnn
-        build_vocab(file_in=config.all_train_file_path,
-                    file_out=os.path.join(config.model_path, 'vocab.txt'))
+    # if config.model_type in ['rnn', 'lr','cnn']:  # build vocab for rnn
+    #     build_vocab(file_in=config.all_train_file_path,
+    #                 file_out=os.path.join(config.model_path, 'vocab.txt'))
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,

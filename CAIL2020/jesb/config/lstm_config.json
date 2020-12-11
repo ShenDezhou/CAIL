@@ -1,7 +1,7 @@
 {
-  "model_type": "cnn",
+  "model_type": "rnn",
   "max_seq_len": 100,
-  "model_path": "model/cnn/",
+  "model_path": "model/lstm/",
   "log_path": "log/",
 
   "train_file_path": "data/contract_type_train.csv",
@@ -9,19 +9,18 @@
   "all_train_file_path": "data/contract_type_train.csv",
 
   "batch_size": 128,
-  "trained_weight": "",
+  "trained_weight":"",
   "vocab_size": 15418,
-  "num_conv_filters": 256,
-  "output_channel": 128,
   "hidden_size": 256,
   "num_classes": 3,
   "dropout": 0.05,
 
+  "rnn_type":"LSTM",
   "lr": 1e-3,
   "num_epoch": 10,
   "num_warmup_steps": 100,
   "gradient_accumulation_steps": 1,
   "max_grad_norm": 1e-3,
 
-  "experiment_name": "CNN"
+  "experiment_name": "lstm"
 }
