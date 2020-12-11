@@ -1,6 +1,6 @@
 {
   "model_type": "bert",
-  "max_seq_len": 100,
+  "max_seq_len": 256,
   "model_path": "model/bert/",
   "log_path": "log/",
 
