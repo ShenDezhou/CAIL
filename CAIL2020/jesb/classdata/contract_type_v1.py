@@ -4,22 +4,59 @@ import re
 
 import pandas
 
-dic=[]
-with open('../datagen/amount_v2.dic','r',encoding='utf-8') as f:
+dic1=[]
+with open('amount.dic','r',encoding='utf-8') as f:
     lines = f.readlines()
-    dic.extend([l.strip() for l in lines])
+    dic1.extend([l.strip() for l in lines])
 
-print(len(dic))
-types = [1] * 62 + [2] * 67
-print(len(types))
-regdic = []
-for word in dic:
-    if '_' in word:
-        word = word.replace('_',r'[_\d]?',10**10)
-        r = re.compile(word)
-    else:
-        r = re.compile(word)
-    regdic.append(r)
+dic2=[]
+with open('amount_v2.dic','r',encoding='utf-8') as f:
+    lines = f.readlines()
+    dic2.extend([l.strip() for l in lines])
+
+#
+# print(len(dic))
+# types = [1] * 62 + [2] * 67
+# print(len(types))
+# regdic = []
+# for word in dic:
+#     if '_' in word:
+#         word = word.replace('_',r'\s?\d?',10**10)
+#         r = re.compile(word)
+#     else:
+#         r = re.compile(word)
+#     regdic.append(r)
+
+pattern_all_dic = ""
+for line in dic1 + dic2:
+    pattern_all_dic += "(%s)|" % line.strip()
+pattern_all_dic = pattern_all_dic.strip('|')
+pattern_all = re.compile(pattern_all_dic)
+
+pattern_dic_v2 = ""
+with open('amount_v2.dic','r',encoding='utf-8') as f:
+    for line in f:
+        line = line.strip().replace('___','\d{1,6}',10**10)
+        pattern_dic_v2 += "(%s)|" % line.strip()
+    pattern_dic_v2 = pattern_dic_v2.strip('|')
+pattern2 = re.compile(pattern_dic_v2)
+
+
+pattern_dic = ""
+with open('amount.dic','r',encoding='utf-8') as f:
+    for line in f:
+        pattern_dic += "(%s)|" % line.strip()
+    pattern_dic = pattern_dic.strip('|')
+pattern1 = re.compile(pattern_dic)
+
+pattern_dic_v2 = ""
+with open('amount_v2.dic','r',encoding='utf-8') as f:
+    for line in f:
+        line = line.strip().replace('___','\d{1,6}',10**10)
+        pattern_dic_v2 += "(%s)|" % line.strip()
+    pattern_dic_v2 = pattern_dic_v2.strip('|')
+pattern2 = re.compile(pattern_dic_v2)
+
 
 def trigger(line):
     for i in range(len(dic)):
@@ -28,9 +65,14 @@ def trigger(line):
     return None
 
 def reg_trigger(line):
-    for i in range(len(regdic)):
-        if regdic[i].search(line):
-            return types[i], regdic[i], dic[i]
+    res = pattern_all.match(line)
+    if res:
+        res = pattern1.match(line)
+        if res:
+            return 1, res[0]
+        res = pattern2.match(line)
+        if res:
+            return 2, res[0]
     return None
 
 FORMAL_DIGIT="零一二三四五六七八九十百千万亿"
@@ -44,7 +86,7 @@ UNIT='元角分'
 math_digit="1234567890\uFF10\uFF11\uFF12\uFF13\uFF14\uFF15\uFF16\uFF17\uFF18\uFF19"
 
 amount_len = (1, 16)
-category_size = 600
+category_size = 1
 
 df = pandas.read_csv('../datagen/contract.dic',sep=',',names=['word','frequency'])
 chinese_dic = df['word'].to_list()
@@ -167,6 +209,10 @@ for dirpath, dnames, fnames in os.walk("../datagen/txt/"):
                 buffer_type = []
                 gen_amounts = []
                 for line in fr:
+                    line = line.replace("\n", r"\n", 10 ** 10)
+                    line = line.replace("\r", r"", 10 ** 10)
+                    # line = line.replace("{.underline}", "", 10 ** 10)
+
                     res = reg_trigger(line)
                     if res:
                         if random.randint(0, 1) == 0:
@@ -176,7 +222,7 @@ for dirpath, dnames, fnames in os.walk("../datagen/txt/"):
                                 gen_amounts.append("人民币"+randstr)
                             else:
                                 gen_amounts.append(randstr)
-                            newline = re.sub(res[1], line, res[2] + randstr)
+                            newline = re.sub(res[1], line, res[1] + randstr)
                         else:
                             formald = gen_with_rule(type=random.randint(1,3))
                             if random.randint(0, 1) == 0:
@@ -189,30 +235,41 @@ for dirpath, dnames, fnames in os.walk("../datagen/txt/"):
 
                             if '{.underline}' in line:
                                 if random.randint(0, 9) <= 8:
-                                    newline = re.sub('{.underline}', line, res[2] + formald + ("".join(random.sample(chinese_dic, random.randint(min(3, len(line) // 3), len(line) // 3))).replace("\n","",10 ** 10)) + mathd)
+                                    newline = re.sub('{.underline}', line, res[1] + formald + ("".join(random.sample(chinese_dic, random.randint(min(3, len(line) // 3), len(line) // 3))).replace("\n","",10 ** 10)) + mathd)
                                     buffer.append(newline.replace("\n", "", 10 ** 10))
                                 else:
-                                    newline = re.sub('{.underline}', line, res[2] + formald + ("".join(random.sample(chinese_dic,random.randint(min(3, len(line) // 3),len(line) // 3)))) + mathd)
+                                    newline = re.sub('{.underline}', line, res[1] + formald + ("".join(random.sample(chinese_dic,random.randint(min(3, len(line) // 3),len(line) // 3)))) + mathd)
                                     buffer.append(newline)
                             else:
                                 if random.randint(0, 9) <= 8:
-                                    newline = re.sub(res[1], line, res[2] + formald + ("".join(random.sample(chinese_dic, random.randint(min(3, len(line)//3), len(line)//3))).replace("\n", "", 10 ** 10)) +mathd)
+                                    newline = re.sub(res[1], line, res[1] + formald + ("".join(random.sample(chinese_dic, random.randint(min(3, len(line)//3), len(line)//3))).replace("\n", "", 10 ** 10)) +mathd)
                                     buffer.append(newline.replace("\n", "", 10 ** 10))
                                 else:
-                                    newline = re.sub(res[1], line, res[2] + formald + ("".join(random.sample(chinese_dic,random.randint(min(3, len(line) // 3),len(line) // 3)))) + mathd)
+                                    newline = re.sub(res[1], line, res[1] + formald + ("".join(random.sample(chinese_dic,random.randint(min(3, len(line) // 3),len(line) // 3)))) + mathd)
                                     buffer.append(newline)
                         buffer_type.append(res[0])
                     else:
-                        buffer.append(line.strip())
-                        buffer_type.append(0)
+                        dice = random.randint(0,2)
+                        if dice == 1:
+                            spans = "".join(random.sample(chinese_dic, 4))+random.choice(dic1) + "".join(random.sample(chinese_dic, 4))
+                            buffer.append(spans)
+                            buffer_type.append(1)
+                        elif dice == 2:
+                            spans = "".join(random.sample(chinese_dic, 4))+random.choice(dic2).replace("_", random.choice("1234567890"))+"".join(random.sample(chinese_dic, 4))
+                            buffer.append(spans)
+                            buffer_type.append(2)
+                        else:
+                            if len(line)>10:
+                                buffer.append(spans)
+                                buffer_type.append(0)
 
-                sent_dic = dict(zip(buffer,buffer_type))
-                for i, item in sent_dic.items():
-                    df = df.append({"type": i, "content": item}, ignore_index=True)
+                sent_dic = dict(zip(buffer, buffer_type))
+                for item, type in sent_dic.items():
+                    df = df.append({"type": type, "content": item}, ignore_index=True)
                 # contracts = r"\n".join(buffer)
                 # contracts = contracts.replace("\r\n", r"\n", 10 ** 10)
                 # contracts = contracts.replace("\n", r"\n", 10 ** 10)
-                # contracts = contracts.replace("{.underline}", "", 10 ** 10)
+                # contracts = contracts
                 # index_marks = []
                 # for amount in gen_amounts:
                 #     start = contracts.find(amount)

@@ -5,7 +5,7 @@ import re
 import pandas
 
 dic=[]
-with open('amount_v2.dic','r',encoding='utf-8') as f:
+with open('amount_v1v2.dic', 'r', encoding='utf-8') as f:
     lines = f.readlines()
     dic.extend([l.strip() for l in lines])
 
