@@ -93,11 +93,18 @@ for index, row in df.iterrows():
     for line in lines:
         type, l = reg_trigger(line)
         if type:
-            df_result = df_result.append({"type":type, "content": l}, ignore_index=True)
+            df_result = df_result.append({"type":int(type), "content": l}, ignore_index=True)
         else:
             noise.append(l)
-len = len(df_result) // 2
-for i in range(len):
+
+noise = [n for n in noise if len(n) > 20]
+total_len = len(df_result) // 2
+count = 0
+for i in range(len(noise)):
     df_result = df_result.append({"type":0, "content": noise[i]}, ignore_index=True)
-df_result.to_csv("../data/contract_type_train.csv", index=False)
+    count += 1
+    if count > total_len:
+        break
+df_result['type'] = df_result['type'].astype(int)
+df_result.to_csv("../data/contract_type_train.csv", columns=['type','content'], index=False)
 print('FIN')
