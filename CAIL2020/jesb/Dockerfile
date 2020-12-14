@@ -1,8 +1,8 @@
 FROM machinelearning:1.0
 USER root
 
-#COPY ./requirements.txt /workspace/requirements.txt
-#RUN  pip3 install -r /workspace/requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+COPY ./requirements.txt /workspace/requirements.txt
+RUN  pip3 install -r /workspace/requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 RUN rm -rf /workspace/*
 COPY . /workspace

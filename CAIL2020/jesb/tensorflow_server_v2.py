@@ -29,13 +29,15 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN, FullyConnectNet
+
 from utils import load_torch_model
 
 MODEL_MAP = {
     'bert': BertForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression,
+    'sg': FullyConnectNet,
     'cnn': CharCNN
 }
 LABELS = ['其他金额', '总金额','分期金额']
@@ -50,7 +52,7 @@ cors_allow_all = CORS(allow_all_origins=True,
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '-c', '--config_file', default='config/lr_config.json',
+    '-c', '--config_file', default='config/bert_config.json',
     help='model config file')
 parser.add_argument(
     '-m', '--model_folder', default='model_data',
@@ -235,7 +237,7 @@ class TorchResource:
                     transition_matrix = trans.eval()
                     batch_paths = decode(scores, seq_len, transition_matrix)
                     tags = [self.id_to_tag[str(idx)] for idx in batch_paths[0]]
-                    print(tags)
+                    #print(tags)
                     result = result_to_json(input_batch[0][0], tags)
                     original = str(result['string'])
                     entities = result['entities']

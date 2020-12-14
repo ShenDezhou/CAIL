@@ -26,7 +26,7 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN, FullyConnectNet
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
@@ -35,6 +35,7 @@ MODEL_MAP = {
     'bert': BertForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression,
+    'sg': FullyConnectNet,
     'cnn': CharCNN
 }
 

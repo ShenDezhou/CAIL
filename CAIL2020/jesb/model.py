@@ -4,6 +4,7 @@ Author: Yixu GAO (yxgao19@fudan.edu.cn)
 
 Used for SMP-CAIL2020-Argmine.
 """
+import numpy
 import torch
 
 from torch import nn
@@ -452,6 +453,36 @@ class LogisticRegression(nn.Module):
         return logit
 
 
+class FullyConnectNet(nn.Module):
+
+    def __init__(self, config):
+        super().__init__()
+        self.embedding = nn.Embedding(
+            config.vocab_size, config.hidden_size, padding_idx=0)
+        wv = numpy.load(config.skip_gram)
+        self.embedding.weight.data.copy_(torch.from_numpy(wv))
+        self.dropout = nn.Dropout(config.dropout)
+        self.fc1 = nn.Linear(config.hidden_size * config.max_seq_len, config.num_classes)
+
+    def forward(self, s1_ids,s1_lengths, **kwargs):
+        batch_size = s1_ids.shape[0]
+        s1_embed = self.embedding(s1_ids)
+        # s2_embed = self.embedding(s2_ids)
+        # embed: (batch_size, max_seq_len, hidden_size)
+        # s1_packed: PackedSequence = pack_padded_sequence(
+        #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        # s2_packed: PackedSequence = pack_padded_sequence(
+        #     s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
+        # _, s1_hidden = self.rnn(s1_packed)
+        # _, s2_hidden = self.rnn(s2_packed)
+        hidden = s1_embed.view(batch_size, -1)
+        # s2_hidden = s2_embed.view(batch_size, -1)
+        # hidden = torch.cat([s1_hidden, s2_hidden], dim=-1)
+
+        # x = torch.squeeze(hidden)  # (batch, vocab_size)
+        x = self.dropout(hidden)
+        logit = self.fc1(x)  # (batch, target_size)
+        return logit
 
 class CharCNN(nn.Module):
 
