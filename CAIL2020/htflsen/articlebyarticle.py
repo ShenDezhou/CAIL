@@ -12,7 +12,7 @@ class TypeArticle():
 
     def __init__(self):
         self.contract_type = []
-        with open('data/type-8.dic','r',encoding='utf-8') as f:
+        with open('data/codetype-8.dic','r',encoding='utf-8') as f:
             for line in f:
                 self.contract_type.append(line.strip())
 
@@ -24,14 +24,13 @@ class TypeArticle():
         self.type_range_df = pandas.read_csv('data/typearticle.csv')
         self.general_type_range_df = pandas.read_csv('data/generalarticle.csv')
         self.code_contract_df = pandas.read_csv('dataraw/civil_code_contract.csv')
-        self.rouge = lawrouge.Rouge()
+        self.rouge = lawrouge.Rouge(isChinese=True)
 
     def get_weighted_score(self, contract_title, civilcode):
         civilscore = []
         for i in range(len(civilcode)):
-            scores = self.rouge.get_scores([contract_title], [civilcode[i]], avg=True)
-            weighted_f1 = 0.2 * scores['rouge-1']['f'] + 0.4 * scores['rouge-2']['f'] + 0.4 * scores['rouge-l']['f']
-            civilscore.append(weighted_f1)
+            scores = self.rouge.get_scores([contract_title], [civilcode[i]], avg=2)
+            civilscore.append(scores['f'])
         index, element = max(enumerate(civilscore), key=itemgetter(1))
         print('source:', contract_title, ', target:', civilcode[index], ', weighted f1:', element)
         return index, civilcode[index]

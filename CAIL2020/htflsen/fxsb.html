@@ -1,0 +1,130 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Post Data</title>
+    <!--<script src="js/jquery.min.js"></script>-->
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        table, table tr th, table tr td {
+            border: 1px solid #7197b9;
+            border-collapse: collapse;
+            padding: 4px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body style="background-color: #d5d8dc;">
+    <table style="width: 100%; height: 100%;">
+        <tr>
+            <td colspan="2" style="font-size: 22px; color: #fff; height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">Web服务数据请求
+            </td>
+        </tr>
+        <tr style="height: 30px; text-align: center;">
+            <td colspan="2">url：<input id="input_url" type="text" value="192.168.4.250:58098/z" /></td>
+        </tr>
+
+        <tr style="height: 30px; background-color: #e2eaf1;">
+            <td style="width: 50%;">输入：
+                
+                <button onclick="claertext();return false;" style="float: right;">清空</button>
+
+            </td>
+            <td>输出：</td>
+        </tr>
+        <tr style="height: 500px; background-color: #fff;">
+            <td>
+                <select id="title" style="width: 100%; height: 10%;">
+                    <option selected>买卖合同</option>
+                    <option >供用电、水、气、热力合同</option>
+                    <option >租赁合同</option>
+                    <option >承揽合同</option>
+                    <option >建设工程合同</option>
+                    <option >运输合同</option>
+                    <option >技术合同</option>
+                    <option >委托合同</option>
+                </select>
+                <textarea id="input" style="width: 100%; height: 90%;">违反本合同第四条第4款，延期交付的违约方应按延期交付天数每天人民币_________元向乙方支付违约金，并承担延误期内的风险责任。</textarea></td>
+            <td>
+                <div id="output"></div>
+                <select id="output2" ></select>
+                <div id="output3"></div>
+                <select id="output4"></select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">
+                <button onclick="dopost();" style="padding: 4px 40px; cursor: pointer;">确　认</button>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+
+
+    function dopost() {
+        var url = 'http://' + $('#input_url').val(); 'http://192.168.0.161:58082/z';
+        debugger
+        var title = $( "#title option:selected" ).text();
+        var input = $('#input').val();
+        debugger
+        input = input.replaceAll('\n', '\\n');
+
+        var mydata = {
+            'title': title,
+            'article': input
+        };
+
+        $('#output').html('正在读取数据，请稍候......');
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            async: true,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(mydata),
+            success: function (res) {
+                 var spe = res.special;
+                 var spe_list = res.special_all;
+                 var com = res.common;
+                 var com_list = res.common_all;
+                 var ss = "";
+                 ss += "类别条款："+ spe+"<br/>";
+                 ss += "该类别下全部条款：<br/>";
+                 $('#output').html(ss);
+                 $('#output2').empty();
+                for (let i = 0; i < spe_list.length; i++) {
+                    $('#output2').append(new Option(spe_list[i].substr(0, 50), 0))
+                }
+                var ss = "通用条款："+com+"<br/>";
+                ss += "该类别下全部条款：<br/>";
+                $('#output3').html(ss);
+                $('#output4').empty();
+                for (let i = 0; i < com_list.length; i++) {
+                    $('#output4').append(new Option(com_list[i].substr(0, 50), 0))
+                }
+            },
+            error: function (xhr, textStatus) {
+                var err = xhr.status + ',' + xhr.readyState + ',' + textStatus;
+                if (xhr.readyState == 0 && xhr.status == 0) { err = '调用被拒绝!  ' + textStatus; }
+
+                $('#output').html(err);
+            },
+            timeout: 60000,
+            dataType: 'JSON'
+        });
+    }
+
+    function claertext() {
+        $('#input').val('');
+        $('#input').focus();
+    }
+</script>
+
+
+</html>
