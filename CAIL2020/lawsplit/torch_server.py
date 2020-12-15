@@ -21,7 +21,7 @@ cors_allow_all = CORS(allow_all_origins=True,
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '-p', '--port', default=58097,
+    '-p', '--port', default=58004,
     help='falcon server port')
 # parser.add_argument(
 #     '-c', '--config_file', default='config/bert_config_l.json',
@@ -40,7 +40,7 @@ class TorchResource:
     def __init__(self):
         logger.info("...")
 
-        self.rule = '　+第([^条]{1,6})条　(.*)'
+        self.rule = '　+第([^条]{1,7})条　(.*)'
         self.chapter = '第[一二三四五六七八九十]{1,3}分?[章编]'
         self.pattern = re.compile(self.rule)
         self.chapter_pattern = re.compile(self.chapter)
@@ -99,7 +99,7 @@ class TorchResource:
             dic = dict(zip(('id', 'desc'), tup))
             df = df.append(dic, ignore_index=True)
         df.to_csv('civil_code_contract.csv', columns=['id', 'desc'], index=False)
-        tuple = list(zip(df['id'].to_list(), df['desc'].to_list()))
+        tuple = {'id':df['id'].to_list(), 'desc':df['desc'].to_list()}
         return tuple
 
 
