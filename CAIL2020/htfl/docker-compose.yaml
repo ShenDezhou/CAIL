@@ -4,6 +4,7 @@ services:
     environment:
       - gpus=all
     network_mode: "host"
+    container_name: contractclassification_large
     volumes:
       - /mnt/data/htfldocker/data:/workspace/data
       - /mnt/data/wwm_large_ext:/workspace/wwm_large_ext
