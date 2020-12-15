@@ -37,6 +37,20 @@ class RootResource:
         with open(filename, 'r', encoding='utf-8') as f:
             resp.body = f.read()
 
+class BinaryResource:
+
+    def __init__(self):
+        logger.info("...")
+
+
+    def on_get(self, req, resp, filename):
+        # do some sanity check on the filename
+
+        resp.status = falcon.HTTP_200
+        resp.content_type = 'image/png'
+        with open(filename, 'rb') as f:
+            resp.body = f.read()
+
 class TorchResource:
 
     def __init__(self):
@@ -55,5 +69,6 @@ if __name__=="__main__":
     api = falcon.API(middleware=[cors_allow_all.middleware])
     api.req_options.auto_parse_form_urlencoded = True
     api.add_route('/', RootResource())
+    api.add_route('/img/{filename}', BinaryResource())
     api.add_route('/static/{filename}', TorchResource())
     waitress.serve(api, port=args.port, threads=48, url_scheme='http')
