@@ -7,4 +7,5 @@ services:
     volumes:
       - /mnt/data/wwm_large_ext:/workspace/wwm_large_ext
       - /mnt/data/ayfl2/model/bert:/workspace/model/bert/
+      - /mnt/data/ayfl2/log:/workspace/data
     command: python3 torch_server.py -p 58082
