@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import sys
 from types import SimpleNamespace
 import falcon
 import pandas
@@ -40,7 +41,10 @@ MODEL_MAP = {
     'bert': BertForClassification,
     'cnn': CharCNN
 }
-
+if sys.hexversion < 0x03070000:
+    ft = time.process_time
+else:
+    ft = time.process_time_ns
 
 class TorchResource:
 
@@ -102,12 +106,12 @@ class TorchResource:
         resp.set_header('Access-Control-Allow-Credentials', 'true')
         resp.set_header("Cache-Control", "no-cache")
         data = req.stream.read(req.content_length)
-        start = time.process_time_ns()
+        start = ft()
         jsondata = json.loads(data)
         clean_title = shortenlines(jsondata['1'])
         clean_content = cleanall(jsondata['2'])
         resp.media = self.bert_classification(clean_title, clean_content)
-        logger.info("tot:{}ns".format(time.process_time_ns() - start))
+        logger.info("tot:{}ns".format(ft() - start))
         logger.info("###")
 
 if __name__=="__main__":

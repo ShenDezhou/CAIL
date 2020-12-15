@@ -7,5 +7,6 @@ services:
     container_name: case4classification_large
     volumes:
       - /mnt/data/wwm_large_ext:/workspace/wwm_large_ext
-      - /mnt/data/ayfl4/model/bert:/workspace/model/bert/
+      - /mnt/data/ayfl4docker/model/bert:/workspace/model/bert/
+      - /mnt/data/ayfl4docker/log:/workspace/data
     command: python3 torch_server.py -p 58083
