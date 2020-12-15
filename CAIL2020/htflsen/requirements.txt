@@ -1,1 +1,1 @@
-lawrouge==1.2.0
+lawrouge==1.3.1
