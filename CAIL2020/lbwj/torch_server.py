@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import sys
 from types import SimpleNamespace
 import falcon
 import pandas
@@ -11,7 +12,7 @@ import waitress
 from data import Data
 from torch.utils.data import DataLoader
 from utils import load_torch_model
-from model import BertYForClassification
+from model import BertYForClassification, BertYLForClassification
 from evaluate import evaluate_fortest
 import time
 
@@ -35,10 +36,19 @@ parser.add_argument(
 args = parser.parse_args()
 model_config=args.config_file
 
-MODEL_MAP = {
-    'bert': BertYForClassification
-}
+if 'lbert_config' in model_config:
+    MODEL_MAP = {
+        'bert': BertYLForClassification
+    }
+else:
+    MODEL_MAP = {
+        'bert': BertYForClassification
+    }
 
+if sys.hexversion < 0x03070000:
+    ft = time.process_time
+else:
+    ft = time.process_time_ns
 
 class TorchResource:
 
@@ -64,10 +74,12 @@ class TorchResource:
         logger.info("###")
 
 
-    def bert_classification(self,sc, bc):
-        logger.info('1:{}, 2:{}'.format(sc, bc))
-        row = {'sc': sc, 'bc': bc}
-        df = pandas.DataFrame().append(row, ignore_index=True)
+    def bert_classification(self,sc, bc_list):
+        logger.info('1:{}, 2:{}'.format(sc, bc_list))
+        df = pandas.DataFrame()
+        for bc in bc_list:
+            row = {'sc': sc, 'bc': bc}
+            df = df.append(row, ignore_index=True)
         filename = "data/{}.csv".format(time.time())
         df.to_csv(filename, index=False, columns=['sc', 'bc'])
         test_set = self.data.load_file_test(filename)
@@ -100,12 +112,12 @@ class TorchResource:
         resp.set_header('Access-Control-Allow-Credentials', 'true')
         resp.set_header("Cache-Control", "no-cache")
         data = req.stream.read(req.content_length)
-        start = time.process_time_ns()
+        start = ft()
         jsondata = json.loads(data)
         # clean_title = shortenlines(jsondata['1'])
         # clean_content = cleanall(jsondata['2'])
         resp.media = self.bert_classification(jsondata['sc'], jsondata['bc'])
-        logger.info("tot:{}ns".format(time.process_time_ns() - start))
+        logger.info("tot:{}ns".format(ft() - start))
         logger.info("###")
 
 if __name__=="__main__":

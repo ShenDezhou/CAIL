@@ -7,14 +7,14 @@
   "train_file_path": "data/train.csv",
   "valid_file_path": "data/valid.csv",
 
-  "batch_size": 2,
+  "batch_size": 16,
 
-  "bert_model_path": "../roberta_wwm_large_ext",
+  "bert_model_path": "./roberta3_large_ext",
   "trained_weight":"",
 
   "in_channels": 3,
   "layers": 18,
-  "fc_hidden": 224,
+  "fc_hidden": 48,
 
 
   "hidden_size": 1024,

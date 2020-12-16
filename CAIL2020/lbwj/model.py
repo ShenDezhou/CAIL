@@ -153,6 +153,7 @@ class BertXForClassification(nn.Module):
 # from resnet import ResNet,BasicBlock,Bottleneck, resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
 #
 # resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
+# from resnetv import ResNet
 from resnetv import ResNet
 from FPN import FPN
 class BertYForClassification(nn.Module):
@@ -178,9 +179,9 @@ class BertYForClassification(nn.Module):
         # self.resnet = resnet18(num_classes=hidden_size)
         #self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
         self.resnet = ResNet(config.in_channels, 18)
-        self.fpn = FPN([64]* 4, 4)
+        self.fpn = FPN([256]* 4, 4)
 
-        self.fpn_seq = FPN([128] * 4, 4)
+        self.fpn_seq = FPN([128,128,128,70], 4)
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
         self.fc1 = nn.Linear(hidden_size, target_class)
@@ -222,12 +223,257 @@ class BertYForClassification(nn.Module):
         #x = s1_embed.transpose(1, 2)
         x = [l.unsqueeze(1) for l in x[-3:]]
         x = torch.cat(x, dim=1)
-        x = self.resnet(x)
+        # x = self.resnet(x)
         x = x.permute((0,3,1,2))
-        x = x[:,0:64,:,:], x[:,64:64+64,:,:], x[:,128:128+64,:,:], x[:,192:,:,:]
+        x = x[:,0:256,:,:], x[:,256:256+256,:,:], x[:,512:512+256,:,:], x[:,768:,:,:]
         x = self.fpn(x)
 
-        x = x.permute((0, 2, 3, 1))
+        x = x.permute((0, 3, 1, 2))
+        x = x[:, 0:128, :, :], x[:, 128:128 + 128, :, :], x[:, 256:256 + 128, :, :], x[:, 384:, :, :]
+        x = self.fpn_seq(x)
+        x = x.flatten(start_dim=1)
+        x = self.dropout(x)
+        logits = self.fc1(x)        # logits: (batch_size, num_classes)
+        return logits
+
+from resnetv import ResNet
+from FPN import FPN
+class BertYForClassification(nn.Module):
+    """BERT with simple linear model."""
+    def __init__(self, config):
+        """Initialize the model with config dict.
+
+        Args:
+            config: python dict must contains the attributes below:
+                config.bert_model_path: pretrained model path or model type
+                    e.g. 'bert-base-chinese'
+                config.hidden_size: The same as BERT model, usually 768
+                config.num_classes: int, e.g. 2
+                config.dropout: float between 0 and 1
+        """
+        super().__init__()
+        self.bert = BertModel.from_pretrained(config.bert_model_path)
+        for param in self.bert.parameters():
+            param.requires_grad = True
+
+        hidden_size = config.fc_hidden
+        target_class = config.num_classes
+        # self.resnet = resnet18(num_classes=hidden_size)
+        #self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
+        self.resnet = ResNet(config.in_channels, 18)
+        self.fpn = FPN([256]* 4, 4)
+
+        self.fpn_seq = FPN([128,128,128,70], 4)
+        #cnn feature map has a total number of 228 dimensions.
+        self.dropout = nn.Dropout(config.dropout)
+        self.fc1 = nn.Linear(hidden_size, target_class)
+        self.num_classes = config.num_classes
+
+    def forward(self, input_ids, attention_mask, token_type_ids):
+        """Forward inputs and get logits.
+
+        Args:
+            input_ids: (batch_size, max_seq_len)
+            attention_mask: (batch_size, max_seq_len)
+            token_type_ids: (batch_size, max_seq_len)
+
+        Returns:
+            logits: (batch_size, num_classes)
+        """
+        batch_size = input_ids.shape[0]
+        bert_output = self.bert(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            output_hidden_states=True
+        )
+        # bert_output[0]: (batch_size, sequence_length, hidden_size)
+        # encoded_output = bert_output[0]
+        # # encoded_output[0]: (batch_size, 1, sequence_length, hidden_size)
+        # encoded_output = encoded_output.view(batch_size, 1, encoded_output.shape[1], -1)
+
+        # ids: (batch_size, max_seq_len)
+        x = bert_output[2]
+        # s2_embed = self.embedding(s2_ids)
+        # embed: (batch_size, max_seq_len, hidden_size)
+        # s1_packed: PackedSequence = pack_padded_sequence(
+        #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        # if torch.cuda.is_available():
+        #     x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
+        # else:
+        #     x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
+        #x = s1_embed.transpose(1, 2)
+        x = [l.unsqueeze(1) for l in x[-3:]]
+        x = torch.cat(x, dim=1)
+        # x = self.resnet(x)
+        x = x.permute((0,3,1,2))
+        x = x[:,0:256,:,:], x[:,256:256+256,:,:], x[:,512:512+256,:,:], x[:,768:,:,:]
+        x = self.fpn(x)
+
+        x = x.permute((0, 3, 1, 2))
+        x = x[:, 0:128, :, :], x[:, 128:128 + 128, :, :], x[:, 256:256 + 128, :, :], x[:, 384:, :, :]
+        x = self.fpn_seq(x)
+        x = x.flatten(start_dim=1)
+        x = self.dropout(x)
+        logits = self.fc1(x)        # logits: (batch_size, num_classes)
+        return logits
+
+from resnetv import ResNet
+from FPN import FPN
+class BertYLForClassification(nn.Module):
+    """BERT with simple linear model."""
+    def __init__(self, config):
+        """Initialize the model with config dict.
+
+        Args:
+            config: python dict must contains the attributes below:
+                config.bert_model_path: pretrained model path or model type
+                    e.g. 'bert-base-chinese'
+                config.hidden_size: The same as BERT model, usually 768
+                config.num_classes: int, e.g. 2
+                config.dropout: float between 0 and 1
+        """
+        super().__init__()
+        self.bert = BertModel.from_pretrained(config.bert_model_path)
+        for param in self.bert.parameters():
+            param.requires_grad = True
+
+        hidden_size = config.fc_hidden
+        target_class = config.num_classes
+        # self.resnet = resnet18(num_classes=hidden_size)
+        #self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
+        self.resnet = ResNet(config.in_channels, 18)
+        self.fpn = FPN([256]* 4, 4)
+
+        self.fpn_seq = FPN([128,128,128,70], 4)
+        #cnn feature map has a total number of 228 dimensions.
+        self.dropout = nn.Dropout(config.dropout)
+        self.fc1 = nn.Linear(hidden_size, target_class)
+        self.num_classes = config.num_classes
+
+    def forward(self, input_ids, attention_mask, token_type_ids):
+        """Forward inputs and get logits.
+
+        Args:
+            input_ids: (batch_size, max_seq_len)
+            attention_mask: (batch_size, max_seq_len)
+            token_type_ids: (batch_size, max_seq_len)
+
+        Returns:
+            logits: (batch_size, num_classes)
+        """
+        batch_size = input_ids.shape[0]
+        bert_output = self.bert(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            output_hidden_states=True
+        )
+        # bert_output[0]: (batch_size, sequence_length, hidden_size)
+        # encoded_output = bert_output[0]
+        # # encoded_output[0]: (batch_size, 1, sequence_length, hidden_size)
+        # encoded_output = encoded_output.view(batch_size, 1, encoded_output.shape[1], -1)
+
+        # ids: (batch_size, max_seq_len)
+        x = bert_output[2]
+        # s2_embed = self.embedding(s2_ids)
+        # embed: (batch_size, max_seq_len, hidden_size)
+        # s1_packed: PackedSequence = pack_padded_sequence(
+        #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        # if torch.cuda.is_available():
+        #     x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
+        # else:
+        #     x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
+        #x = s1_embed.transpose(1, 2)
+        x = [l.unsqueeze(1) for l in x[-3:]]
+        x = torch.cat(x, dim=1)
+        # x = self.resnet(x)
+        x = x.permute((0,3,1,2))
+        x = x[:,0:256,:,:], x[:,256:256+256,:,:], x[:,512:512+256,:,:], x[:,768:,:,:]
+        x = self.fpn(x)
+
+        x = x.permute((0, 3, 1, 2))
+        x = x[:, 0:128, :, :], x[:, 128:128 + 128, :, :], x[:, 256:256 + 128, :, :], x[:, 384:, :, :]
+        x = self.fpn_seq(x)
+        x = x.flatten(start_dim=1)
+        x = self.dropout(x)
+        logits = self.fc1(x)        # logits: (batch_size, num_classes)
+        return logits
+
+from FPN import FPN
+class BertYForClassification(nn.Module):
+    """BERT with simple linear model."""
+    def __init__(self, config):
+        """Initialize the model with config dict.
+
+        Args:
+            config: python dict must contains the attributes below:
+                config.bert_model_path: pretrained model path or model type
+                    e.g. 'bert-base-chinese'
+                config.hidden_size: The same as BERT model, usually 768
+                config.num_classes: int, e.g. 2
+                config.dropout: float between 0 and 1
+        """
+        super().__init__()
+        self.bert = BertModel.from_pretrained(config.bert_model_path)
+        for param in self.bert.parameters():
+            param.requires_grad = True
+
+        hidden_size = config.fc_hidden
+        target_class = config.num_classes
+        # self.resnet = resnet18(num_classes=hidden_size)
+        #self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
+        # self.resnet = ResNet(config.in_channels, 18)
+        self.fpn = FPN([256]* 4, 4)
+
+        self.fpn_seq = FPN([128,128,128,70], 4)
+        #cnn feature map has a total number of 228 dimensions.
+        self.dropout = nn.Dropout(config.dropout)
+        self.fc1 = nn.Linear(hidden_size, target_class)
+        self.num_classes = config.num_classes
+
+    def forward(self, input_ids, attention_mask, token_type_ids):
+        """Forward inputs and get logits.
+
+        Args:
+            input_ids: (batch_size, max_seq_len)
+            attention_mask: (batch_size, max_seq_len)
+            token_type_ids: (batch_size, max_seq_len)
+
+        Returns:
+            logits: (batch_size, num_classes)
+        """
+        batch_size = input_ids.shape[0]
+        bert_output = self.bert(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            output_hidden_states=True
+        )
+        # bert_output[0]: (batch_size, sequence_length, hidden_size)
+        # encoded_output = bert_output[0]
+        # # encoded_output[0]: (batch_size, 1, sequence_length, hidden_size)
+        # encoded_output = encoded_output.view(batch_size, 1, encoded_output.shape[1], -1)
+
+        # ids: (batch_size, max_seq_len)
+        x = bert_output[2]
+        # s2_embed = self.embedding(s2_ids)
+        # embed: (batch_size, max_seq_len, hidden_size)
+        # s1_packed: PackedSequence = pack_padded_sequence(
+        #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+        # if torch.cuda.is_available():
+        #     x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
+        # else:
+        #     x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
+        #x = s1_embed.transpose(1, 2)
+        x = [l.unsqueeze(1) for l in x[-3:]]
+        x = torch.cat(x, dim=1)
+        # x = self.resnet(x)
+        x = x.permute((0,3,1,2))
+        x = x[:,0:256,:,:], x[:,256:256+256,:,:], x[:,512:512+256,:,:], x[:,768:,:,:]
+        x = self.fpn(x)
+
+        x = x.permute((0, 3, 1, 2))
         x = x[:, 0:128, :, :], x[:, 128:128 + 128, :, :], x[:, 256:256 + 128, :, :], x[:, 384:, :, :]
         x = self.fpn_seq(x)
         x = x.flatten(start_dim=1)
