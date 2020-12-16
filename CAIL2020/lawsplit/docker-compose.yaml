@@ -5,4 +5,6 @@ services:
       - gpus=all
     network_mode: "host"
     container_name: lawarticlesplit
+    volumes:
+    - /mnt/data/lawsplitdocker/log:/workspace/data
     command: python3 torch_server.py -p 58097

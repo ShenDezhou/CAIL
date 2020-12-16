@@ -1,5 +1,6 @@
 import argparse
 import logging
+import time
 
 import falcon
 
@@ -98,7 +99,8 @@ class TorchResource:
             tup = (article_digit, r"\n".join(buffer))
             dic = dict(zip(('id', 'desc'), tup))
             df = df.append(dic, ignore_index=True)
-        df.to_csv('civil_code_contract.csv', columns=['id', 'desc'], index=False)
+        filename = "data/{}.csv".format(time.time())
+        df.to_csv(filename, columns=['id', 'desc'], index=False)
         tuple = {'id':df['id'].to_list(), 'desc':df['desc'].to_list()}
         return tuple
 
