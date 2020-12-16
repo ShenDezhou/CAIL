@@ -1,0 +1,118 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Post Data</title>
+    <!--<script src="js/jquery.min.js"></script>-->
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        table, table tr th, table tr td {
+            border: 1px solid #7197b9;
+            border-collapse: collapse;
+            padding: 4px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body style="background-color: #d5d8dc;">
+    <table style="width: 100%; height: 100%;">
+        <tr>
+            <td colspan="2" style="font-size: 22px; color: #fff; height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">Web服务数据请求
+            </td>
+        </tr>
+        <tr style="height: 30px; text-align: center;">
+            <td colspan="2">url：<input id="input_url" type="text" value="192.168.60.15:58088/z" /></td>
+        </tr>
+
+        <tr style="height: 30px; background-color: #e2eaf1;">
+            <td style="width: 50%;">输入：
+
+                <button onclick="claertext();return false;" style="float: right;">清空</button>
+
+            </td>
+            <td>输出：</td>
+        </tr>
+        <tr style="height: 500px; background-color: #fff;">
+            <td>
+                <textarea id="input" style="width: 100%; height: 100%;">
+示例:智能问答词推理.
+    推理公式（sun）-（sunlight）+（morning）= sunrise
+---------------
+sun sunlight morning sunrise
+    </textarea></td>
+            <td>
+                <div id="output"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">
+                <button onclick="dopost();" style="padding: 4px 40px; cursor: pointer;">确　认</button>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+
+
+    function dopost() {
+        var url = 'http://' + $('#input_url').val(); 'http://192.168.60.15:58087/z';
+        const regex = /（([\u4e00-\u9fa5\w]+)）/ig;
+        var input = $('#input').val();
+
+        let gidarray = input.matchAll(regex);
+        gidarray = Array.from(gidarray);
+        debugger
+
+        let operand1 = gidarray[0];
+        let substract = gidarray[1];
+        let operand2 = gidarray[2];
+        var mydata = {
+            'pos': [operand1[1], operand2[1]],
+            'neg': [substract[1]],
+            'topn': 3
+        };
+
+        $('#output').html('正在读取数据，请稍候......');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            async: true,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(mydata),
+            success: function (res) {
+                var data = res.data;
+                var ss = "";
+
+                for (let i = 0; i < data.length; i++) {
+                    ss += data[i][0] + ",相似度:" + (data[i][1]*100).toFixed(6) + "%<br/>"
+                }
+                $('#output').html(ss);
+            },
+            error: function (xhr, textStatus) {
+                var err = xhr.status + ',' + xhr.readyState + ',' + textStatus;
+                if (xhr.readyState == 0 && xhr.status == 0) {
+                    err = '调用被拒绝!  ' + textStatus;
+                }
+
+                $('#output').html(err);
+            },
+            timeout: 60000,
+            dataType: 'JSON'
+        })
+
+
+    }
+
+    function claertext() {
+        $('#input').val('');
+        $('#input').focus();
+    }
+</script>
+
+
+</html>
