@@ -1,0 +1,115 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Post Data</title>
+    <!--<script src="js/jquery.min.js"></script>-->
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        table, table tr th, table tr td {
+            border: 1px solid #7197b9;
+            border-collapse: collapse;
+            padding: 4px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body style="background-color: #d5d8dc;">
+    <table style="width: 100%; height: 100%;">
+        <tr>
+            <td colspan="2" style="font-size: 22px; color: #fff; height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">Web服务数据请求
+            </td>
+        </tr>
+        <tr style="height: 30px; text-align: center;">
+            <td colspan="2">url：<input id="input_url" type="text" value="192.168.60.15:58093/z" /></td>
+        </tr>
+
+        <tr style="height: 30px; background-color: #e2eaf1;">
+            <td style="width: 50%;">输入：
+
+                <button onclick="claertext();return false;" style="float: right;">清空</button>
+
+            </td>
+            <td>输出：</td>
+        </tr>
+        <tr style="height: 500px; background-color: #fff;">
+            <td>
+                诉称:<textarea id="inputsc" style="width: 100%; height: 45%;">
+依法判决被告人犯故意伤害罪，并追究其刑事责任；判令被告人向我赔偿经济损失452312元（医疗费137218元，误工费87100元，护理费25794元，住院伙食补助费23000元，交通费25000元，住宿费10000元，营养费23000元，鉴定费14000元，精神抚慰金100000元，财产损失费7200元）。
+                </textarea>
+            辩称：<textarea id="inputbc" style="width: 100%; height: 45%;">
+    因鉴定依据的内容都是虚假的，所以我们对司法鉴定意见书不予认可，同时也保留对相关人员追究责任的意见。
+    综上被告人康某不应该承担刑事责任。
+    被告人康某的辩护人认为：被告人构成故意伤害罪的证据不足，原告的伤情并不是被告造成的，原告的伤与被告的行为没有因果关系，两人打架的时间只是一秒钟，而被告仅仅抓住原告的头发，没有打原告面部，也没有打原告额头。
+    我的行为不构成故意伤害罪，不应当承担刑事责任，请求法庭依法驳回自诉人对我的刑事控诉。
+    自诉人在诉状中关于伤情的描述是虚假的，她陈述“我揪住她头发打她”与她在剑川县公安局所作的陈述“我抓住她的头发，用雨伞打在她的额头”相互矛盾，两次陈述打击的部位不同，当时没有出现自诉人所说“流血不止”的情形，因此，我不应当承担刑事责任。</textarea></td>
+            <td>
+                <div id="output"></div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">
+                <button onclick="dopost();" style="padding: 4px 40px; cursor: pointer;">确　认</button>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+
+
+    function dopost() {
+        var url = 'http://' + $('#input_url').val(); 'http://192.168.60.15:58084/z';
+
+        var inputsc = $('#inputsc').val();
+        var inputbc = $('#inputbc').val();
+
+        inputsc = inputsc.replaceAll('\r', '');
+        var bcarray = inputbc.split('\n');
+        bcarray = bcarray.slice(0,5)
+        var mydata = {
+            'sc': inputsc,
+            'bc': bcarray
+        };
+
+        $('#output').html('正在读取数据，请稍候......');
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            async: true,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(mydata),
+            success: function (res) {
+                var answer = res.answer;
+                debugger
+                let maxi = answer.indexOf(Math.max(...answer));
+                var ss = "";
+                ss += "诉称："+ inputsc+"<br/><hr/><br/>";
+                ss += "最佳匹配辩称:"+maxi+","+bcarray[maxi];
+                $('#output').html(ss);
+            },
+            error: function (xhr, textStatus) {
+                var err = xhr.status + ',' + xhr.readyState + ',' + textStatus;
+                if (xhr.readyState == 0 && xhr.status == 0) { err = '调用被拒绝!  ' + textStatus; }
+
+                $('#output').html(err);
+            },
+            timeout: 60000,
+            dataType: 'JSON'
+        });
+    }
+
+    function claertext() {
+        $('#input').val('');
+        $('#input').focus();
+    }
+</script>
+
+
+</html>
