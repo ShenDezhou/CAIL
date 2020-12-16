@@ -43,7 +43,7 @@ class Sentence_Abstract(object):
         with open(model_config) as fin:
             config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
         if torch.cuda.is_available():
-            self.device = torch.device('cuda')
+            self.device = torch.device('cuda:0')
             # device = torch.device('cpu')
         else:
             self.device = torch.device('cpu')
