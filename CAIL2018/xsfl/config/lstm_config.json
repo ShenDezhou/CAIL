@@ -1,6 +1,6 @@
 {
   "model_type": "rnn",
-  "max_seq_len": 100,
+  "max_seq_len": 837,
   "model_path": "model/lstm/",
   "log_path": "log/",
 
