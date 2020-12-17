@@ -3,5 +3,6 @@ services:
     image: contractsensor:1.0
     environment:
       - gpus=all
+      - PYTHONIOENCODING=UTF-8
     network_mode: "host"
     command: python3 torch_server.py -p 58098
