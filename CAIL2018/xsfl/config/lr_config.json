@@ -4,8 +4,8 @@
   "model_path": "model/lr/",
   "log_path": "log/",
 
-  "train_file_path": "data/ec_train.csv",
-  "valid_file_path": "data/ec_valid.csv",
+  "train_file_path": "data/fs_train.csv",
+  "valid_file_path": "data/fs_test.csv",
   "all_train_file_path": "data/all_cail2018.csv",
 
   "batch_size": 256,

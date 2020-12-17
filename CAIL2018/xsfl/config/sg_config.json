@@ -11,9 +11,9 @@
   "skip_gram": "model/sg/wv.npy",
   "batch_size": 256,
   "trained_weight":"",
-  "vocab_size": 15418,
-  "hidden_size": 512,
-  "num_classes": 3,
+  "vocab_size": 1265019,
+  "hidden_size": 64,
+  "num_classes": 202,
   "dropout": 0.05,
 
   "lr": 1e-3,

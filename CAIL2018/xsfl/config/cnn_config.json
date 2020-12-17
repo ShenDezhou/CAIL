@@ -10,11 +10,11 @@
 
   "batch_size": 128,
   "trained_weight": "",
-  "vocab_size": 15418,
+  "vocab_size": 1265019,
   "num_conv_filters": 256,
   "output_channel": 128,
-  "hidden_size": 256,
-  "num_classes": 3,
+  "hidden_size": 64,
+  "num_classes": 202,
   "dropout": 0.05,
 
   "lr": 1e-3,

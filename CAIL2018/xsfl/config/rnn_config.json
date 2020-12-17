@@ -10,9 +10,9 @@
 
   "batch_size": 128,
   "trained_weight":"",
-  "vocab_size": 15418,
-  "hidden_size": 256,
-  "num_classes": 3,
+  "vocab_size": 1265019,
+  "hidden_size": 64,
+  "num_classes": 202,
   "dropout": 0.05,
 
   "rnn_type":"GRU",
