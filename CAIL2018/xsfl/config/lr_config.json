@@ -5,14 +5,14 @@
   "log_path": "log/",
 
   "train_file_path": "data/ec_train.csv",
-  "valid_file_path": "data/ec_test.csv",
-  "all_train_file_path": "data/ec_train.csv",
+  "valid_file_path": "data/ec_valid.csv",
+  "all_train_file_path": "data/all_cail2018.csv",
 
   "batch_size": 256,
   "trained_weight":"",
-  "vocab_size": 15418,
-  "hidden_size": 256,
-  "num_classes": 3,
+  "vocab_size": 1265019,
+  "hidden_size": 64,
+  "num_classes": 202,
   "dropout": 0.05,
 
   "lr": 1e-3,

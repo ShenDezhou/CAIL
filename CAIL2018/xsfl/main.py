@@ -22,7 +22,7 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN
+from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN,FullyConnectNet
 from utils import load_torch_model
 
 
@@ -31,6 +31,7 @@ MODEL_MAP = {
     'bert': BertForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression,
+    'sg': FullyConnectNet,
     'cnn': CharCNN
 }
 
