@@ -1,0 +1,8 @@
+services:
+  web:
+    image: contractamount:2.0
+    network_mode: "host"
+    volumes:
+    - /mnt/data/jesbdocker/data:/workspace/data
+    - /mnt/data/jesbdocker/model:/workspace/model
+    command: python3 tensorflow_server_v2.py -m model_data_v5b -c config/lstm_config.json -p 58099

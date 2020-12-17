@@ -1,0 +1,7 @@
+services:
+  web:
+    image: contractamount:1.0
+    network_mode: "host"
+    volumes:
+    - /mnt/data/jesbdocker/data:/workspace/data
+    command: python3 tensorflow_server.py -m model_data_v3 -p 58090
