@@ -1,0 +1,26 @@
+{
+  "model_type": "sg",
+  "max_seq_len": 837,
+  "model_path": "model/sg/",
+  "log_path": "log/",
+
+  "train_file_path": "data/ec_train.csv",
+  "valid_file_path": "data/ec_test.csv",
+  "all_train_file_path": "data/ec_train.csv",
+
+  "skip_gram": "model/sg/wv.npy",
+  "batch_size": 256,
+  "trained_weight":"",
+  "vocab_size": 1265019,
+  "hidden_size": 64,
+  "num_classes": 202,
+  "dropout": 0.05,
+
+  "lr": 1e-3,
+  "num_epoch": 1,
+  "num_warmup_steps": 100,
+  "gradient_accumulation_steps": 1,
+  "max_grad_norm": 1e-3,
+
+  "experiment_name": "SG"
+}

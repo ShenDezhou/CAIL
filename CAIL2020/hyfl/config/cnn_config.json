@@ -1,0 +1,27 @@
+{
+  "model_type": "cnn",
+  "max_seq_len": 90,
+  "model_path": "model/cnn/",
+  "log_path": "log/",
+
+  "train_file_path": "data/category_tag.csv",
+  "valid_file_path": "data/category_tag.csv",
+  "all_train_file_path": "data/category_tag.csv",
+
+  "batch_size": 256,
+  "trained_weight": "",
+  "vocab_size": 6150,
+  "hidden_size": 256,
+  "num_classes": 97,
+  "num_conv_filters": 64,
+  "output_channel": 256,
+  "dropout": 0.05,
+
+  "lr": 1e-3,
+  "num_epoch": 80,
+  "num_warmup_steps": 100,
+  "gradient_accumulation_steps": 1,
+  "max_grad_norm": 1e-3,
+
+  "experiment_name": "CNN"
+}
