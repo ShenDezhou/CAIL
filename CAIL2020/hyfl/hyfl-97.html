@@ -1,0 +1,129 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Post Data</title>
+    <!--<script src="js/jquery.min.js"></script>-->
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        table, table tr th, table tr td {
+            border: 1px solid #7197b9;
+            border-collapse: collapse;
+            padding: 4px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body style="background-color: #d5d8dc;">
+    <table style="width: 100%; height: 100%;">
+        <tr>
+            <td colspan="2" style="font-size: 22px; color: #fff; height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">Web服务数据请求
+            </td>
+        </tr>
+        <tr style="height: 30px; text-align: center;">
+            <td colspan="2">url：<input id="input_url" type="text" value="192.168.4.250:58071/z" /></td>
+        </tr>
+
+        <tr style="height: 30px; background-color: #e2eaf1;">
+            <td style="width: 50%;">输入：
+                
+                <button onclick="claertext();return false;" style="float: right;">清空</button>
+
+            </td>
+            <td>输出：</td>
+        </tr>
+        <tr style="height: 500px; background-color: #fff;">
+            <td>
+                <textarea id="input" style="width: 100%; height: 100%;">宗教组织
+--------------------
+A,农、林、牧、渔业,01,05
+B,采矿业,06,12
+C,制造业,13,43
+D,电力、热力、燃气及水生产和供应业,44,46
+E,建筑业,47,50
+F,批发和零售业,51,52
+G,交通运输、仓储和邮政业,53,60
+H,住宿和餐饮业,61,62
+I,信息传输、软件和信息技术服务业,63,65
+J,金融业,66,69
+K,房地产业,70,70
+L,租赁和商务服务业,71,72
+M,科学研究和技术服务业,73,75
+N,水利、环境和公共设施管理业,76,79
+O,居民服务、修理和其他服务业,80,82
+P,教育,83,83
+Q,卫生和社会工作,84,85
+R,文化、体育和娱乐业,86,90
+S,公共管理、社会保障和社会组织,91,96
+T,国际组织,97,97
+根据《GB/T 4754-2017国民经济行业分类》
+</textarea></td>
+            <td>
+                <div id="output"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">
+                <button onclick="dopost();" style="padding: 4px 40px; cursor: pointer;">确　认</button>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+
+
+    function dopost() {
+        var url = 'http://' + $('#input_url').val(); 'http://192.168.60.15:58083/z';
+
+        var input = $('#input').val();
+
+        input = input.split('\n');
+        input = input[0];
+
+        var mydata = {
+            '1': input
+        };
+
+        $('#output').html('正在读取数据，请稍候......');
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            async: true,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(mydata),
+            success: function (res) {
+                var id=res.id;
+                var desc=res.desc;
+                var score = res.score;
+                var supid = res.sup_id;
+                var sup_desc = res.sup_desc;
+                var ss = "id:"+id+"<br/>desc:"+desc+"<br/>score:"+(score*100).toFixed(2)+"%";
+                ss += "<hr/>门类：" +supid+"<br/>定义："+sup_desc;
+                ss +="<br/>大类：" + id.substr(0,2);
+                $('#output').html(ss);
+            },
+            error: function (xhr, textStatus) {
+                var err = xhr.status + ',' + xhr.readyState + ',' + textStatus;
+                if (xhr.readyState == 0 && xhr.status == 0) { err = '调用被拒绝!  ' + textStatus; }
+
+                $('#output').html(err);
+            },
+            timeout: 60000,
+            dataType: 'JSON'
+        });
+    }
+
+    function claertext() {
+        $('#input').val('');
+        $('#input').focus();
+    }
+</script>
+
+
+</html>

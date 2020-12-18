@@ -1,0 +1,6 @@
+services:
+  web:
+    image: economicclass:1.0
+    network_mode: "host"
+    container_name: economicclass
+    command: python3 torch_server.py -p 58071
