@@ -4,8 +4,8 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/fs_train.csv",
-  "valid_file_path": "data/fs_test.csv",
+  "train_file_path": "data/ec_train.csv",
+  "valid_file_path": "data/ec_test.csv",
 
   "batch_size": 16,
 
