@@ -55,7 +55,7 @@ class BertForClassification(nn.Module):
             input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
-            encoder_hidden_states=True
+            # encoder_hidden_states=True
         )
         # bert_output[0]: (batch_size, sequence_length, hidden_size)
         # bert_output[1]: (batch_size, hidden_size)

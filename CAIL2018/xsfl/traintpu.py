@@ -51,6 +51,7 @@ import torch_xla.utils.utils as xu
 
 MODEL_MAP = {
     'bert': BertForClassification,
+    'bertxl': BertForClassification,
     'rnn': RnnForSentencePairClassification,
     'lr': LogisticRegression,
     'sg': FullyConnectNet,

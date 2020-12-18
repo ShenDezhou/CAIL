@@ -4,10 +4,10 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/ec_train.csv",
-  "valid_file_path": "data/ec_test.csv",
+  "train_file_path": "data/fs_train.csv",
+  "valid_file_path": "data/fs_test.csv",
 
-  "batch_size": 128,
+  "batch_size": 16,
 
   "bert_model_path": "../xlnet_base",
   "trained_weight":"",
@@ -16,7 +16,7 @@
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
+  "num_epoch": 1,
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
   "gradient_accumulation_steps": 1,

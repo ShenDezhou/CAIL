@@ -309,14 +309,15 @@ class Data:
             all_input_ids.append(input_ids)
             all_input_mask.append(input_mask)
             all_segment_ids.append(segment_ids)
-
-            if label_list:  # train
-                label_list_ = [1] + label_list[i] + [1]
-                label_list_ += [0] * (self.max_seq_len - tokens_len)
-                if len(label_list_) > self.max_seq_len:
-                    label_list_ = label_list_[:self.max_seq_len // 2] + label_list_[-self.max_seq_len // 2:]
-
-                all_label_list.append(label_list_)
+            #
+            # if label_list:  # train
+            #     label_list_ = label_list[i]
+            #     # if len(label_list_) < self.max_seq_len:
+            #     #     label_list_ += [0] * (self.max_seq_len - tokens_len)
+            #     # elif len(label_list_) > self.max_seq_len:
+            #     #     label_list_ = label_list_[:self.max_seq_len // 2] + label_list_[-self.max_seq_len // 2:]
+            #
+            #     all_label_list.append(label_list_)
 
 
         all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
@@ -324,7 +325,7 @@ class Data:
         all_segment_ids = torch.tensor(all_segment_ids, dtype=torch.long)
 
         if label_list:  # train
-            all_label_ids = torch.tensor(all_label_list, dtype=torch.float)
+            all_label_ids = torch.tensor(label_list, dtype=torch.float)
             return TensorDataset(
                 all_input_ids, all_input_mask, all_segment_ids,
                 all_label_ids)
