@@ -26,7 +26,7 @@
             </td>
         </tr>
         <tr style="height: 30px; text-align: center;">
-            <td colspan="2">url：<input id="input_url" type="text" value="localhost:58072/z" /></td>
+            <td colspan="2">url：<input id="input_url" type="text" value="139.198.13.204:58072/z" /></td>
         </tr>
 
         <tr style="height: 30px; background-color: #e2eaf1;">
@@ -1788,8 +1788,6 @@
 96,基层群众自治组织\n指城市和农村按居民居住地区设立的居民委员会或者村民委员会
 96,社区居民自治组织\n指城市、镇的居民通过选举产生的群众性自治组织的管理活动
 96,村民自治组织\n指农村村民通过选举产生的群众性自治组织的管理活动
-97,国际组织
-97,国际组织\n指联合国和其他国际组织驻我国境内机构等活动
 </textarea></td>
             <td>
                 <div id="output"></div>
@@ -1807,9 +1805,9 @@
 
     function dopost() {
         var url = 'http://' + $('#input_url').val(); 'http://192.168.60.15:58084/z';
-        const regex = /（([\u4e00-\u9fa5\w]+)）/ig;
-        var input = $('#input').val();
 
+        const regex = /（([^）]+)/ig;
+        var input = $('#input').val();
         let gidarray = input.matchAll(regex);
         gidarray = Array.from(gidarray);
         debugger

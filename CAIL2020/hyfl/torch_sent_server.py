@@ -31,7 +31,7 @@ parser.add_argument(
     '-p', '--port', default=58072,
     help='falcon server port')
 parser.add_argument(
-    '-c', '--config_file', default='config/lr_config.json',
+    '-c', '--config_file', default='config/lstm_config.json',
     help='model config file')
 args = parser.parse_args()
 model_config=args.config_file
@@ -87,14 +87,14 @@ class TorchResource:
 
 
     def bert_classification(self, content):
-        logger.info('1:{}'.format( content))
+        logger.info('1:{}'.format(content))
         df = pandas.DataFrame()
-        lines = content.split('\n')
+        # lines = content.split('\n')
         # if len(lines) > 20:
         #     lines = lines[:math.floor(len(lines)*self.threshold)]
-        for line in lines:
-            row = {'id': '/', 'desc': line}
-            df = df.append(row, ignore_index=True)
+        # for line in lines:
+        row = {'id': '/', 'desc': content}
+        df = df.append(row, ignore_index=True)
         filename = "data/{}.csv".format(time.time())
         df.to_csv(filename, index=False, columns=['id', 'desc'])
         test_set = self.data.load_file(filename, train=False)

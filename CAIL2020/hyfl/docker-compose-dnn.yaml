@@ -1,0 +1,8 @@
+services:
+  web:
+    image: economicclass:dnn1.0
+    network_mode: "host"
+    container_name: economicclass_dnn
+    volumes:
+      - /mnt/data/hyfldocker/model/lr/:/workspace/model/lr/
+    command: python3 torch_sent_server.py -c config/lr_config.json -p 58072

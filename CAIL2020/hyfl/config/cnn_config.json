@@ -10,7 +10,7 @@
 
   "batch_size": 256,
   "trained_weight": "",
-  "vocab_size": 6150,
+  "vocab_size": 6152,
   "hidden_size": 256,
   "num_classes": 97,
   "num_conv_filters": 64,
