@@ -83,7 +83,7 @@ class TorchResource:
         #accusation, fact
         row = {'accusation': '/', 'fact': content}
         df = pandas.DataFrame().append(row, ignore_index=True)
-        filename = "data/{}.csv".format(time.time())
+        filename = "log/{}.csv".format(time.time())
         df.to_csv(filename, index=False, columns=['accusation', 'fact'])
         test_set = self.data.load_file(filename, train=False)
         data_loader_test = DataLoader(

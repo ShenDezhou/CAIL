@@ -1,7 +1,11 @@
 services:
   web:
-    image: contractamount:1.0
+    image: xsfl202classification:1.0
+    environment:
+      - gpus=all
     network_mode: "host"
     volumes:
-    - /mnt/data/jesbdocker/data:/workspace/data
-    command: python3 tensorflow_server.py -m model_data_v3 -p 58090
+      - /mnt/data/roberta3_ext:/workspace/roberta3_ext
+      - /mnt/data/xsfldocker/model/bert:/workspace/model/bert/
+      - /mnt/data/xsfldocker/log:/workspace/log
+    command: python3 torch_server.py -p 58073
