@@ -274,7 +274,8 @@ def main(config_file='config/bert_config.json'):
     def load_dataset():
         datasets = data.load_train_and_valid_files(
             train_file=config.train_file_path,
-            valid_file=config.valid_file_path)
+            valid_file=config.valid_file_path,
+            isTPU=True)
         return datasets
 
     if config.serial_load:

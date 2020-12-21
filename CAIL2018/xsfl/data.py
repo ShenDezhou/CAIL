@@ -163,7 +163,7 @@ class Data:
                 sc_list,  label_list)
         return dataset
 
-    def load_train_and_valid_files(self, train_file, valid_file):
+    def load_train_and_valid_files(self, train_file, valid_file, isTPU=False):
         """Load all files for SMP-CAIL2020-Argmine.
 
         Args:
@@ -183,7 +183,10 @@ class Data:
             valid_set_train = self.load_file(train_file, False)
             print(len(valid_set_train), 'train records loaded.')
             print('Loading valid records...')
-        valid_set_valid = self.load_file(valid_file, False)
+        if isTPU:
+            valid_set_valid = self.load_file(valid_file, True)
+        else:
+            valid_set_valid = self.load_file(valid_file, False)
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, valid_set_train, valid_set_valid
 
@@ -219,7 +222,7 @@ class Data:
             else:  # test
                 sc_list.append(sc_tokens)
                 # bc_list.append(bc_tokens)
-                label_list.append(row[0])
+                # label_list.append(row[0])
 
         return sc_list, label_list
 

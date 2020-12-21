@@ -48,6 +48,12 @@ if sys.hexversion < 0x03070000:
 else:
     ft = time.process_time_ns
 
+LABELS = []
+with open('data/accusation.txt','r', encoding='utf-8') as f:
+    for line in f:
+        LABELS.append(line.strip())
+assert(len(LABELS)==202)
+
 class TorchResource:
 
     def __init__(self):
@@ -84,7 +90,8 @@ class TorchResource:
             test_set, batch_size=self.config.batch_size, shuffle=False)
         # Evaluate
         answer_list = evaluate(self.model, data_loader_test, self.device)
-        return {"answer": answer_list}
+        answer_desc = [LABELS[i] for i in answer_list]
+        return {"id": answer_list, 'desc': answer_desc}
 
     def on_get(self, req, resp):
         logger.info("...")
