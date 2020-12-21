@@ -26,7 +26,7 @@
             </td>
         </tr>
         <tr style="height: 30px; text-align: center;">
-            <td colspan="2">url：<input id="input_url" type="text" value="localhost:58073/z" /></td>
+            <td colspan="2">url：<input id="input_url" type="text" value="139.198.13.204:58073/z" /></td>
         </tr>
 
         <tr style="height: 30px; background-color: #e2eaf1;">
@@ -260,7 +260,7 @@ __________________________
 
     function dopost() {
         var url = 'http://' + $('#input_url').val(); 'http://192.168.60.15:58084/z';
-        const regex = /([^-]+)/ig;
+        const regex = /([^_]+)/ig;
         var input = $('#input').val();
 
         let gidarray = input.matchAll(regex);
@@ -269,7 +269,7 @@ __________________________
         //input = input.replace('\n', '');
         let firstmatch = gidarray[0]
         var mydata = {
-            '1': firstmatch[0]
+            '1': firstmatch[1]
         };
 
         $('#output').html('正在读取数据，请稍候......');
