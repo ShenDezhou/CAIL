@@ -99,8 +99,8 @@ def gen_micro_macro_result(res):
     }
 
 
-def single_label_accuracy(prediction, label, result):
-    while len(result) <= 202:
+def single_label_accuracy(prediction, label, num_class, result):
+    while len(result) <= num_class:
         result.append({"TP": 0, "FN": 0, "FP": 0, "TN": 0})
     for a in range(0, len(prediction)):
         it_is = int(prediction[a])
@@ -113,7 +113,7 @@ def single_label_accuracy(prediction, label, result):
     return result
 
 
-def main(in_file='data/dev.csv',
+def main(in_file='data/f_test.csv',
          out_file='/output/result1.csv',
          model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.
@@ -128,7 +128,7 @@ def main(in_file='data/dev.csv',
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
     if torch.cuda.is_available():
         #device = torch.device('cuda')
-        device = torch.device('cpu')
+        device = torch.device('cuda')
     else:
         device = torch.device('cpu')
     # 1. Load data
@@ -148,7 +148,7 @@ def main(in_file='data/dev.csv',
     # 4. Write answers to file
     id_list = pd.read_csv(in_file)['accusation'].tolist()
     result = []
-    result = single_label_accuracy(answer_list, id_list, result)
+    result = single_label_accuracy(answer_list, id_list, config.num_classes, result)
     metrics = gen_micro_macro_result(result)
     print(metrics)
 

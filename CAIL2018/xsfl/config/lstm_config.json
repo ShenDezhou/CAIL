@@ -4,11 +4,11 @@
   "model_path": "model/lstm/",
   "log_path": "log/",
 
-  "train_file_path": "data/fs_train.csv",
-  "valid_file_path": "data/fs_test.csv",
-  "all_train_file_path": "data/fs_train.csv",
+  "train_file_path": "data/cail2018_train.csv",
+  "valid_file_path": "data/f_test.csv",
+  "all_train_file_path": "data/cail2018_train.csv",
 
-  "batch_size": 64,
+  "batch_size": 256,
   "trained_weight":"",
   "vocab_size": 1265019,
   "hidden_size": 64,
@@ -17,7 +17,7 @@
 
   "rnn_type":"LSTM",
   "lr": 1e-3,
-  "num_epoch": 1,
+  "num_epoch": 10,
   "num_warmup_steps": 100,
   "gradient_accumulation_steps": 1,
   "max_grad_norm": 1e-3,
