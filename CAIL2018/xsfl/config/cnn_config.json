@@ -11,7 +11,7 @@
   "batch_size": 64,
   "trained_weight": "",
   "vocab_size": 1265019,
-  "num_conv_filters": 128,
+  "num_conv_filters": 64,
   "output_channel": 64,
   "hidden_size": 256,
   "num_classes": 202,

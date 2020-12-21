@@ -1,13 +1,13 @@
 {
   "model_type": "bertxl",
-  "max_seq_len": 837,
+  "max_seq_len": 500,
   "model_path": "model/bert/",
   "log_path": "log/",
 
   "train_file_path": "data/ec_train.csv",
   "valid_file_path": "data/ec_test.csv",
 
-  "batch_size": 16,
+  "batch_size": 4,
 
   "bert_model_path": "../xlnet_base",
   "trained_weight":"",
