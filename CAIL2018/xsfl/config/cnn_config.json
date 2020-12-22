@@ -4,13 +4,13 @@
   "model_path": "model/cnn/",
   "log_path": "log/",
 
-  "train_file_path": "data/cail2018_train.csv",
+  "train_file_path": "data/fs_train.csv",
   "valid_file_path": "data/f_test.csv",
   "all_train_file_path": "data/cail2018_train.csv",
 
   "batch_size": 256,
   "trained_weight": "",
-  "vocab_size": 1265019,
+  "vocab_size": 500002,
   "num_conv_filters": 64,
   "output_channel": 64,
   "hidden_size": 256,

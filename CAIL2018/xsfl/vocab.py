@@ -85,12 +85,29 @@ class Vocab:
                     file_out.write(' ' + str(self.word_dict[word]))
                 file_out.write('\n')
 
+    def write2filesort(self,
+                   filename: str = 'vocab.txt', fre: bool = False) -> None:
+        """Write word_dict to file without file head.
+        Each row contains one word with/without its frequency.
+
+        Args:
+            filename: usually a txt file
+            fre: if True, write frequency for each word
+        """
+        # for k, v in
+        with open(filename, 'w', encoding='utf-8') as file_out:
+            for word in sorted(self.word_dict, key=self.word_dict.get, reverse=True):
+                file_out.write(word)
+                if fre:
+                    file_out.write(' ' + str(self.word_dict[word]))
+                file_out.write('\n')
+
 
 def build_vocab(file_in, file_out):
     """Build vocab.txt for SMP-CAIL2020-Argmine."""
     vocab = Vocab('zh')
     vocab.load_file_to_dict(file_in, [1])
-    vocab.write2file(file_out, False)
+    vocab.write2filesort(file_out, False)
 
 
 if __name__ == '__main__':
