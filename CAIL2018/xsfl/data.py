@@ -362,7 +362,7 @@ class Data:
         all_s1_lengths= []
         for index, tokens_s1 in tqdm(enumerate(s1_list), ncols=80):
             # tokens_s1 = s1_list[i]
-            all_s1_lengths.append(min(len(tokens_s1), self.max_seq_len))
+            all_s1_lengths.append(self.max_seq_len)
             # all_s2_lengths.append(min(len(tokens_s2), self.max_seq_len))
             if len(tokens_s1) > self.max_seq_len:
                 tokens_s1 = tokens_s1[:self.max_seq_len]

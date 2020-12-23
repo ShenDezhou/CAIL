@@ -7,7 +7,7 @@
   "train_file_path": "data/ec_train.csv",
   "valid_file_path": "data/ec_test.csv",
 
-  "batch_size": 64,
+  "batch_size": 4,
 
   "bert_model_path": "./xlnet_base",
   "trained_weight":"",
