@@ -9,7 +9,7 @@
 
   "batch_size": 64,
 
-  "bert_model_path": "../xlnet_base",
+  "bert_model_path": "./xlnet_base",
   "trained_weight":"",
   "hidden_size": 768,
   "num_classes": 202,
