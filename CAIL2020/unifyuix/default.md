@@ -42,7 +42,8 @@
 * [案例分类-4类24层](/static/alfl-4-24.html)
 
 ### 3.2.1 刑事案由分类
-* [基于检察院起诉意见分类](/static/xsfl-202.html)
+* [基于检察院起诉意见分类-3层](/static/xsfl-202.html)
+* [基于检察院起诉意见分类-12层](/static/xsfl-202-xlnet.html)
 
 ## 3.3 案例向量检索
 * [案例摘要向量检索](/static/xljs.html)
@@ -75,6 +76,7 @@ rouge|58070
 hyfl-97|58071
 hyfl-dnn-97|58072
 xsfl-202|58073
+xsfl-202-xlnet|58074
 htfl-17-12|58080
 htfl-17-24|58081
 alfl-2|58082
