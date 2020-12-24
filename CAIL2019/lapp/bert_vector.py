@@ -5,7 +5,7 @@ import lawa
 from tqdm import tqdm
 
 model = KeyedVectors.load_word2vec_format('model/word2vec.txt', binary=False)
-df = pandas.read_csv("dataset/total_documents.csv", sep=',', names=['id','document'])
+df = pandas.read_csv("dataset/total_documents.csv", sep=',', names=['id','document'], skiprows=[0])
 adf = df[df.document.notnull()]
 total = len(adf)
 print(total)
