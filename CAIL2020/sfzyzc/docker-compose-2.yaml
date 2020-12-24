@@ -4,6 +4,8 @@ services:
     environment:
       - gpus=all
     network_mode: "host"
+    restart: unless-stopped
+    container_name: caseabstract_light
     volumes:
       - /mnt/data/sfzy/data:/workspace/data
       - /mnt/data/roberta_wwm_ext:/workspace/roberta_wwm_ext
