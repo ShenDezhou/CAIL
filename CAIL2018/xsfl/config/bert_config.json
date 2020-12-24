@@ -4,12 +4,12 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/ec_train.csv",
+  "train_file_path": "data/cail2018_train.csv",
   "valid_file_path": "data/ec_test.csv",
 
-  "batch_size": 64,
+  "batch_size": 256,
 
-  "bert_model_path": "F:/4_model/roberta3_ext",
+  "bert_model_path": "../roberta3_ext",
   "trained_weight":"",
   "hidden_size": 768,
   "num_classes": 202,

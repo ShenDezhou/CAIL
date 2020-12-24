@@ -128,7 +128,10 @@ class Trainer:
             model=self.model, data_loader=self.data_loader['valid_valid'],
             device=self.device)
         train_answers = self.data_loader['train_label']#get_labels_from_file(self.config.train_file_path)
-        valid_answers = self.data_loader['valid_label']#get_labels_from_file(self.config.valid_file_path)
+        if self.data_loader['valid_label']:
+            valid_answers = self.data_loader['valid_label']
+        else:
+            valid_answers = get_labels_from_file(self.config.valid_file_path)
         train_acc, train_f1 = calculate_accuracy_f1(
             train_answers, train_predictions)
         valid_acc, valid_f1 = calculate_accuracy_f1(

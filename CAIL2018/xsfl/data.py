@@ -186,7 +186,7 @@ class Data:
         if isTPU:
             valid_set_valid, valid_set_label = self.load_file(valid_file, True)
         else:
-            valid_set_valid, _ = self.load_file(valid_file, False)
+            valid_set_valid, valid_set_label = self.load_file(valid_file, False)
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, valid_set_train, valid_set_valid, train_label, valid_set_label
 
