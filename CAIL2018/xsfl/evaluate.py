@@ -76,7 +76,7 @@ def eval_file(golds_file, predicts_file):
     return calculate_accuracy_f1(golds, predicts)
 
 
-def evaluate(model, data_loader, device) -> List[str]:
+def evaluate(model, data_loader, device, has_label=False) -> List[str]:
     """Evaluate model on data loader in device.
 
     Args:
@@ -92,7 +92,10 @@ def evaluate(model, data_loader, device) -> List[str]:
     for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
-            logits = model(*batch)
+            if has_label:
+                logits = model(*batch[:-1])
+            else:
+                logits = model(*batch)
         outputs = torch.cat([outputs, logits[:, :]])
     answer_list = []
     for i in range(len(outputs)):

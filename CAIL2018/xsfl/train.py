@@ -123,7 +123,7 @@ class Trainer:
         """
         train_predictions = evaluate(
             model=self.model, data_loader=self.data_loader['valid_train'],
-            device=self.device)
+            device=self.device,has_label=True)
         valid_predictions = evaluate(
             model=self.model, data_loader=self.data_loader['valid_valid'],
             device=self.device)
@@ -257,7 +257,7 @@ def main(config_file='config/bert_config.json'):
         'train': DataLoader(
             train_set, sampler=sampler_train, batch_size=config.batch_size),
         'valid_train': DataLoader(
-            valid_set_train, batch_size=config.batch_size, shuffle=False),
+            train_set, batch_size=config.batch_size, shuffle=False),
         'valid_valid': DataLoader(
             valid_set_valid, batch_size=config.batch_size, shuffle=False)}
     # 2. Build model
