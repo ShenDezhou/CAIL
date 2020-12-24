@@ -127,8 +127,8 @@ class Trainer:
         valid_predictions = evaluate(
             model=self.model, data_loader=self.data_loader['valid_valid'],
             device=self.device)
-        train_answers = get_labels_from_file(self.config.train_file_path)
-        valid_answers = get_labels_from_file(self.config.valid_file_path)
+        train_answers = self.data_loader['train_label']#get_labels_from_file(self.config.train_file_path)
+        valid_answers = self.data_loader['valid_label']#get_labels_from_file(self.config.valid_file_path)
         train_acc, train_f1 = calculate_accuracy_f1(
             train_answers, train_predictions)
         valid_acc, valid_f1 = calculate_accuracy_f1(
@@ -242,7 +242,7 @@ def main(config_file='config/bert_config.json'):
     datasets = data.load_train_and_valid_files(
         train_file=config.train_file_path,
         valid_file=config.valid_file_path)
-    train_set, valid_set_train, valid_set_valid = datasets
+    train_set, valid_set_train, valid_set_valid, train_labels, valid_labels = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -259,7 +259,10 @@ def main(config_file='config/bert_config.json'):
         'valid_train': DataLoader(
             train_set, batch_size=config.batch_size, shuffle=False),
         'valid_valid': DataLoader(
-            valid_set_valid, batch_size=config.batch_size, shuffle=False)}
+            valid_set_valid, batch_size=config.batch_size, shuffle=False),
+        'train_label': train_labels,
+        'valid_label': valid_labels
+    }
     # 2. Build model
     model = MODEL_MAP[config.model_type](config)
     #load model states.

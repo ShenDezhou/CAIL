@@ -122,7 +122,9 @@ class Data:
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)
         self.max_seq_len = max_seq_len
+        self.type_counter = dict(zip(range(config.num_classes), [0] * config.num_classes))
         self.config = config
+        self.labels = {}
 
     def load_file(self,
                   file_path='SMP-CAIL2020-train.csv',
@@ -161,7 +163,7 @@ class Data:
         else:  # rnn
             dataset = self._convert_sentence_pair_to_rnn_dataset(
                 sc_list,  label_list)
-        return dataset
+        return dataset, label_list
 
     def load_train_and_valid_files(self, train_file, valid_file, isTPU=False):
         """Load all files for SMP-CAIL2020-Argmine.
@@ -174,21 +176,19 @@ class Data:
             all are torch.utils.data.TensorDataset
         """
         print('Loading train records for train...')
-        train_set = self.load_file(train_file, True)
+        train_set, train_label = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
-        # if 'bert' in self.model_type:
         valid_set_train = None
-        # else:
         #     print('Loading train records for valid...')
         #     valid_set_train = self.load_file(train_file, False)
         #     print(len(valid_set_train), 'train records loaded.')
-        # print('Loading valid records...')
+        print('Loading valid records...')
         if isTPU:
-            valid_set_valid = self.load_file(valid_file, True)
+            valid_set_valid, valid_set_label = self.load_file(valid_file, True)
         else:
-            valid_set_valid = self.load_file(valid_file, False)
+            valid_set_valid, _ = self.load_file(valid_file, False)
         print(len(valid_set_valid), 'valid records loaded.')
-        return train_set, valid_set_train, valid_set_valid
+        return train_set, valid_set_train, valid_set_valid, train_label, valid_set_label
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -216,6 +216,12 @@ class Data:
             sc_tokens = self.tokenizer.tokenize(str(row[1]))
             # bc_tokens = self.tokenizer.tokenize(str(row[2]))
             if train:
+                # data balance
+                if self.type_counter[int(row[0])] < self.config.batch_size:
+                    self.type_counter[int(row[0])] += 1
+                else:
+                    continue
+
                 sc_list.append(sc_tokens)
                 # bc_list.append(bc_tokens)
                 label_list.append(row[0])

@@ -283,7 +283,7 @@ def main(config_file='config/bert_config.json'):
     else:
         datasets = load_dataset()
 
-    train_set, valid_set_train, valid_set_valid = datasets
+    train_set, valid_set_train, valid_set_valid, train_labels, valid_labels = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -307,7 +307,10 @@ def main(config_file='config/bert_config.json'):
         'valid_train': DataLoader(
             valid_set_train, batch_size=config.batch_size, shuffle=False),
         'valid_valid': DataLoader(
-            valid_set_valid, batch_size=config.batch_size, shuffle=False)}
+            valid_set_valid, batch_size=config.batch_size, shuffle=False),
+        'train_label': train_labels,
+        'valid_label': valid_labels
+    }
 
 
     # 2. Build model

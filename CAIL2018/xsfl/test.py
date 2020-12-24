@@ -135,7 +135,8 @@ def main(in_file='data/f_test.csv',
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
-    test_set = data.load_file(in_file, train=False)
+    test_set, id_list = data.load_file(in_file, train=True)
+    assert len(test_set) == len(id_list)
     data_loader_test = DataLoader(
         test_set, batch_size=config.batch_size, shuffle=False)
     # 2. Load model
@@ -144,9 +145,8 @@ def main(in_file='data/f_test.csv',
         model, model_path=os.path.join(config.model_path, 'model.bin'))
     model.to(device)
     # 3. Evaluate
-    answer_list = evaluate(model, data_loader_test, device)
+    answer_list = evaluate(model, data_loader_test, device, has_label=True)
     # 4. Write answers to file
-    id_list = pd.read_csv(in_file)['accusation'].tolist()
     result = []
     result = single_label_accuracy(answer_list, id_list, config.num_classes, result)
     metrics = gen_micro_macro_result(result)
