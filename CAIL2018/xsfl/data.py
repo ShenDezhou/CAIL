@@ -176,13 +176,13 @@ class Data:
         print('Loading train records for train...')
         train_set = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
-        print('Loading train records for valid...')
-        if 'bert' in self.config.model_type:
+        if 'bert' in self.model_type:
             valid_set_train = None
         else:
+            print('Loading train records for valid...')
             valid_set_train = self.load_file(train_file, False)
             print(len(valid_set_train), 'train records loaded.')
-            print('Loading valid records...')
+        print('Loading valid records...')
         if isTPU:
             valid_set_valid = self.load_file(valid_file, True)
         else:
@@ -210,9 +210,9 @@ class Data:
         """
         data_frame = pd.read_csv(filename)
 
-        sc_list, bc_list, label_list = [], [], []
+        sc_list, label_list = [], []
         for row in data_frame.itertuples(index=False):
-
+            # top 800 characters are processed.
             sc_tokens = self.tokenizer.tokenize(str(row[1]))
             # bc_tokens = self.tokenizer.tokenize(str(row[2]))
             if train:
@@ -360,12 +360,11 @@ class Data:
         """
         all_s1_ids= []
         all_s1_lengths= []
-        for index, tokens_s1 in tqdm(enumerate(s1_list), ncols=80):
-            # tokens_s1 = s1_list[i]
-            all_s1_lengths.append(self.max_seq_len)
-            # all_s2_lengths.append(min(len(tokens_s2), self.max_seq_len))
+        for i, _ in tqdm(enumerate(s1_list), ncols=80):
+            tokens_s1 = s1_list[i]
             if len(tokens_s1) > self.max_seq_len:
                 tokens_s1 = tokens_s1[:self.max_seq_len]
+            all_s1_lengths.append(len(tokens_s1))
             # if len(tokens_s2) > self.max_seq_len:
             #     tokens_s2 = tokens_s2[:self.max_seq_len]
             s1_ids = self.tokenizer.convert_tokens_to_ids(tokens_s1)
@@ -376,12 +375,14 @@ class Data:
             #     s2_ids += [0] * (self.max_seq_len - len(s2_ids))
             all_s1_ids.append(s1_ids)
             # all_s2_ids.append(s2_ids)
+        print(all_s1_ids[-1])
         all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)
         # all_s2_ids = torch.tensor(all_s2_ids, dtype=torch.long)
         all_s1_lengths = torch.tensor(all_s1_lengths, dtype=torch.long)
         # all_s2_lengths = torch.tensor(all_s2_lengths, dtype=torch.long)
         if label_list:  # train
             all_label_ids = torch.tensor(label_list, dtype=torch.long)
+            print(all_s1_lengths)
             return TensorDataset(
                 all_s1_ids, all_s1_lengths,
                 all_label_ids)

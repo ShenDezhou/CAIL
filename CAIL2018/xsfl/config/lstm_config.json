@@ -4,13 +4,13 @@
   "model_path": "model/lstm/",
   "log_path": "log/",
 
-  "train_file_path": "data/ec_train.csv",
+  "train_file_path": "data/cail2018_train.csv",
   "valid_file_path": "data/ec_test.csv",
   "all_train_file_path": "data/cail2018_train.csv",
 
   "batch_size": 256,
   "trained_weight":"",
-  "vocab_size": 400002,
+  "vocab_size": 200002,
   "hidden_size": 64,
   "num_classes": 202,
   "dropout": 0.05,
