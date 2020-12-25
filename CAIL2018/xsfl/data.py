@@ -217,7 +217,7 @@ class Data:
             # bc_tokens = self.tokenizer.tokenize(str(row[2]))
             if train:
                 # data balance
-                if self.type_counter[int(row[0])] < self.config.batch_size:
+                if self.type_counter[int(row[0])] < self.config.per_class_size:
                     self.type_counter[int(row[0])] += 1
                 else:
                     continue

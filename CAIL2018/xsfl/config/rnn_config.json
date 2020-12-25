@@ -8,6 +8,7 @@
   "valid_file_path": "data/fs_test.csv",
   "all_train_file_path": "data/cail2018_train.csv",
 
+  "per_class_size": 1024,
   "batch_size": 256,
   "trained_weight":"",
   "vocab_size": 200002,

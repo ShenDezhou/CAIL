@@ -408,7 +408,7 @@ class RnnForSentencePairClassification(nn.Module):
         # s2_embed = self.embedding(s2_ids)
         # embed: (batch_size, max_seq_len, hidden_size)
         s1_packed: PackedSequence = pack_padded_sequence(
-            s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
+            s1_embed, s1_lengths.cpu(), batch_first=True, enforce_sorted=False)
         # s2_packed: PackedSequence = pack_padded_sequence(
         #     s2_embed, s2_lengths, batch_first=True, enforce_sorted=False)
         # packed: (sum(lengths), hidden_size)
