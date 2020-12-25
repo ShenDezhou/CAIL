@@ -29,7 +29,7 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, LogisticRegression, CharCNN, FullyConnectNet
+from model import BertForClassification, RnnForSentencePairClassification, LogisticRegression, CharCNN, FullyConnectNet
 
 from utils import load_torch_model
 
