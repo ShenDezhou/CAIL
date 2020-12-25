@@ -85,13 +85,16 @@ category_size = 1
 df = pandas.read_csv('../datagen/contract.dic',sep=',',names=['word','frequency'])
 chinese_dic = df['word'].to_list()
 
-df = pandas.read_csv('../data/contract_amount_train_v5.csv')
+df = pandas.read_csv('../data/contract_amount_train_v6.csv')
 df_result = pandas.DataFrame()
 noise = []
 for index, row in df.iterrows():
     lines = re.sub(r'\n+',r'\n', row[0]).split(r'\n')
     for line in lines:
         type, l = reg_trigger(line)
+        if len(l) < 10:
+            continue
+        l = l.replace("\n",r"\n",10**10)
         if type:
             df_result = df_result.append({"type":int(type), "content": l}, ignore_index=True)
         else:
@@ -106,5 +109,5 @@ for i in range(len(noise)):
     if count > total_len:
         break
 df_result['type'] = df_result['type'].astype(int)
-df_result.to_csv("../data/contract_type_train.csv", columns=['type','content'], index=False)
+df_result.to_csv("../data/contract_type_train_v2.csv", columns=['type','content'], index=False)
 print('FIN')

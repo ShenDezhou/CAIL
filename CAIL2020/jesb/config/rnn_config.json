@@ -4,9 +4,10 @@
   "model_path": "model/rnn/",
   "log_path": "log/",
 
-  "train_file_path": "data/contract_type_train.csv",
-  "valid_file_path": "data/contract_type_valid.csv",
-  "all_train_file_path": "data/contract_type_train.csv",
+
+  "train_file_path": "data/contract_type_train_v2.csv",
+  "valid_file_path": "data/contract_type_valid_v2.csv",
+  "all_train_file_path": "data/contract_type_train_v2.csv",
 
   "batch_size": 128,
   "trained_weight":"",
