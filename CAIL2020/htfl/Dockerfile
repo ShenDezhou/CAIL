@@ -1,4 +1,4 @@
-FROM pytorch:1.1
+FROM machinelearning:1.0
 USER root
 
 COPY ./requirements.txt /workspace/requirements.txt
