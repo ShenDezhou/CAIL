@@ -634,14 +634,14 @@ class BiLSTM_CRF(nn.Module):
         embeds = self.word_embeds(sentence)
         #embeds = self.word_embeds(sentence).view(len(sentence), 1, -1)
         lstm_out, self.hidden = self.lstm(embeds)
-        lstm_out = lstm_out.view(-1, self.hidden_dim)
+        # lstm_out = lstm_out.view(-1, self.hidden_dim)
         lstm_feats = self.hidden2tag(lstm_out)
         return lstm_feats
 
     def _score_sentence(self, feats, tags):
         # Gives the score of a provided tag sequence
         score = torch.zeros(1).cuda()
-        tags = torch.cat([torch.tensor([self.tag_to_ix[self.START_TAG]], dtype=torch.long, device='cuda').unsqueeze(0), tags], dim=1).cuda()
+        tags = torch.cat([torch.tensor([self.tag_to_ix[self.START_TAG]], dtype=torch.long, device='cuda'), tags], dim=-1).cuda()
         tags = tags.squeeze(0)
         for i, feat in enumerate(feats):
             score = score + \
@@ -653,7 +653,7 @@ class BiLSTM_CRF(nn.Module):
         backpointers = []
 
         # Initialize the viterbi variables in log space
-        init_vvars = torch.full((1, self.tagset_size), -10000.)
+        init_vvars = torch.full((1, self.tagset_size), -10000.).cuda()
         init_vvars[0][self.tag_to_ix[self.START_TAG]] = 0
 
         # forward_var at step i holds the viterbi variables for step i-1
@@ -696,7 +696,12 @@ class BiLSTM_CRF(nn.Module):
     def neg_log_likelihood(self, sentence, tags):
         feats = self._get_lstm_features(sentence)
         forward_score = self._forward_alg(feats)
-        gold_score = self._score_sentence(feats, tags)
+        for index, item in enumerate(range(feats.shape[0])):
+            if index ==0:
+                gold_score = self._score_sentence(feats[index], tags[index])
+            else:
+                gold_score += self._score_sentence(feats[index], tags[index])
+        gold_score /= feats.shape[0]
         return forward_score - gold_score
 
     def forward(self, sentence):  # dont confuse this with _forward_alg above.
@@ -704,8 +709,13 @@ class BiLSTM_CRF(nn.Module):
         lstm_feats = self._get_lstm_features(sentence)
 
         # Find the best path, given the features.
-        score, tag_seq = self._viterbi_decode(lstm_feats)
-        return score, tag_seq
+        scores, tag_seqs = [],[]
+        for index, item in enumerate(lstm_feats):
+            score, tag_seq = self._viterbi_decode(lstm_feats[index])
+            scores.append(score)
+            tag_seqs.append(tag_seq)
+        tag_seqs = torch.tensor(tag_seqs, dtype=torch.long, device='cuda')
+        return scores, tag_seqs
 
 class RnnForSentencePairClassification(nn.Module):
     """Unidirectional GRU model for sentences pair classification.

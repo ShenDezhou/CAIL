@@ -162,7 +162,7 @@ class Data:
         else:  # rnn
             dataset = self._convert_sentence_pair_to_rnn_dataset(
                 sc_list,  label_list)
-        return dataset
+        return dataset, label_list
 
     def load_train_and_valid_files(self, train_file, valid_file):
         """Load all files for SMP-CAIL2020-Argmine.
@@ -175,15 +175,15 @@ class Data:
             all are torch.utils.data.TensorDataset
         """
         print('Loading train records for train...')
-        train_set = self.load_file(train_file, True)
+        train_set, train_label = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
         # print('Loading train records for valid...')
         # valid_set_train = self.load_file(train_file, True)
         # print(len(valid_set_train), 'train records loaded.')
         print('Loading valid records...')
-        valid_set_valid = self.load_file(valid_file, True)
+        valid_set_valid, valid_label = self.load_file(valid_file, True)
         print(len(valid_set_valid), 'valid records loaded.')
-        return train_set, train_set, valid_set_valid
+        return train_set, train_set, valid_set_valid, train_label, valid_label
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -502,12 +502,13 @@ class Data:
             all_s1_lengths.append(min(len(tokens_s1), self.max_seq_len))
             if len(tokens_s1) > self.max_seq_len:
                 tokens_s1 = tokens_s1[:self.max_seq_len]
-            s1_ids = tokens_s1 #self.tokenizer.convert_tokens_to_ids(tokens_s1)
-            if len(s1_ids) < self.max_seq_len:
-                s1_ids += [0] * (self.max_seq_len - len(s1_ids))
-            all_s1_ids.append(s1_ids)
+                labels_s1 = labels_s1[:self.max_seq_len]
+            #tokens_s1 = tokens_s1 #self.tokenizer.convert_tokens_to_ids(tokens_s1)
+            if len(tokens_s1) < self.max_seq_len:
+                tokens_s1 += [0] * (self.max_seq_len - len(tokens_s1))
+            all_s1_ids.append(tokens_s1)
             if len(labels_s1) < self.max_seq_len:
-                labels_s1 += [4] * (self.max_seq_len - len(labels_s1))
+                labels_s1 += [5] * (self.max_seq_len - len(labels_s1))
             all_label_list.append(labels_s1)
 
         all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)

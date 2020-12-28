@@ -8,6 +8,7 @@ Usage:
     CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch train.py \
         --config_file 'config/rnn_config.json'
 """
+import itertools
 from typing import Dict
 import argparse
 import json
@@ -111,6 +112,9 @@ class Trainer:
             scheduler = get_constant_schedule(self.optimizer)
         return scheduler
 
+    def flatten(self, ll):
+        return list(itertools.chain(*ll))
+
     def _evaluate_for_train_valid(self):
         """Evaluate model on train and valid set and get acc and f1 score.
 
@@ -119,12 +123,14 @@ class Trainer:
         """
         train_predictions = evaluate(
             model=self.model, data_loader=self.data_loader['valid_train'],
-            device=self.device)
+            device=self.device).cpu().numpy()
         valid_predictions = evaluate(
             model=self.model, data_loader=self.data_loader['valid_valid'],
-            device=self.device)
-        train_answers = get_labels_from_file(self.config.train_file_path)
-        valid_answers = get_labels_from_file(self.config.valid_file_path)
+            device=self.device).cpu().numpy()
+        train_answers = self.data_loader['train_label']#get_labels_from_file(self.config.train_file_path)
+        valid_answers = self.data_loader['valid_label']#get_labels_from_file(self.config.valid_file_path)
+        train_predictions, valid_predictions = self.flatten(train_predictions), self.flatten(valid_predictions)
+        train_answers, valid_answers = self.flatten(train_answers), self.flatten(valid_answers)
         train_acc, train_f1 = calculate_accuracy_f1(
             train_answers, train_predictions)
         valid_acc, valid_f1 = calculate_accuracy_f1(
@@ -242,7 +248,7 @@ def main(config_file='config/bert_config.json'):
     datasets = data.load_train_and_valid_files(
         train_file=config.train_file_path,
         valid_file=config.valid_file_path)
-    train_set, valid_set_train, valid_set_valid = datasets
+    train_set, valid_set_train, valid_set_valid, train_label, valid_label = datasets
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -258,7 +264,10 @@ def main(config_file='config/bert_config.json'):
         'valid_train': DataLoader(
             valid_set_train, batch_size=config.batch_size, shuffle=False),
         'valid_valid': DataLoader(
-            valid_set_valid, batch_size=config.batch_size, shuffle=False)}
+            valid_set_valid, batch_size=config.batch_size, shuffle=False),
+        "train_label":train_label,
+        "valid_label":valid_label
+    }
     # 2. Build model
     model = MODEL_MAP[config.model_type](config)
     #load model states.

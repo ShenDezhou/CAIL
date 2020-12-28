@@ -12,7 +12,7 @@ from tqdm import tqdm
 from sklearn import metrics
 # from classmerge import classy_dic, indic
 
-LABELS = [0,1]
+LABELS = [0,1,2,3,4]
 threshold = 0.8
 
 def calculate_accuracy_f1(
@@ -26,8 +26,7 @@ def calculate_accuracy_f1(
     Returns:
         accuracy, f1 score
     """
-    return metrics.accuracy_score(golds, predicts), \
-           metrics.f1_score(
+    return metrics.accuracy_score(golds, predicts), metrics.f1_score(
                golds, predicts,
                labels=LABELS, average='macro')
 
@@ -90,29 +89,29 @@ def evaluate(model, data_loader, device) -> List[str]:
     """
     model.eval()
     input_ids = torch.tensor([], dtype=torch.long).to(device)
-    outputs = torch.tensor([], dtype=torch.float).to(device)
+    outputs = torch.tensor([], dtype=torch.long).to(device)
     # segment = torch.tensor([], dtype=torch.long).to(device)
     for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
-            logits = model(*batch)
+            scores, logits = model(batch[0])
         outputs = torch.cat([outputs, logits[:, :]])
         input_ids = torch.cat([input_ids, batch[0][:, :]])
         # segment = torch.cat([segment, batch[-1][:, :]])
 
-    output_ids = []
-    output_tokens = []
-    for i in range(len(outputs)):
-        if threshold==1:
-            toppostion = range(len(outputs[i]))
-        else:
-            toppostion = torch.topk(outputs[i], int(len(outputs[i]) * threshold), sorted=False, largest=True)[1]
-        #bits = outputs[i].data.cpu().numpy().round()
-        output_id = []
-        for j in toppostion:
-            if input_ids[i][j]:
-                output_id.append(input_ids[i][j])
-        output_ids.append(output_id)
+    # output_ids = []
+    # output_tokens = []
+    # for i in range(len(outputs)):
+    #     if threshold==1:
+    #         toppostion = range(len(outputs[i]))
+    #     else:
+    #         toppostion = torch.topk(outputs[i], int(len(outputs[i]) * threshold), sorted=False, largest=True)[1]
+    #     #bits = outputs[i].data.cpu().numpy().round()
+    #     output_id = []
+    #     for j in toppostion:
+    #         if input_ids[i][j]:
+    #             output_id.append(input_ids[i][j])
+    #     output_ids.append(output_id)
     #     output_tokens.append(model.bert.convert_ids_to_tokens(output_id))
     #
     # segment_tokens = []
@@ -137,7 +136,7 @@ def evaluate(model, data_loader, device) -> List[str]:
     #     logits = outputs[i]
     #     answer = int(torch.argmax(logits, dim=-1))
     #     answer_list.append(answer)
-    return output_ids
+    return outputs
 
 
 if __name__ == '__main__':
