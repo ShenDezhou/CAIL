@@ -1,0 +1,26 @@
+{
+  "model_type": "rnn",
+  "max_seq_len": 384,
+  "model_path": "model/rnn/",
+  "log_path": "log/",
+
+  "train_file_path": "data/msr_test.txt",
+  "valid_file_path": "data/msr_test.txt",
+  "all_train_file_path": "data/train.csv",
+  "trained_weight":"",
+
+  "batch_size": 1,
+
+  "vocab_size": 5168,
+  "hidden_size": 32,
+  "num_classes": 5,
+  "dropout": 0.05,
+
+  "lr": 1e-3,
+  "num_epoch": 1,
+  "num_warmup_steps": 100,
+  "gradient_accumulation_steps": 1,
+  "max_grad_norm": 1.0,
+
+  "experiment_name": "RNN"
+}
