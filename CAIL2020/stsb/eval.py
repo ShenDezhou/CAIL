@@ -180,4 +180,4 @@ if __name__ == '__main__':
     # import os
     # dirname, filename = os.path.split(os.path.abspath(__file__))
     # father_dirname, _ = os.path.split(dirname)
-    print(eval('data/dev.json', 'data/result.json'))
+    print(eval('data/dev.json', 'model/full/result.json'))
