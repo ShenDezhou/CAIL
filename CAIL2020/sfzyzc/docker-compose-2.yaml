@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     container_name: caseabstract_light
     volumes:
-      - /mnt/data/sfzy/data:/workspace/data
+      - /mnt/data/sfzy/log:/workspace/data
       - /mnt/data/roberta_wwm_ext:/workspace/roberta_wwm_ext
       - /mnt/data/roberta3_ext:/workspace/roberta3_ext
       - /mnt/data/sfzy/sfzyzb/model/bert:/workspace/sfzyzb/model/bert
