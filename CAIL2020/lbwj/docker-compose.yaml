@@ -6,7 +6,7 @@ services:
     network_mode: "host"
     container_name: caseargue_light
     volumes:
-      - /mnt/data/lbwj/data:/workspace/data
+      - /mnt/data/lbwjdocker/log:/workspace/data
       - /mnt/data/roberta3_large_ext:/workspace/roberta3_large_ext
-      - /mnt/data/lbwj/model/bert:/workspace/model/bert/
+      - /mnt/data/lbwjdocker/model/bert:/workspace/model/bert/
     command: python3 torch_server.py -p 58091
