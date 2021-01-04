@@ -6,7 +6,7 @@ services:
     network_mode: "host"
     container_name: contractclassification_standard
     volumes:
-      - /mnt/data/htfldocker/data:/workspace/data
+      - /mnt/data/htfldocker/log:/workspace/data
       - /mnt/data/roberta_wwm_ext:/workspace/roberta_wwm_ext
-      - /mnt/data/htfl/model/bert:/workspace/model/bert/
+      - /mnt/data/htfldocker/model/bert:/workspace/model/bert/
     command: python3 torch_server.py -c config/bert_config.json -p 58080
