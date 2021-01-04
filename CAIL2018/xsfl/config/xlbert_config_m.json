@@ -4,9 +4,10 @@
   "model_path": "model/bertxlm/",
   "log_path": "log/",
 
-  "train_file_path": "data/ec_train.csv",
-  "valid_file_path": "data/ec_test.csv",
+  "train_file_path": "data/cail2018_train.csv",
+  "valid_file_path": "data/fs_test.csv",
 
+  "per_class_size": 128,
   "batch_size": 1,
 
   "bert_model_path": "../xlnet_mid",

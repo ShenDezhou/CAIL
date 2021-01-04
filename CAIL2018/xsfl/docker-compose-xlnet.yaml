@@ -8,4 +8,5 @@ services:
       - /mnt/data/xlnet_base:/workspace/xlnet_base
       - /mnt/data/xsfldocker/model/bertxl:/workspace/model/bertxl/
       - /mnt/data/xsfldocker/log:/workspace/log
+    container_name: xsfl202
     command: python3 torch_server.py -c config/xlbert_config.json -p 58074
