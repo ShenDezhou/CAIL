@@ -2,7 +2,10 @@ services:
   web:
     image: contractamount:2.0
     network_mode: "host"
+    environment:
+    - PYTHONIOENCODING=utf8
     volumes:
     - /mnt/data/jesbdocker/data:/workspace/data
     - /mnt/data/jesbdocker/model:/workspace/model
+    container_name: contractamount_with_type
     command: python3 tensorflow_server_v2.py -m model_data_v6 -c config/lstm_config.json -p 58099
