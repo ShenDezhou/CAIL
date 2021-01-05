@@ -4,5 +4,5 @@ services:
     network_mode: "host"
     volumes:
     - /mnt/data/jesbdocker/log:/workspace/data
-    - /mnt/data/jesbdocker/model_data_v6:/workspace/model_data_v6
-    command: python3 tensorflow_server.py -m model_data_v6 -p 58090
+    - /mnt/data/jesbdocker/model_data_v3:/workspace/model_data_v3
+    command: python3 tensorflow_server.py -m model_data_v3 -p 58090
