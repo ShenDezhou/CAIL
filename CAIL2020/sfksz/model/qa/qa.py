@@ -304,7 +304,7 @@ class ModelX(nn.Module):
         self.gelu = nn.GELU()
         self.softmax = nn.Softmax(dim=1)
         # self.fc_module_q = nn.Linear(self.question_len, 1)
-        self.fc_module = nn.Linear(self.hidden_size * 4, 16)
+        self.fc_module = nn.Linear(self.hidden_size * 4, 15)
         self.accuracy_function = single_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
