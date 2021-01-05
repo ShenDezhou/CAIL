@@ -176,9 +176,11 @@ class TorchResource:
 
 
     def lr_classification(self, contents):
+        if len(contents)==0:
+            return {"answer":[]}
         df = pandas.DataFrame()
         for content in contents:
-            logger.info('1:{}'.format(content))
+            logger.info(content)
             row = {'type': '-1', 'content': content}
             df = df.append(row, ignore_index=True)
         filename = "data/{}.csv".format(time.time())

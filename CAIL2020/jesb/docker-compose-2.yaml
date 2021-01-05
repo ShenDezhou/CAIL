@@ -5,7 +5,7 @@ services:
     environment:
     - PYTHONIOENCODING=utf8
     volumes:
-    - /mnt/data/jesbdocker/data:/workspace/data
+    - /mnt/data/jesbdocker/log:/workspace/data
     - /mnt/data/jesb2/model_data_v6:/workspace/model_data_v6
     - /mnt/data/jesbdocker/model:/workspace/model
     container_name: contractamount_with_type
