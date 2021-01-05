@@ -55,9 +55,9 @@ class BertWordFormatter:
             tokens = ['[CLS]'] + context[i] + ['[SEP]']
             segment_ids = [0] * len(tokens)
             if len(tokens) > max_len:
-                tokens = tokens[-max_len:]
+                tokens = tokens[:max_len]
                 assert len(tokens) == max_len
-                segment_ids = segment_ids[-max_len:]
+                segment_ids = segment_ids[:max_len]
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
