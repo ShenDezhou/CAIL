@@ -52,9 +52,10 @@ class BertWordFormatter:
         """
         all_input_ids, all_input_mask, all_segment_ids = [], [], []
         for i, _ in enumerate(context):
+            if len(context[i]) > max_len:
+                context[i] = context[i][-max_len:]
             tokens = ['[CLS]'] + context[i] + ['[SEP]']
-            seg_id = i % 2
-            segment_ids = [seg_id] * len(tokens)
+            segment_ids = [i%2] * len(tokens)
             if len(tokens) > max_len:
                 tokens = tokens[:max_len]
                 assert len(tokens) == max_len

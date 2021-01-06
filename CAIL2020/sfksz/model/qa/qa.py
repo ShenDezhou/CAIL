@@ -267,7 +267,72 @@ class Linear(nn.Module):
         x = self.linear(x)
         return x
 
-from model.qa.resnet import ResNet, BasicBlock, Bottleneck
+# class ConvBnRelu(nn.Module):
+#     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros', inplace=True):
+#         super().__init__()
+#         self.conv = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation,
+#                               groups=groups, bias=bias, padding_mode=padding_mode)
+#         self.bn = nn.BatchNorm2d(out_channels)
+#         self.relu = nn.ReLU(inplace=inplace)
+#
+#     def forward(self, x):
+#         x = self.conv(x)
+#         x = self.bn(x)
+#         x = self.relu(x)
+#         return x
+
+# class FPN(nn.Module):
+#     def __init__(self, in_channels, out_channels=256, **kwargs):
+#         """
+#         :param in_channels: 基础网络输出的维度
+#         :param kwargs:
+#         """
+#         super().__init__()
+#         inplace = True
+#         self.conv_out = out_channels
+#         # out_channels = out_channels // 4
+#         # reduce layers
+#         self.reduce_conv_c2 = ConvBnRelu(in_channels[0], out_channels, kernel_size=1, inplace=inplace)
+#         self.reduce_conv_c3 = ConvBnRelu(in_channels[1], out_channels, kernel_size=1, inplace=inplace)
+#         self.reduce_conv_c4 = ConvBnRelu(in_channels[2], out_channels, kernel_size=1, inplace=inplace)
+#         self.reduce_conv_c5 = ConvBnRelu(in_channels[3], out_channels, kernel_size=1, inplace=inplace)
+#         # Smooth layers
+#         self.smooth_p4 = ConvBnRelu(out_channels, out_channels, kernel_size=3, padding=1, inplace=inplace)
+#         self.smooth_p3 = ConvBnRelu(out_channels, out_channels, kernel_size=3, padding=1, inplace=inplace)
+#         self.smooth_p2 = ConvBnRelu(out_channels, out_channels, kernel_size=3, padding=1, inplace=inplace)
+#
+#         self.conv = nn.Sequential(
+#             nn.Conv2d(self.conv_out, self.conv_out, kernel_size=3, padding=1, stride=1),
+#             nn.BatchNorm2d(self.conv_out),
+#             nn.ReLU(inplace=inplace)
+#         )
+#         self.out_channels = self.conv_out
+#
+#     def forward(self, x):
+#         # c2, c3, c4, c5 = x
+#         # Top-down
+#         p5 = self.reduce_conv_c5(x)
+#         x = self._upsample_add(p5, self.reduce_conv_c4(x))
+#         # p4 = self.smooth_p4(p4)
+#         # p3 = self._upsample_add(p4, self.reduce_conv_c3(c3))
+#         # p3 = self.smooth_p3(p3)
+#         # p2 = self._upsample_add(p3, self.reduce_conv_c2(c2))
+#         # p2 = self.smooth_p2(p2)
+#         #
+#         # x = self._upsample_cat(p2, p3, p4, p5)
+#         # x = self.conv(x)
+#         return x
+#
+#     def _upsample_add(self, x, y):
+#         return F.interpolate(x, size=y.size()[2:]) + y
+#
+#     def _upsample_cat(self, p2, p3, p4, p5):
+#         h, w = p2.size()[2:]
+#         p3 = F.interpolate(p3, size=(h, w))
+#         p4 = F.interpolate(p4, size=(h, w))
+#         p5 = F.interpolate(p5, size=(h, w))
+#         return torch.cat([p2, p3, p4, p5], dim=1)
+
 class ModelX(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(ModelX, self).__init__()
@@ -283,10 +348,13 @@ class ModelX(nn.Module):
 
         # self.embedding = nn.Embedding(self.word_num, self.hidden_size)
         self.context_encoder = BertEncoder(config, gpu_list, *args, **params)
-        for param in self.context_encoder.parameters():
-            param.requires_grad = True
+        # for param in self.context_encoder.parameters():
+        #     param.requires_grad = True
 
-        # self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
+        self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
+        # for param in self.question_encoder.parameters():
+        #     param.requires_grad = True
+
         self.attention = Attention(config, gpu_list, *args, **params)
         self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
 
@@ -301,13 +369,14 @@ class ModelX(nn.Module):
         # self.maxpool = nn.MaxPool2d(kernel_size=5, stride=3, padding=0)
 
         # self.resnet = ResNet(block=Bottleneck, groups=1, layers=[1,1,1,1], num_classes=64)
+        # self.fpn = FPN(in_channels=[1, 1, 1, self.context_len * 4], out_channels=self.question_len)
 
         self.bce = nn.CrossEntropyLoss(reduction='mean')
         # self.kl = nn.KLDivLoss(reduction='mean')
         self.gelu = nn.GELU()
         self.softmax = nn.Softmax(dim=1)
-        # self.fc_module_q = nn.Linear(self.question_len, 1)
-        self.fc_module = nn.Linear(self.hidden_size * 4, 15)
+        # self.fc_module_inner = nn.Linear(self.question_len * self.context_len *  4, self.hidden_size)
+        self.fc_module = nn.Linear(self.context_len * self.question_len * 4, 15)
         self.accuracy_function = single_label_top1_accuracy
 
     def init_multi_gpu(self, device, config, *args, **params):
@@ -359,17 +428,20 @@ class ModelX(nn.Module):
 
         batch = question[0].size()[0]
 
-        _, _, bert_question = self.context_encoder(*question)
-        _, _, bert_context = self.context_encoder(*context)
+        last_bert_question, _, bert_question = self.question_encoder(*question)
+        last_bert_context, _, bert_context = self.context_encoder(*context)
+        last_bert_context = last_bert_context.reshape(batch,-1, self.hidden_size)
+        last_hidden = torch.add(last_bert_question, last_bert_context)
+        options_hidden = bert_context[-2].reshape(batch, -1, self.hidden_size)
+        # bert_question = bert_question[-2]
+        # bert_context = bert_context[-2].reshape(batch, 4, self.context_len, -1)
 
-        bert_context = bert_context[-1].reshape(batch,4,self.context_len, -1)
-        bert_question = bert_question[-1]
 
-        contextpool = []
-        for i in range(4):
-            option = bert_context[:,i,:,:].squeeze(1)
-            c, q, a = self.attention(option, bert_question)
-            contextpool.append(c)
+        # contextpool = []
+        # for i in range(4):
+        #     option = bert_context[:,i,:,:].squeeze(1)
+        #     c, q, a = self.attention(option, bert_question)
+        #     contextpool.append(a)
             # question = q
 
         # cp = torch.cat(contextpool, dim=1)
@@ -401,15 +473,21 @@ class ModelX(nn.Module):
         # y = y.reshape(batch, -1, self.context_len, self.context_len)
         # y = y.reshape((batch, -1))
 
-        y = torch.cat([torch.max(c, dim=1)[0] for c in contextpool], dim=1)
+        # y = torch.cat([torch.max(c, dim=1)[0] for c in contextpool], dim=1)
+        # y = torch.cat(contextpool, dim=1)
+        # x = x.permute(0,2,1)
+        # y = y.permute(0,2,1)
+        _, _, z = self.attention(last_hidden, options_hidden)
         # a = self.att_flow_layer(context, question)
         # c, q = context, question
         # ymax = torch.cat([torch.max(c, dim=1)[0], torch.max(q, dim=1)[0]], dim=1)
         # ymean = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
         # y = torch.cat([ymax,ymean], dim=1)
         # y = self.resnet(y)
-        y = self.gelu(y)
-        y = y.flatten(start_dim=1)
+        # y = self.fpn(y)
+        # y = self.gelu(y)
+        y = z.flatten(start_dim=1)
+        # y = self.fc_module_inner(y)
         y = self.dropout(y)
         y = self.fc_module(y)
         # y = self.softmax(y)

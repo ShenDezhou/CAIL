@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 # from pytorch_pretrained_bert import BertModel
-from tqdm import tqdm
+#from tqdm import tqdm
 from transformers import BertTokenizer
 from transformers.modeling_bert import BertModel
 
@@ -10,7 +10,7 @@ class BertEncoder(nn.Module):
     def __init__(self, config, gpu_list, *args, **params):
         super(BertEncoder, self).__init__()
         self.bert = BertModel.from_pretrained(config.get("model", "bert_path"))
-        self.max_seq_len =config.getint("model", "max_seq_len")
+        self.max_seq_len = config.getint("model", "max_seq_len")
         for param in self.bert.parameters():
             param.requires_grad = True
 
