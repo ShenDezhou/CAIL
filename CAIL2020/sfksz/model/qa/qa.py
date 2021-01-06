@@ -283,6 +283,9 @@ class ModelX(nn.Module):
 
         # self.embedding = nn.Embedding(self.word_num, self.hidden_size)
         self.context_encoder = BertEncoder(config, gpu_list, *args, **params)
+        for param in self.context_encoder.parameters():
+            param.requires_grad = True
+
         # self.question_encoder = BertEncoder(config, gpu_list, *args, **params)
         self.attention = Attention(config, gpu_list, *args, **params)
         self.dropout = nn.Dropout(config.getfloat("model", "dropout"))
@@ -290,12 +293,12 @@ class ModelX(nn.Module):
         # self.att_weight_c = Linear(self.hidden_size, 1)
         # self.att_weight_q = Linear(self.hidden_size, 1)
         # self.att_weight_cq = Linear(self.hidden_size, 1)
-        self.conv1 = nn.Conv2d(1, 1, kernel_size=13, stride=7,padding=0, bias=False)
-        self.conv2 = nn.Conv2d(1, 1, kernel_size=11, stride=5, padding=0, bias=False)
-        self.conv3 = nn.Conv2d(1, 1, kernel_size=7, stride=3, padding=0, bias=False)
-        self.conv4 = nn.Conv2d(1, 1, kernel_size=5, stride=3, padding=0, bias=False)
-        self.conv5 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=0, bias=False)
-        self.maxpool = nn.MaxPool2d(kernel_size=5, stride=3, padding=0)
+        # self.conv1 = nn.Conv2d(1, 1, kernel_size=13, stride=7,padding=0, bias=False)
+        # self.conv2 = nn.Conv2d(1, 1, kernel_size=11, stride=5, padding=0, bias=False)
+        # self.conv3 = nn.Conv2d(1, 1, kernel_size=7, stride=3, padding=0, bias=False)
+        # self.conv4 = nn.Conv2d(1, 1, kernel_size=5, stride=3, padding=0, bias=False)
+        # self.conv5 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=0, bias=False)
+        # self.maxpool = nn.MaxPool2d(kernel_size=5, stride=3, padding=0)
 
         # self.resnet = ResNet(block=Bottleneck, groups=1, layers=[1,1,1,1], num_classes=64)
 
@@ -367,7 +370,7 @@ class ModelX(nn.Module):
             option = bert_context[:,i,:,:].squeeze(1)
             c, q, a = self.attention(option, bert_question)
             contextpool.append(c)
-            question = q
+            # question = q
 
         # cp = torch.cat(contextpool, dim=1)
         # y = y.unsqueeze(1)
@@ -405,9 +408,9 @@ class ModelX(nn.Module):
         # ymean = torch.cat([torch.mean(c, dim=1), torch.mean(q, dim=1)], dim=1)
         # y = torch.cat([ymax,ymean], dim=1)
         # y = self.resnet(y)
-        # y = self.gelu(y)
+        y = self.gelu(y)
         y = y.flatten(start_dim=1)
-        # y = self.dropout(y)
+        y = self.dropout(y)
         y = self.fc_module(y)
         # y = self.softmax(y)
 
