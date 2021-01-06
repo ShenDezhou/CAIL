@@ -389,38 +389,25 @@ def main(config_file='config/bert_config.json'):
                         xm.get_ordinal(), x, loss.item(), tracker.rate(),
                         tracker.global_rate(), time.asctime()), flush=True)
 
-    def flatten(ll):
-        return list(itertools.chain(*ll))
-
     def test_loop_fn(loader):
         total_samples = 0
         correct = 0
         model.eval()
         tracker = xm.RateTracker()
-
+        device = xm.xla_device()
         for x, batch in enumerate(loader):
             batch = tuple(t.to(device) for t in batch)
             logits = model(*batch[:-1])
             input_ids = batch[1]
             gold_ids = batch[2]
-
-            result = []
-            golds = []
             for index in range(logits.shape[0]):
                 length = input_ids[index]
-                item = logits[index, :length].tolist()
-                label = gold_ids[index,:length].tolist()
-                result.append(item)
-                golds.append(label)
-
-            result = flatten(result)
-            golds = flatten(golds)
-
-            total_samples += len(result)
-            for i in range(len(result)):
-                if result[i] == golds[i]:
-                    correct += 1
-
+                item = logits[index, :length]
+                label = gold_ids[index,:length]
+                total_samples += len(label)
+                for i in range(len(item)):
+                    if item[i] == label[i]:
+                        correct += 1
             if xm.get_ordinal() == 0:
                 if x % FLAGS.log_steps == 0:
                     print('[xla:{}]({}) Acc={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
@@ -430,7 +417,7 @@ def main(config_file='config/bert_config.json'):
         accuracy = 100.0 * correct / total_samples
 
         if xm.get_ordinal() == 0:
-            print('[xla:{}] Accuracy={:.2f}% F1={:.2f}%'.format(xm.get_ordinal(), train_acc, train_f1), flush=True)
+            print('[xla:{}] Accuracy={:.2f}%'.format(xm.get_ordinal(), accuracy), flush=True)
         return accuracy, data, pred, target
 
     # Train and eval loops
