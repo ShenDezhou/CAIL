@@ -91,53 +91,30 @@ def evaluate(model, data_loader, device) -> List[str]:
     input_ids = torch.tensor([], dtype=torch.long).to(device)
     outputs = torch.tensor([], dtype=torch.long).to(device)
     # segment = torch.tensor([], dtype=torch.long).to(device)
+
     for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
-            scores, logits = model(batch[0])
+            logits = model(*batch[:-1])
         outputs = torch.cat([outputs, logits[:, :]])
-        input_ids = torch.cat([input_ids, batch[0][:, :]])
+        input_ids = torch.cat([input_ids, batch[1]])
         # segment = torch.cat([segment, batch[-1][:, :]])
 
-    # output_ids = []
-    # output_tokens = []
-    # for i in range(len(outputs)):
-    #     if threshold==1:
-    #         toppostion = range(len(outputs[i]))
-    #     else:
-    #         toppostion = torch.topk(outputs[i], int(len(outputs[i]) * threshold), sorted=False, largest=True)[1]
-    #     #bits = outputs[i].data.cpu().numpy().round()
-    #     output_id = []
-    #     for j in toppostion:
-    #         if input_ids[i][j]:
-    #             output_id.append(input_ids[i][j])
-    #     output_ids.append(output_id)
-    #     output_tokens.append(model.bert.convert_ids_to_tokens(output_id))
-    #
-    # segment_tokens = []
-    # for i in range(len(segment)):
-    #     if segment[i] > len(segment_tokens):
-    #         segment_tokens.append("")
-    #     segment_tokens[segment[i]] += output_tokens[i]
+    result = []
+    for index in range(outputs.shape[0]):
+        length = input_ids[index]
+        item = outputs[index,:length].tolist()
+        result.append(item)
 
+    return result, input_ids
 
-    # answer_list = []
-    # predict_support_np = torch.sigmoid(outputs).data.cpu().numpy()
-    # for i in range(predict_support_np.shape[0]):
-    #     left_ids = []
-    #     for j in range(predict_support_np.shape[1]):
-    #         if predict_support_np[i, j] > 0.5:
-    #             left_ids.append(input_ids[i,j])
-    #     answer_list.append(left_ids)
-
-
-    #
-    # for i in range(len(outputs)):
-    #     logits = outputs[i]
-    #     answer = int(torch.argmax(logits, dim=-1))
-    #     answer_list.append(answer)
-    return outputs
-
+def handy_tool(labels, input_length):
+    result = []
+    for index in range(len(labels)):
+        length = input_length[index]
+        item = labels[index][:length]
+        result.append(item)
+    return result
 
 if __name__ == '__main__':
     acc, f1_score = eval_file(

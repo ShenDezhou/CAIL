@@ -185,6 +185,38 @@ class Data:
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, train_set, valid_set_valid, train_label, valid_label
 
+    def encoder(self, sub):
+        char_list = []
+        label_list = []
+        N = len(sub)
+        for i in range(N):
+            if i == 0:
+                if sub[i + 1] == ' ':
+                    label = 3
+                else:
+                    label = 0
+            elif i == N - 1:
+                if sub[i - 1] == " ":
+                    label = 3
+                else:
+                    label = 2
+            else:  # in the middle
+                if sub[i] == " ":
+                    continue
+                else:
+                    if sub[i - 1] == " " and sub[i + 1] == " ":
+                        label = 3
+                    elif sub[i - 1] != " " and sub[i + 1] != " ":
+                        label = 1
+                    elif sub[i - 1] == " " and sub[i + 1] != " ":
+                        label = 0
+                    else:
+                        label = 2
+            char_list.append(sub[i])
+            label_list.append(label)
+        return char_list, label_list
+
+
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
 
@@ -206,7 +238,6 @@ class Data:
         data_frame = pd.read_csv(filename, header=None)
 
         all_sc_list, all_label_list = [], []
-        # segment = 0
         for row in data_frame.itertuples(index=False):
             if train:
                 line = "".join(row)
@@ -216,87 +247,11 @@ class Data:
                 subline = [sub for sub in subline if len(sub)]
                 subline = [sub + "。" for sub in subline]
                 for sub in subline:
-                    sc_list = []
-                    label_list = []
-
-                    sc_tokens = self.tokenizer.tokenize(str(sub))
+                    token_list, label_list = self.encoder(sub)
+                    sc_tokens = self.tokenizer.tokenize("".join(token_list))
                     sc_ids = self.tokenizer.convert_tokens_to_ids(sc_tokens)
-
-                    N = len(sub)
-                    for i in range(N):
-                        if i==0:
-                            if sub[i+1]==' ':
-                                label = 3
-                            else:
-                                label = 0
-                        elif i== N-1:
-                            if sub[i-1]==" ":
-                                label = 3
-                            else:
-                                label = 2
-                        else:# in the middle
-                            if sub[i]==" ":
-                                continue
-                            else:
-                                if sub[i-1]==" " and sub[i+1] == " ":
-                                    label = 3
-                                elif sub[i-1]!=" " and sub[i+1] != " ":
-                                    label = 1
-                                elif  sub[i-1]==" " and sub[i+1] != " ":
-                                    label = 0
-                                else:
-                                    label = 2
-                        sc_list.append(sc_ids[i])
-                        label_list.append(label)
-                    print(label_list, sc_list)
-                    assert len(label_list)==len(sc_list)
-                    # current_label = 0
-                    # for token, id in zip(sc_tokens, sc_ids):
-                    #     if isinstance(current_label, tuple):
-                    #         if token == ' ':
-                    #             if 2 in current_label:
-                    #                 current_label = 2
-                    #             elif 3 in current_label:
-                    #                 current_label = 2
-                    #             else:
-                    #                 for label in current_label:
-                    #                     if label in (2,3):
-                    #                         continue
-                    #                     current_label = label
-                    #             continue
-                    #         else:
-                    #             if 1 in current_label:
-                    #                 current_label = 1
-                    #             elif 0 in current_label:
-                    #                 current_label = 0
-                    #
-                    #
-                    #     if current_label == 0 or current_label == 1:
-                    #         next_label = (1,2)
-                    #     if current_label == 2 or current_label== 3:
-                    #         next_label = (0,3)
-                    #
-                    #     label_list.append(current_label)
-                    #     sc_list.append(id)
-                    #     current_label = next_label
-                    #
-                    # if isinstance(current_label, tuple):
-                    #     if sc_tokens[-2] == " ":
-                    #         current_label = 3
-                    #     else:
-                    #         current_label = 2
-                    #     label_list.append(current_label)
-                    #     sc_list.append(id)
-                    # print(sub)
-                    # nospace = [sc for sc in sc_tokens if sc!=' ']
-                    # print("".join(nospace))
-                    # assert len(nospace) == len(sc_list), (len(nospace), len(sc_list))
-                    # print(sc_list)
-                    # print(label_list)
-
-                all_sc_list.append(sc_list)
-                all_label_list.append(label_list)
-
+                    all_sc_list.append(sc_ids)
+                    all_label_list.append(label_list)
             else:
                 # 0 segment id, 1 content line
                 line = "".join(row)
@@ -306,39 +261,8 @@ class Data:
                 subline = [sub for sub in subline if len(sub)]
                 subline = [sub + "。" for sub in subline]
                 for sub in subline:
-
                     sc_tokens = self.tokenizer.tokenize(str(sub))
                     sc_list = self.tokenizer.convert_tokens_to_ids(sc_tokens)
-                    # N = len(sub)
-                    # for i in range(N):
-                    #     if i == 0:
-                    #         if sub[i + 1] == ' ':
-                    #             label = 3
-                    #         else:
-                    #             label = 0
-                    #     elif i == N - 1:
-                    #         if sub[i - 1] == " ":
-                    #             label = 3
-                    #         else:
-                    #             label = 2
-                    #     else:  # in the middle
-                    #         if sub[i] == " ":
-                    #             continue
-                    #         else:
-                    #             if sub[i - 1] == " " and sub[i + 1] == " ":
-                    #                 label = 3
-                    #             elif sub[i - 1] != " " and sub[i + 1] != " ":
-                    #                 label = 1
-                    #             elif sub[i - 1] == " " and sub[i + 1] != " ":
-                    #                 label = 0
-                    #             else:
-                    #                 label = 2
-                    #     sc_list.append(sc_ids[i])
-                    #     label_list.append(label)
-                    # print(label_list, sc_list)
-                    # assert len(label_list) == len(sc_list)
-
-
                 all_sc_list.append(sc_list)
                 # all_label_list.append(label_list)
         return all_sc_list, all_label_list
@@ -508,7 +432,7 @@ class Data:
                 tokens_s1 += [0] * (self.max_seq_len - len(tokens_s1))
             all_s1_ids.append(tokens_s1)
             if len(labels_s1) < self.max_seq_len:
-                labels_s1 += [5] * (self.max_seq_len - len(labels_s1))
+                labels_s1 += [0] * (self.max_seq_len - len(labels_s1))
             all_label_list.append(labels_s1)
 
         all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)

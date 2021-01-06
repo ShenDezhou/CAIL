@@ -26,15 +26,15 @@ from transformers.optimization import (
     AdamW, get_linear_schedule_with_warmup, get_constant_schedule)
 
 from data import Data
-from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file
-from model import RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF
+from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file,handy_tool
+from model import RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF, NERNet
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BertYForClassification,
-    'rnn': BiLSTM_CRF
+    'rnn': NERNet
 }
 
 
@@ -121,14 +121,15 @@ class Trainer:
         Returns:
             train_acc, train_f1, valid_acc, valid_f1
         """
-        train_predictions = evaluate(
+        train_predictions, train_length = evaluate(
             model=self.model, data_loader=self.data_loader['valid_train'],
-            device=self.device).cpu().numpy()
-        valid_predictions = evaluate(
+            device=self.device)
+        valid_predictions, valid_length = evaluate(
             model=self.model, data_loader=self.data_loader['valid_valid'],
-            device=self.device).cpu().numpy()
-        train_answers = self.data_loader['train_label']#get_labels_from_file(self.config.train_file_path)
-        valid_answers = self.data_loader['valid_label']#get_labels_from_file(self.config.valid_file_path)
+            device=self.device)
+
+        train_answers = handy_tool(self.data_loader['train_label'], train_length)#get_labels_from_file(self.config.train_file_path)
+        valid_answers = handy_tool(self.data_loader['valid_label'], valid_length)#get_labels_from_file(self.config.valid_file_path)
         train_predictions, valid_predictions = self.flatten(train_predictions), self.flatten(valid_predictions)
         train_answers, valid_answers = self.flatten(train_answers), self.flatten(valid_answers)
         train_acc, train_f1 = calculate_accuracy_f1(
@@ -194,7 +195,7 @@ class Trainer:
                 batch = tuple(t.to(self.device) for t in batch)
                 # logits = self.model(*batch[:-1])  # the last one is label
                 # loss = self.criterion(logits, batch[-1])
-                loss = self.model.neg_log_likelihood(batch[0], batch[-1])  # the last one is label
+                loss = self.model(*batch)  # the last one is label
 
                 # if self.config.gradient_accumulation_steps > 1:
                 #     loss = loss / self.config.gradient_accumulation_steps
