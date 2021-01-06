@@ -6,7 +6,7 @@
 
   "train_file_path": "data/msr_train.txt",
   "valid_file_path": "data/msr_test.txt",
-  "all_train_file_path": "data/train.csv",
+  "all_train_file_path": "data/msr_train.txt",
   "trained_weight":"",
 
   "batch_size": 64,
