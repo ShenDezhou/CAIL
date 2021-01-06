@@ -9,6 +9,8 @@ Usage:
         --config_file 'config/rnn_config.json'
 """
 import itertools
+import math
+import time
 from typing import Dict
 import argparse
 import json
@@ -16,6 +18,7 @@ import os
 from copy import deepcopy
 from types import SimpleNamespace
 
+import numpy
 import torch
 from torch import nn
 from torch.optim import Adam
@@ -26,17 +29,37 @@ from transformers.optimization import (
     AdamW, get_linear_schedule_with_warmup, get_constant_schedule)
 
 from data import Data
-from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file, handy_tool
-from model import BertForClassification, RnnForSentencePairClassification, BertXForClassification, BertYForClassification, BertZForClassification
+from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file,handy_tool
+from model import  RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF, NERNet
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
+import numpy as np
+import os
+import time
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torch_xla
+import torch_xla.core.xla_model as xm
+import torch_xla.debug.metrics as met
+import torch_xla.distributed.parallel_loader as pl
+import torch_xla.distributed.xla_multiprocessing as xmp
+import torch_xla.utils.utils as xu
+
+
 MODEL_MAP = {
     'bert': BertYForClassification,
-    'rnn': RnnForSentencePairClassification
+    'rnn': NERNet
 }
 
+# Define Parameters
+
+# SERIAL_EXEC = xmp.MpSerialExecutor()
+# Only instantiate model weights once in memory.
+#WRAPPED_MODEL = None#xmp.MpModelWrapper(ResNet18())
 
 class Trainer:
     """Trainer for SMP-CAIL2020-Argmine.
@@ -129,15 +152,10 @@ class Trainer:
             model=self.model, data_loader=self.data_loader['valid_valid'],
             device=self.device)
 
-
-        train_answers = handy_tool(self.data_loader['train_label'],
-                                   train_length)  # get_labels_from_file(self.config.train_file_path)
-        valid_answers = handy_tool(self.data_loader['valid_label'],
-                                   valid_length)  # get_labels_from_file(self.config.valid_file_path)
+        train_answers = handy_tool(self.data_loader['train_label'], train_length)#get_labels_from_file(self.config.train_file_path)
+        valid_answers = handy_tool(self.data_loader['valid_label'], valid_length)#get_labels_from_file(self.config.valid_file_path)
         train_predictions, valid_predictions = self.flatten(train_predictions), self.flatten(valid_predictions)
         train_answers, valid_answers = self.flatten(train_answers), self.flatten(valid_answers)
-
-
         train_acc, train_f1 = calculate_accuracy_f1(
             train_answers, train_predictions)
         valid_acc, valid_f1 = calculate_accuracy_f1(
@@ -193,14 +211,15 @@ class Trainer:
         trange_obj = trange(self.config.num_epoch, desc='Epoch', ncols=120)
         # self._epoch_evaluate_update_description_log(
         #     tqdm_obj=trange_obj, logger=epoch_logger, epoch=0)
-        best_model_state_dict, best_train_f1, global_step = None, 0, 0
+        best_model_state_dict, best_valid_f1, global_step = None, 0, 0
         for epoch, _ in enumerate(trange_obj):
             self.model.train()
             tqdm_obj = tqdm(self.data_loader['train'], ncols=80)
             for step, batch in enumerate(tqdm_obj):
                 batch = tuple(t.to(self.device) for t in batch)
-                loss = self.model(*batch[:-1])  # the last one is label
-                # loss = self.criterion(logits, batch[-1])
+                loss = self.model(*batch)  # the last one is label
+                #loss = self.criterion(logits, batch[-1])
+
                 # if self.config.gradient_accumulation_steps > 1:
                 #     loss = loss / self.config.gradient_accumulation_steps
                 # self.optimizer.zero_grad()
@@ -208,8 +227,9 @@ class Trainer:
 
                 if (step + 1) % self.config.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(
-                        self.model.parameters(), self.config.max_grad_norm)
-                    #after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                            self.model.parameters(), self.config.max_grad_norm)
+
+                    # after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
                     self.optimizer.step()
                     self.scheduler.step()
                     self.optimizer.zero_grad()
@@ -217,19 +237,20 @@ class Trainer:
                     tqdm_obj.set_description('loss: {:.6f}'.format(loss.item()))
                     step_logger.info(str(global_step) + ',' + str(loss.item()))
 
-            # if epoch >= 2:
+
             results = self._epoch_evaluate_update_description_log(
                 tqdm_obj=trange_obj, logger=epoch_logger, epoch=epoch + 1)
-
             self.save_model(os.path.join(
                 self.config.model_path, self.config.experiment_name,
                 self.config.model_type + '-' + str(epoch + 1) + '.bin'))
 
-            if results[-3] > best_train_f1:
+            if results[-1] > best_valid_f1:
                 best_model_state_dict = deepcopy(self.model.state_dict())
-                best_train_f1 = results[-3]
-
+                best_valid_f1 = results[-1]
         return best_model_state_dict
+
+
+
 
 
 def main(config_file='config/bert_config.json'):
@@ -238,22 +259,36 @@ def main(config_file='config/bert_config.json'):
     Args:
         config_file: in config dir
     """
+    global datasets
     # 0. Load config and mkdir
     with open(config_file) as fin:
         config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
+
+
     get_path(os.path.join(config.model_path, config.experiment_name))
     get_path(config.log_path)
-    if config.model_type == 'rnn':  # build vocab for rnn
+    if config.model_type in ['rnn', 'lr','cnn']:  # build vocab for rnn
         build_vocab(file_in=config.all_train_file_path,
                     file_out=os.path.join(config.model_path, 'vocab.txt'))
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
-    datasets = data.load_train_and_valid_files(
-        train_file=config.train_file_path,
-        valid_file=config.valid_file_path)
+
+
+    def load_dataset():
+        datasets = data.load_train_and_valid_files(
+            train_file=config.train_file_path,
+            valid_file=config.valid_file_path)
+        return datasets
+
+    if config.serial_load:
+        datasets = SERIAL_EXEC.run(load_dataset)
+    else:
+        datasets = load_dataset()
+
     train_set, valid_set_train, valid_set_valid, train_label, valid_label = datasets
+
     if torch.cuda.is_available():
         device = torch.device('cuda')
         # device = torch.device('cpu')
@@ -263,6 +298,14 @@ def main(config_file='config/bert_config.json'):
     else:
         device = torch.device('cpu')
         sampler_train = RandomSampler(train_set)
+    # TPU
+    device = xm.xla_device()
+    sampler_train = torch.utils.data.distributed.DistributedSampler(
+        train_set,
+        num_replicas=xm.xrt_world_size(),
+        rank=xm.get_ordinal(),
+        shuffle=True)
+
     data_loader = {
         'train': DataLoader(
             train_set, sampler=sampler_train, batch_size=config.batch_size),
@@ -274,23 +317,165 @@ def main(config_file='config/bert_config.json'):
         "valid_label": valid_label
     }
     # 2. Build model
-    model = MODEL_MAP[config.model_type](config)
+    # model = MODEL_MAP[config.model_type](config)
+    model = WRAPPED_MODEL
     #load model states.
-    if config.trained_weight:
-        model.load_state_dict(torch.load(config.trained_weight))
+    # if config.trained_weight:
+    #     model.load_state_dict(torch.load(config.trained_weight))
     model.to(device)
     if torch.cuda.is_available():
         model = model
         # model = torch.nn.parallel.DistributedDataParallel(
         #     model, find_unused_parameters=True)
+
+
+
+
     # 3. Train
     trainer = Trainer(model=model, data_loader=data_loader,
                       device=device, config=config)
-    best_model_state_dict = trainer.train()
-    # 4. Save model
-    torch.save(best_model_state_dict,
-               os.path.join(config.model_path, 'model.bin'))
+    # best_model_state_dict = trainer.train()
 
+    if config.model_type == 'bert':
+        no_decay = ['bias', 'gamma', 'beta']
+        optimizer_parameters = [
+            {'params': [p for n, p in model.named_parameters()
+                        if not any(nd in n for nd in no_decay)],
+             'weight_decay_rate': 0.01},
+            {'params': [p for n, p in model.named_parameters()
+                        if any(nd in n for nd in no_decay)],
+             'weight_decay_rate': 0.0}]
+        optimizer = AdamW(
+            optimizer_parameters,
+            lr=config.lr,
+            betas=(0.9, 0.999),
+            weight_decay=1e-8,
+            correct_bias=False)
+    else:  # rnn
+        optimizer = Adam(model.parameters(), lr=config.lr)
+
+    # if config.model_type == 'bert':
+    #     scheduler = get_linear_schedule_with_warmup(
+    #         optimizer,
+    #         num_warmup_steps=config.num_warmup_steps,
+    #         num_training_steps=config.num_training_steps)
+    # else:  # rnn
+    #     scheduler = get_constant_schedule(optimizer)
+
+    criterion = nn.CrossEntropyLoss()
+
+    def train_loop_fn(loader):
+        tracker = xm.RateTracker()
+        model.train()
+        for x, batch in enumerate(loader):
+            # batch = tuple(t.to(self.device) for t in batch)
+            loss = model(*batch)  # the last one is label
+            #loss = criterion(output, batch[-1])
+            loss.backward()
+            # xm.optimizer_step(optimizer)
+            # optimizer.zero_grad()
+
+            tracker.add(FLAGS.batch_size)
+            if (x + 1) % config.gradient_accumulation_steps == 0:
+                torch.nn.utils.clip_grad_norm_(
+                    model.parameters(), config.max_grad_norm)
+                # after 梯度累加的基本思想在于，在优化器更新参数前，也就是执行 optimizer.step() 前，进行多次反向传播，是的梯度累计值自动保存在 parameter.grad 中，最后使用累加的梯度进行参数更新。
+                xm.optimizer_step(optimizer)
+                optimizer.zero_grad()
+
+            if xm.get_ordinal() == 0:
+                if x % FLAGS.log_steps == 0:
+                    print('[xla:{}]({}) Loss={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                        xm.get_ordinal(), x, loss.item(), tracker.rate(),
+                        tracker.global_rate(), time.asctime()), flush=True)
+
+    def flatten(ll):
+        return list(itertools.chain(*ll))
+
+    def test_loop_fn(loader):
+        total_samples = 0
+        correct = 0
+        model.eval()
+        tracker = xm.RateTracker()
+
+        for x, batch in enumerate(loader):
+            batch = tuple(t.to(device) for t in batch)
+            logits = model(*batch[:-1])
+            input_ids = batch[1]
+            gold_ids = batch[2]
+
+            result = []
+            golds = []
+            for index in range(logits.shape[0]):
+                length = input_ids[index]
+                item = logits[index, :length].tolist()
+                label = gold_ids[index,:length].tolist()
+                result.append(item)
+                golds.append(label)
+
+            result = flatten(result)
+            golds = flatten(golds)
+
+            total_samples += len(result)
+            for i in range(len(result)):
+                if result[i] == golds[i]:
+                    correct += 1
+
+            if xm.get_ordinal() == 0:
+                if x % FLAGS.log_steps == 0:
+                    print('[xla:{}]({}) Acc={:.5f} Rate={:.2f} GlobalRate={:.2f} Time={}'.format(
+                        xm.get_ordinal(), x, correct*1.0/total_samples, tracker.rate(),
+                        tracker.global_rate(), time.asctime()), flush=True)
+
+        accuracy = 100.0 * correct / total_samples
+
+        if xm.get_ordinal() == 0:
+            print('[xla:{}] Accuracy={:.2f}% F1={:.2f}%'.format(xm.get_ordinal(), train_acc, train_f1), flush=True)
+        return accuracy, data, pred, target
+
+    # Train and eval loops
+    accuracy = 0.0
+    data, pred, target = None, None, None
+    for epoch in range(FLAGS.num_epoch):
+        para_loader = pl.ParallelLoader(data_loader['train'], [device])
+        train_loop_fn(para_loader.per_device_loader(device))
+        xm.master_print("Finished training epoch {}".format(epoch))
+
+        # para_loader = pl.ParallelLoader(data_loader['valid_train'], [device])
+        # accuracy_train, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
+
+        para_loader = pl.ParallelLoader(data_loader['valid_valid'], [device])
+        accuracy_valid, data, pred, target = test_loop_fn(para_loader.per_device_loader(device))
+        xm.master_print("Finished test epoch {}, valid={:.2f}".format(epoch, accuracy_valid))
+
+        if FLAGS.metrics_debug:
+            xm.master_print(met.metrics_report())
+
+    # 4. Save model
+    # if xm.get_ordinal() == 0:
+    #     model.to('cpu')
+    #     torch.save(model.state_dict(), os.path.join(config.model_path, 'model.bin'))
+    #     xm.master_print('saved model.')
+    return accuracy_valid
+
+
+
+
+def _mp_fn(rank, flags, model,serial):
+    global WRAPPED_MODEL, FLAGS, SERIAL_EXEC
+    WRAPPED_MODEL = model
+    FLAGS = flags
+    SERIAL_EXEC = serial
+
+    accuracy_valid = main(args.config_file)
+    # Retrieve tensors that are on TPU core 0 and plot.
+    # plot_results(data.cpu(), pred.cpu(), target.cpu())
+    xm.master_print(('DONE',  accuracy_valid))
+    # 4. Save model
+    if xm.get_ordinal() == 0:
+        WRAPPED_MODEL.to('cpu')
+        torch.save(WRAPPED_MODEL.state_dict(), os.path.join(config.model_path, 'model.bin'))
+        xm.master_print('saved model.')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -302,4 +487,15 @@ if __name__ == '__main__':
         '--local_rank', default=0,
         help='used for distributed parallel')
     args = parser.parse_args()
-    main(args.config_file)
+
+
+    with open(args.config_file) as fin:
+        config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
+    WRAPPED_MODEL = MODEL_MAP[config.model_type](config)
+    if config.trained_weight:
+        WRAPPED_MODEL.load_state_dict(torch.load(config.trained_weight))
+    FLAGS = config
+    SERIAL_EXEC = xmp.MpSerialExecutor()
+
+    # main(args.config_file)
+    xmp.spawn(_mp_fn, args=(FLAGS,WRAPPED_MODEL,SERIAL_EXEC,), nprocs=config.num_cores, start_method='fork')

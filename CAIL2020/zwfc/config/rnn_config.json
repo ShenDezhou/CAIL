@@ -21,6 +21,10 @@
   "num_warmup_steps": 100,
   "gradient_accumulation_steps": 1,
   "max_grad_norm": 1e-2,
+  "num_cores": 8,
+  "serial_load": true,
+  "metrics_debug": false,
+  "log_steps": 100,
 
   "experiment_name": "RNN"
 }
