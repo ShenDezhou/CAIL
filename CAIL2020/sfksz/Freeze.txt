@@ -3,7 +3,7 @@
 pandas==1.0.3
 jieba==0.42.1
 transformers==3.0.2
-#pytorch_pretrained_bert==0.6.2
+pytorch_pretrained_bert==0.6.2
 scikit-learn==0.22.2.post1
 ujson
 tensorboardX==2.0
