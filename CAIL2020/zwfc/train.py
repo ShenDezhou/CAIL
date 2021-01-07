@@ -27,13 +27,13 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file,handy_tool
-from model import RnnForSentencePairClassification, BertYForClassification, NERNet, NERWNet
+from model import RnnForSentencePairClassification, BERNet, NERNet, NERWNet
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
-    'bert': BertYForClassification,
+    'bert': BERNet,
     'rnn': NERNet,
     'rnnkv': NERWNet
 }
@@ -292,7 +292,7 @@ def main(config_file='config/bert_config.json'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config_file', default='config/rnn_config.json',
+        '-c', '--config_file', default='config/bert_config.json',
         help='model config file')
 
     parser.add_argument(

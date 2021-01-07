@@ -299,20 +299,51 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (input_ids, input_mask, segment_ids)
         """
-        all_input_ids, all_input_mask, all_segment_ids = [], [], []
+        all_s1_ids= []
+        all_s1_lengths = []
         all_label_list = []
+        for i in tqdm(range(len(s1_list)), ncols=80):
+            tokens_s1= s1_list[i]
+            all_s1_lengths.append(min(len(tokens_s1), self.max_seq_len))
+            if len(tokens_s1) > self.max_seq_len:
+                tokens_s1 = tokens_s1[:self.max_seq_len]
+            #tokens_s1 = tokens_s1 #self.tokenizer.convert_tokens_to_ids(tokens_s1)
+            if len(tokens_s1) < self.max_seq_len:
+                tokens_s1 += [0] * (self.max_seq_len - len(tokens_s1))
+            all_s1_ids.append(tokens_s1)
+
+            if label_list:  # train
+                labels_s1 = label_list[i]
+                if len(labels_s1) > self.max_seq_len:
+                    labels_s1 = labels_s1[:self.max_seq_len]
+                if len(labels_s1) < self.max_seq_len:
+                    labels_s1 += [0] * (self.max_seq_len - len(labels_s1))
+                all_label_list.append(labels_s1)
+
+        all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)
+        all_s1_lengths = torch.tensor(all_s1_lengths, dtype=torch.long)
+
+
+        all_input_ids, all_input_mask, all_segment_ids = [], [], []
+
         for i, _ in tqdm(enumerate(s1_list), ncols=80):
-            tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
-            segment_ids = [0] * len(tokens)
-            # tokens += s2_list[i] + ['[SEP]']
-            # segment_ids += [1] * (len(s2_list[i]) + 1)
-
+            # tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
+            # segment_ids = [0] * len(tokens)
+            # # tokens += s2_list[i] + ['[SEP]']
+            # # segment_ids += [1] * (len(s2_list[i]) + 1)
+            #
+            # if len(tokens) > self.max_seq_len:
+            #     tokens = tokens[:self.max_seq_len//2] + tokens[-self.max_seq_len//2:]
+            #     assert len(tokens) == self.max_seq_len
+            #     segment_ids = segment_ids[:self.max_seq_len//2] + segment_ids[-self.max_seq_len//2:]
+            tokens = s1_list[i]
+            segment_ids = [1] * len(tokens)
             if len(tokens) > self.max_seq_len:
-                tokens = tokens[:self.max_seq_len//2] + tokens[-self.max_seq_len//2:]
-                assert len(tokens) == self.max_seq_len
-                segment_ids = segment_ids[:self.max_seq_len//2] + segment_ids[-self.max_seq_len//2:]
-
-
+                tokens = tokens[:self.max_seq_len]
+                segment_ids = segment_ids[:self.max_seq_len]
+            if len(tokens) < self.max_seq_len:
+                tokens += [0] * (self.max_seq_len - len(tokens))
+                segment_ids += [1] * (self.max_seq_len - len(tokens))
 
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
@@ -321,32 +352,22 @@ class Data:
             segment_ids += [0] * (self.max_seq_len - tokens_len)
             input_mask += [0] * (self.max_seq_len - tokens_len)
 
-
             all_input_ids.append(input_ids)
             all_input_mask.append(input_mask)
             all_segment_ids.append(segment_ids)
-
-            if label_list:  # train
-                label_list_ = [1] + label_list[i] + [1]
-                label_list_ += [0] * (self.max_seq_len - tokens_len)
-                if len(label_list_) > self.max_seq_len:
-                    label_list_ = label_list_[:self.max_seq_len // 2] + label_list_[-self.max_seq_len // 2:]
-
-                all_label_list.append(label_list_)
-
 
         all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
         all_input_mask = torch.tensor(all_input_mask, dtype=torch.long)
         all_segment_ids = torch.tensor(all_segment_ids, dtype=torch.long)
 
         if all_label_list:  # train
-            all_label_ids = torch.tensor(all_label_list, dtype=torch.float)
+            all_label_ids = torch.tensor(all_label_list, dtype=torch.long)
             return TensorDataset(
-                all_input_ids, all_input_mask, all_segment_ids,
+                all_input_ids, all_input_mask, all_segment_ids, all_s1_ids, all_s1_lengths,
                 all_label_ids)
         # test
         return TensorDataset(
-            all_input_ids, all_input_mask, all_segment_ids)
+            all_input_ids, all_input_mask, all_segment_ids, all_s1_ids, all_s1_lengths)
 
     def _convert_sentence_pair_to_bertxl_dataset(
             self, s1_list,  label_list=None):

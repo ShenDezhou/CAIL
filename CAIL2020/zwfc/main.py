@@ -24,7 +24,7 @@ from torch.utils.data import DataLoader
 
 from data import Data
 from evaluate import evaluate, handy_tool, calculate_accuracy_f1
-from model import RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF, NERNet
+from model import RnnForSentencePairClassification, BertYForClassification, NERNet,NERWNet
 from utils import load_torch_model
 
 
@@ -33,7 +33,8 @@ LABELS = ['1', '2', '3', '4', '5']
 
 MODEL_MAP = {
     'bert': BertYForClassification,
-    'rnn': NERNet
+    'rnn': NERNet,
+    'rnnkv': NERWNet
 }
 
 def result_to_json(string, tags):

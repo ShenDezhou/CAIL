@@ -100,7 +100,10 @@ def evaluate(model, data_loader, device, isTest=False) -> List[str]:
             else:
                 logits = model(*batch[:-1])
         outputs = torch.cat([outputs, logits[:, :]])
-        input_ids = torch.cat([input_ids, batch[1]])
+        if isTest:
+            input_ids = torch.cat([input_ids, batch[-1]])
+        else:
+            input_ids = torch.cat([input_ids, batch[-2]])
         # segment = torch.cat([segment, batch[-1][:, :]])
 
     result = []
