@@ -36,9 +36,6 @@ MODEL_MAP = {
     'rnn': NERNet
 }
 
-
-
-
 def result_to_json(string, tags):
     item = {"string": string, "entities": []}
     entity_name = ""
