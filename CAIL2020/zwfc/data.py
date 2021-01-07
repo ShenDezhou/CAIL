@@ -188,13 +188,13 @@ class Data:
             all are torch.utils.data.TensorDataset
         """
         print('Loading train records for train...')
-        train_set, train_label = self.load_file(train_file, True)
+        train_set, _, train_label = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
         # print('Loading train records for valid...')
         # valid_set_train = self.load_file(train_file, True)
         # print(len(valid_set_train), 'train records loaded.')
         print('Loading valid records...')
-        valid_set_valid, valid_label = self.load_file(valid_file, True)
+        valid_set_valid,_, valid_label = self.load_file(valid_file, True)
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, train_set, valid_set_valid, train_label, valid_label
 

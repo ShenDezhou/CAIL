@@ -27,14 +27,15 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file,handy_tool
-from model import RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF, NERNet
+from model import RnnForSentencePairClassification, BertYForClassification, NERNet, NERWNet
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BertYForClassification,
-    'rnn': NERNet
+    'rnn': NERNet,
+    'rnnkv': NERWNet
 }
 
 
