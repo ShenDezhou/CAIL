@@ -12,7 +12,7 @@ from tqdm import tqdm
 from sklearn import metrics
 # from classmerge import classy_dic, indic
 
-LABELS = [0,1,2,3,4]
+LABELS = [0,1,2,3]
 threshold = 0.8
 
 def calculate_accuracy_f1(
@@ -76,7 +76,7 @@ def eval_file(golds_file, predicts_file):
     return calculate_accuracy_f1(golds, predicts)
 
 
-def evaluate(model, data_loader, device) -> List[str]:
+def evaluate(model, data_loader, device, isTest=False) -> List[str]:
     """Evaluate model on data loader in device.
 
     Args:
@@ -95,7 +95,10 @@ def evaluate(model, data_loader, device) -> List[str]:
     for batch in tqdm(data_loader, desc='Evaluation', ncols=80):
         batch = tuple(t.to(device) for t in batch)
         with torch.no_grad():
-            logits = model(*batch[:-1])
+            if isTest:
+                logits = model(*batch)
+            else:
+                logits = model(*batch[:-1])
         outputs = torch.cat([outputs, logits[:, :]])
         input_ids = torch.cat([input_ids, batch[1]])
         # segment = torch.cat([segment, batch[-1][:, :]])

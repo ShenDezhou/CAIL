@@ -64,6 +64,7 @@ class Tokenizer:
                 word = line.strip('\n')
                 self.dictionary[word] = count
                 count += 1
+        self.rdictionary = dict(zip(self.dictionary.values(),self.dictionary.keys()))
 
     def __len__(self):
         return len(self.dictionary)
@@ -91,6 +92,18 @@ class Tokenizer:
             index list
         """
         return [self.dictionary.get(w, 1) for w in tokens_list]
+
+    def convert_ids_to_tokens(
+            self, ids_list: List[str]) -> List[int]:
+        """Convert tokens to ids.
+
+        Args:
+            tokens_list: word list
+
+        Returns:
+            index list
+        """
+        return [self.rdictionary.get(w, '[UNK]') for w in ids_list]
 
 
 class Data:
@@ -162,7 +175,7 @@ class Data:
         else:  # rnn
             dataset = self._convert_sentence_pair_to_rnn_dataset(
                 sc_list,  label_list)
-        return dataset, label_list
+        return dataset, sc_list, label_list
 
     def load_train_and_valid_files(self, train_file, valid_file):
         """Load all files for SMP-CAIL2020-Argmine.
@@ -261,7 +274,8 @@ class Data:
                 subline = [sub for sub in subline if len(sub)]
                 subline = [sub + "。" for sub in subline]
                 for sub in subline:
-                    sc_tokens = self.tokenizer.tokenize(str(sub))
+                    token_list, label_list = self.encoder(sub)
+                    sc_tokens = self.tokenizer.tokenize("".join(token_list))
                     sc_list = self.tokenizer.convert_tokens_to_ids(sc_tokens)
                 all_sc_list.append(sc_list)
                 # all_label_list.append(label_list)
@@ -422,18 +436,21 @@ class Data:
         all_label_list = []
         for i in tqdm(range(len(s1_list)), ncols=80):
             tokens_s1= s1_list[i]
-            labels_s1 = label_list[i]
             all_s1_lengths.append(min(len(tokens_s1), self.max_seq_len))
             if len(tokens_s1) > self.max_seq_len:
                 tokens_s1 = tokens_s1[:self.max_seq_len]
-                labels_s1 = labels_s1[:self.max_seq_len]
             #tokens_s1 = tokens_s1 #self.tokenizer.convert_tokens_to_ids(tokens_s1)
             if len(tokens_s1) < self.max_seq_len:
                 tokens_s1 += [0] * (self.max_seq_len - len(tokens_s1))
             all_s1_ids.append(tokens_s1)
-            if len(labels_s1) < self.max_seq_len:
-                labels_s1 += [0] * (self.max_seq_len - len(labels_s1))
-            all_label_list.append(labels_s1)
+
+            if label_list:  # train
+                labels_s1 = label_list[i]
+                if len(labels_s1) > self.max_seq_len:
+                    labels_s1 = labels_s1[:self.max_seq_len]
+                if len(labels_s1) < self.max_seq_len:
+                    labels_s1 += [0] * (self.max_seq_len - len(labels_s1))
+                all_label_list.append(labels_s1)
 
         all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)
         all_s1_lengths = torch.tensor(all_s1_lengths, dtype=torch.long)

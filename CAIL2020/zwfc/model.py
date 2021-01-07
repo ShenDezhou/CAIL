@@ -926,7 +926,6 @@ class NERNet(nn.Module):
             return crf_loss
         else:
             pred = self.crf.decode(emissions=emission, mask=bio_mask)
-
             # TODO:check
             max_len = char_id.size(1)
             temp_tag = copy.deepcopy(pred)
@@ -935,6 +934,75 @@ class NERNet(nn.Module):
             ent_pre = torch.tensor(temp_tag).to(emission.device)
             return ent_pre
 
+
+class NERNetT(nn.Module):
+    """
+        NERNet : Lstm+CRF
+    """
+
+    def __init__(self, config):
+        super(NERNetT, self).__init__()
+        char_emb = None#model_conf['char_emb']
+        bichar_emb = None#model_conf['bichar_emb']
+        embed_size = config.hidden_size#args.char_emb_dim
+        if char_emb is not None:
+            # self.char_emb = nn.Embedding.from_pretrained(char_emb, freeze=False, padding_idx=0)
+
+            self.char_emb = nn.Embedding(num_embeddings=char_emb.shape[0], embedding_dim=char_emb.shape[1],
+                                         padding_idx=0, _weight=char_emb)
+            self.char_emb.weight.requires_grad = True
+            embed_size = char_emb.size()[1]
+        else:
+            vocab_size = config.vocab_size #len(model_conf['char_vocab'])
+            self.char_emb = nn.Embedding(num_embeddings=vocab_size, embedding_dim=config.hidden_size,
+                                         padding_idx=0)
+        self.bichar_emb = None
+        if bichar_emb is not None:
+            # self.bichar_emb = nn.Embedding.from_pretrained(bichar_emb, freeze=False, padding_idx=0)
+            self.bichar_emb = nn.Embedding(num_embeddings=bichar_emb.shape[0], embedding_dim=bichar_emb.shape[1],
+                                           padding_idx=0, _weight=bichar_emb)
+            self.bichar_emb.weight.requires_grad = True
+
+            embed_size += bichar_emb.size()[1]
+
+        self.drop = nn.Dropout(p=0.5)
+        # self.sentence_encoder = SentenceEncoder(args, embed_size)
+        self.sentence_encoder = nn.LSTM(embed_size, config.hidden_size, num_layers=1, batch_first=True,
+                                        bidirectional=True)
+        self.emission = nn.Linear(config.hidden_size * 2, config.num_classes)
+        self.crf = CRF(config.num_classes, batch_first=True)
+
+    def forward(self, char_id, length, label_id=None):
+        # use anti-mask for answers-locator
+        # mask = char_id.eq(0)
+        chars = self.char_emb(char_id)
+
+        # if self.bichar_emb is not None:
+        #     bichars = self.bichar_emb(bichar_id)
+        #     chars = torch.cat([chars, bichars], dim=-1)
+        chars = self.drop(chars)
+
+        # sen_encoded = self.sentence_encoder(chars, mask)
+        sen_encoded, _ = self.sentence_encoder(chars)
+        sen_encoded = self.drop(sen_encoded)
+
+        bio_mask = char_id != 0
+        emission = self.emission(sen_encoded)
+        emission = F.log_softmax(emission, dim=-1)
+
+        if label_id is not None:
+            crf_loss = -self.crf(emission, label_id, mask=bio_mask, reduction='mean')
+            return crf_loss
+        else:
+            pred = self.crf.decode(emissions=emission, mask=bio_mask)
+            return pred
+            # # TODO:check
+            # max_len = char_id.size(1)
+            # temp_tag = copy.deepcopy(pred)
+            # for line in temp_tag:
+            #     line.extend([0] * (max_len - len(line)))
+            # ent_pre = torch.tensor(temp_tag).to(emission.device)
+            # return ent_pre
 
 
 class BiLSTM_CRF(nn.Module):

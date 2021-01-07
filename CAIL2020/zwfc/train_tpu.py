@@ -30,7 +30,7 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file,handy_tool
-from model import  RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF, NERNet
+from model import  RnnForSentencePairClassification, BertYForClassification, BiLSTM_CRF, NERNetT
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
@@ -52,7 +52,7 @@ import torch_xla.utils.utils as xu
 
 MODEL_MAP = {
     'bert': BertYForClassification,
-    'rnn': NERNet
+    'rnn': NERNetT
 }
 
 # Define Parameters
@@ -394,18 +394,18 @@ def main(config_file='config/bert_config.json'):
         correct = 0
         model.eval()
         tracker = xm.RateTracker()
-        device = xm.xla_device()
+
         for x, batch in enumerate(loader):
-            batch = tuple(t.to(device) for t in batch)
+            #batch = tuple(t.to(device) for t in batch)
             logits = model(*batch[:-1])
             input_ids = batch[1]
             gold_ids = batch[2]
-            for index in range(logits.shape[0]):
+            for index in range(input_ids.shape[0]):
                 length = input_ids[index]
-                item = logits[index, :length]
+                item = logits[index][:length]
                 label = gold_ids[index,:length]
-                total_samples += len(label)
-                for i in range(len(item)):
+                total_samples += length
+                for i in range(length):
                     if item[i] == label[i]:
                         correct += 1
             if xm.get_ordinal() == 0:
