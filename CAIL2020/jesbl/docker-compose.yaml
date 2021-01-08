@@ -1,0 +1,10 @@
+services:
+  web:
+    image: contractamount:3.0
+    network_mode: "host"
+    environment:
+      - gpus=all
+    volumes:
+    - /mnt/data/jesbdocker/log:/workspace/data
+    - /mnt/data/jesbdocker/model_v3:/workspace/model
+    command: python3 torch_server.py -p 58075
