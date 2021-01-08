@@ -305,22 +305,18 @@ class Data:
                     # print(take_label)
                     offset += len(sub)
             else:
-                # 0 segment id, 1 content line
                 content = row[0]
-
-                line = "".join(row)
-                # line = line.lstrip("“").lstrip("‘")
-                # line = line.replace("  ", " ", 10 ** 10)
-                subline = line.strip().split("。")
-                # subline = [sub for sub in subline if len(sub)]
+                subline = content.strip().split("。")
                 subline = [sub + "。" for sub in subline]
                 offset = 0
                 for sub in subline:
-                    label_list = labels[offset: offset + len(sub) + 1]
                     sc_tokens = self.tokenizer.tokenize(sub)
                     sc_ids = self.tokenizer.convert_tokens_to_ids(sc_tokens)
                     all_sc_list.append(sc_ids)
-                    # all_label_list.append(label_list)
+                    # print(take_sub)
+                    # print(sc_ids)
+                    # print(take_label)
+                    offset += len(sub)
         return all_sc_list, all_label_list
 
 
