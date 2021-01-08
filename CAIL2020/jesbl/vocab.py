@@ -109,9 +109,9 @@ class Vocab:
 def build_vocab(file_in, file_out):
     """Build vocab.txt for SMP-CAIL2020-Argmine."""
     vocab = Vocab('space')
-    vocab.load_file_to_dict(file_in, list(range(1, 3)))
+    vocab.load_file_to_dict(file_in, list(range(0,1)))
     vocab.write2filesort(file_out, False)
 
 
 if __name__ == '__main__':
-    build_vocab('data/msr_train.txt', 'vocab.txt')
+    build_vocab('data/train_v6.csv', 'vocab.txt')

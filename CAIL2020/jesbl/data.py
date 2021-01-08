@@ -229,6 +229,20 @@ class Data:
             label_list.append(label)
         return char_list, label_list
 
+    def find_approximate(self, line, label, max_seq_len=128):
+        # if len(line) > max_seq_len:
+        #     if 1 in label and 3 in label:
+        #         start = label.index(1)
+        #         end = label.index(3)
+        #         margin = (max_seq_len - (end - start)) // 2
+        #         take_start = max(0, start-margin)
+        #         take_end = min(start+max_seq_len, end + margin)
+        #         line = line[take_start: take_end]
+        #         label = label[take_start: take_end]
+        #         entity = line[start: end]
+        #         print(entity)
+        # assert len(line) == len(label),(len(line), len(label))
+        return line, label
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -255,15 +269,16 @@ class Data:
             if train:
                 content = row[0]
                 indice = row[1].split(";")
-                labels = [3] * len(content)
+                labels = [0] * len(content)
                 for index in indice:
                     start, end = index.split(',')
                     start, end = int(start), int(end)
-                    labels[start] = 0
-                    labels[start+1:end] = [1] * (end - start -1)
-                    labels[end] = 2
+                    labels[start] = 1
+                    labels[start+1:end] = [2] * (end - start -1)
+                    labels[end] = 3
                     #print for debug
                     entity = content[start: end+1]
+                    # entity_label = labels[start: end + 1]
                     print(entity)
 
 
@@ -275,14 +290,19 @@ class Data:
                 subline = [sub + "。" for sub in subline]
                 offset = 0
                 for sub in subline:
-                    label_list = labels[offset: offset + len(sub)+1]
+                    label_list = labels[offset: offset + len(sub)]
                     # down sample:
-                    if len(set(label_list)) == 1:
+                    if all(l==0 for l in label_list):
+                        offset += len(sub)
                         continue
-                    sc_tokens = self.tokenizer.tokenize(sub)
+                    take_sub, take_label = self.find_approximate(sub, label_list, self.max_seq_len)
+                    sc_tokens = self.tokenizer.tokenize(take_sub)
                     sc_ids = self.tokenizer.convert_tokens_to_ids(sc_tokens)
                     all_sc_list.append(sc_ids)
-                    all_label_list.append(label_list)
+                    all_label_list.append(take_label)
+                    # print(take_sub)
+                    # print(sc_ids)
+                    # print(take_label)
                     offset += len(sub)
             else:
                 # 0 segment id, 1 content line
