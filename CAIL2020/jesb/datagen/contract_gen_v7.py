@@ -123,7 +123,7 @@ def digit2formal(word, prefix_type = 0):
 
 
 amount_len = (1, 16)
-category_size = 100
+category_size = 2000
 
 df = pandas.read_csv('contract.dic',sep=',',names=['word','frequency'])
 chinese_dic = df['word'].to_list()
@@ -162,6 +162,8 @@ def gen_digit_amount(lenghth, comma=True, period=True, ten_thousand=False, prefi
         index += 3
     gen = gen.strip(",")
     gen = gen.strip("\uFF0C")
+    gen = gen.lstrip('0')
+    gen = gen.lstrip('０')
 
     if period:
         gen += "."
@@ -211,8 +213,7 @@ def gen_with_rule(type = 0):
             gen = gen_digit_amount(chars, comma=True, period=False, ten_thousand=ten_thousand, prefix_flag=prefix_type)
         else:
             gen = gen_digit_amount(chars, comma=True, period=True, ten_thousand=ten_thousand, prefix_flag=prefix_type)
-        gen = gen.lstrip('0')
-        gen = gen.lstrip('０')
+
 
     else:
         _dice = random.random()
