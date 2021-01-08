@@ -284,6 +284,7 @@ tpl_amounts.append('135998')
 tpl_amounts.append('柒万伍仟叁佰捌拾贰')
 tpl_amounts.append('1800000')
 tpl_amounts.append('壹佰捌拾万')
+tpl_amounts.append('1.99')
 
 digits = list("0123456789")
 formals = list("零壹贰叁肆伍陆柒捌玖")
@@ -308,13 +309,15 @@ def clean_line(contracts):
 
 
 def clean_line2(contracts):
+    contracts = contracts.replace("万", "", 10 ** 10)
     contracts = contracts.replace("元", "", 10 ** 10)
     contracts = contracts.replace("角", "", 10 ** 10)
     contracts = contracts.replace("分", "", 10 ** 10)
     contracts = contracts.replace("\n", "", 10 ** 10)
     return contracts
 
-df = pandas.DataFrame(columns=["contract","indexes"])
+contract_list = []
+# df = pandas.DataFrame(columns=["contract","indexes"])
 
 for dirpath, dnames, fnames in os.walk("txt/"):
     for file in fnames:
@@ -342,7 +345,7 @@ for dirpath, dnames, fnames in os.walk("txt/"):
                             buffer.append(newline)
                         else:
                             start_index = line.find(res[2]) + len(res[2])
-
+                            line = clean_line2(line)
                             if '¥' in line or '￥' in line or '大写' in line:
                                 if '大写' in line:
                                     start_index = line.find('大写') + 2
@@ -350,7 +353,6 @@ for dirpath, dnames, fnames in os.walk("txt/"):
                                     # if random.randint(0, 1) == 0:
                                     #     formald = "人民币" + formald
                                     gen_amounts.append(formald)
-                                    line = clean_line2(line)
                                     newline = line[:start_index] + re.sub(res[3], formald, line[start_index:], count=1)
                                 elif '￥' in line:
                                     start_index = line.find('￥') + 1
@@ -416,6 +418,8 @@ for dirpath, dnames, fnames in os.walk("txt/"):
                         index_marks.append((start,end))
                 if index_marks:
                     indexs =";".join( [str(k)+','+str(v) for (k,v) in index_marks] )
-                    df = df.append({"contract":contracts,"indexes": indexs}, ignore_index=True)
+                    contract_list.append({"contract":contracts,"indexes": indexs})
+                    # df = df.append({"contract":contracts,"indexes": indexs}, ignore_index=True)
+df = pandas.DataFrame(contract_list)
 df.to_csv("../data/contract_amount_train_v7.csv", columns=["contract", "indexes"], index=False)
 print('FIN')
