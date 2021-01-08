@@ -11,12 +11,12 @@
 
   "batch_size": 512,
 
-  "vocab_size": 64,
+  "vocab_size": 5288,
   "hidden_size": 256,
   "num_classes": 4,
   "dropout": 0.05,
 
-  "lr": 1e-4,
+  "lr": 3e-3,
   "num_epoch": 10,
   "num_warmup_steps": 100,
   "gradient_accumulation_steps": 1,
