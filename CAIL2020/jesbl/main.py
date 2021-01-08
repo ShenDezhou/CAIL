@@ -48,19 +48,19 @@ def result_to_json(string, tags):
     last = len(listzip)
     for char, tag in listzip:
         i += 1
-        if tag == 3:
+        if tag == 0:
             item["entities"].append({"word": char, "start": idx, "end": idx+1, "type":'s'})
-        elif tag == 0:
+        elif tag == 1:
             entity_name += char
             entity_start = idx
-        elif tag == 1:
+        elif tag == 2:
             if (entity_name != "") and (i == last):
                 entity_name += char
                 item["entities"].append({"word": entity_name, "start": entity_start, "end": idx + 1, "type": 'bms'})
                 entity_name = ""
             else:
                 entity_name += char
-        elif tag == 2:  # or i == len(zipped)
+        elif tag == 3:  # or i == len(zipped)
             entity_name += char
             item["entities"].append({"word": entity_name, "start": entity_start, "end": idx + 1, "type": 'bms'})
             entity_name = ""
