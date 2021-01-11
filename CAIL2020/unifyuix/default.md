@@ -29,6 +29,7 @@
 ## 2.1 智能检索
 * [智能分词](/static/cbfc.html)
 * [检索分词](/static/cbfcs.html)(构建索引）
+* [深度智能分词](/static/znfc.html)
 
 ## 2.3 自动拆分
 * [法规条拆分](/static/ftcf.html)(如:民法典等法规）
@@ -84,6 +85,7 @@ hyfl-dnn-97|58072
 xsfl-202|58073
 xsfl-202-xlnet|58074
 jesbv3|58075
+znfc|58076
 htfl-17-12|58080
 htfl-17-24|58081
 alfl-2|58082
