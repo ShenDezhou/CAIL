@@ -1,0 +1,11 @@
+services:
+  web:
+    image: lstmwordsegment:1.0
+    environment:
+      - gpus=all
+    network_mode: "host"
+    container_name: lstmword_segment
+    volumes:
+    - /mnt/data/zwfcdocker/model:/workspace/model
+    - /mnt/data/zwfcdocker/log:/workspace/data
+    command: python3 torch_server.py -p 58076 -c config/rnn_config.json
