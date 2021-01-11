@@ -1,6 +1,6 @@
 """Data processor for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 In data file, each line contains 1 sc sentence and 5 bc sentences.
 The data processor convert each line into 5 samples,
@@ -165,7 +165,7 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (s1_ids, s2_ids, s1_length, s2_length)
         """
-        sc_list, label_list = self._load_file(file_path, train)
+        sc_list, label_list, row_list = self._load_file(file_path, train)
         if 'bert' == self.model_type:
             dataset = self._convert_sentence_pair_to_bert_dataset(
                 sc_list,  label_list)
@@ -175,7 +175,7 @@ class Data:
         else:  # rnn
             dataset = self._convert_sentence_pair_to_rnn_dataset(
                 sc_list,  label_list)
-        return dataset, sc_list, label_list
+        return dataset, sc_list, label_list, row_list
 
     def load_train_and_valid_files(self, train_file, valid_file):
         """Load all files for SMP-CAIL2020-Argmine.
@@ -248,12 +248,13 @@ class Data:
             sc_list, bc_list: List[List[str]], list of word tokens list
             label_list: List[int], list of labels
         """
-        data_frame = pd.read_csv(filename, header=None)
+        data_frame = pd.read_csv(filename, header=0)
 
-        all_sc_list, all_label_list = [], []
+        all_rows, all_sc_list, all_label_list = [], [], []
         for row in data_frame.itertuples(index=False):
             if train:
-                line = "".join(row)
+                line = row[0]
+                all_rows.append(line)
                 line = line.lstrip("“").lstrip("‘")
                 line = line.replace("  "," ", 10**10)
                 subline = line.strip().split("。")
@@ -267,19 +268,20 @@ class Data:
                     all_label_list.append(label_list)
             else:
                 # 0 segment id, 1 content line
-                line = "".join(row)
-                line = line.lstrip("“").lstrip("‘")
-                line = line.replace("  ", " ", 10 ** 10)
-                subline = line.strip().split("。")
-                subline = [sub for sub in subline if len(sub)]
-                subline = [sub + "。" for sub in subline]
-                for sub in subline:
-                    token_list, label_list = self.encoder(sub)
-                    sc_tokens = self.tokenizer.tokenize("".join(token_list))
-                    sc_list = self.tokenizer.convert_tokens_to_ids(sc_tokens)
+                line = row[0]
+                all_rows.append(line)
+                # line = line.lstrip("“").lstrip("‘")
+                # line = line.replace("  ", " ", 10 ** 10)
+                # subline = line.strip().split("。")
+                # subline = [sub for sub in subline if len(sub)]
+                # subline = [sub + "。" for sub in subline]
+                # for sub in subline:
+                token_list, label_list = self.encoder(line)
+                sc_tokens = self.tokenizer.tokenize("".join(token_list))
+                sc_list = self.tokenizer.convert_tokens_to_ids(sc_tokens)
                 all_sc_list.append(sc_list)
                 # all_label_list.append(label_list)
-        return all_sc_list, all_label_list
+        return all_sc_list, all_label_list, all_rows
 
 
     def _convert_sentence_pair_to_bert_dataset(
