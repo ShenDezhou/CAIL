@@ -1,6 +1,6 @@
 """BERT and RNN model for sentence pair classification.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 Used for SMP-CAIL2020-Argmine.
 """
