@@ -188,13 +188,13 @@ class Data:
             all are torch.utils.data.TensorDataset
         """
         print('Loading train records for train...')
-        train_set, _, train_label = self.load_file(train_file, True)
+        train_set, _, train_label, _ = self.load_file(train_file, True)
         print(len(train_set), 'training records loaded.')
         # print('Loading train records for valid...')
         # valid_set_train = self.load_file(train_file, True)
         # print(len(valid_set_train), 'train records loaded.')
         print('Loading valid records...')
-        valid_set_valid,_, valid_label = self.load_file(valid_file, True)
+        valid_set_valid,_, valid_label, _ = self.load_file(valid_file, True)
         print(len(valid_set_valid), 'valid records loaded.')
         return train_set, train_set, valid_set_valid, train_label, valid_label
 
@@ -262,7 +262,10 @@ class Data:
                 subline = [sub + "。" for sub in subline]
                 for sub in subline:
                     token_list, label_list = self.encoder(sub)
-                    sc_tokens = self.tokenizer.tokenize("".join(token_list))
+                    if 'rnn' == self.model_type:
+                        sc_tokens = self.tokenizer.tokenize("".join(token_list))
+                    else:
+                        sc_tokens = token_list
                     sc_ids = self.tokenizer.convert_tokens_to_ids(sc_tokens)
                     all_sc_list.append(sc_ids)
                     all_label_list.append(label_list)
@@ -277,7 +280,10 @@ class Data:
                 # subline = [sub + "。" for sub in subline]
                 # for sub in subline:
                 token_list, label_list = self.encoder(line)
-                sc_tokens = self.tokenizer.tokenize("".join(token_list))
+                if 'rnn' == self.model_type:
+                    sc_tokens = self.tokenizer.tokenize("".join(token_list))
+                else:
+                    sc_tokens = token_list
                 sc_list = self.tokenizer.convert_tokens_to_ids(sc_tokens)
                 all_sc_list.append(sc_list)
                 # all_label_list.append(label_list)
@@ -339,7 +345,7 @@ class Data:
             #     assert len(tokens) == self.max_seq_len
             #     segment_ids = segment_ids[:self.max_seq_len//2] + segment_ids[-self.max_seq_len//2:]
             tokens = s1_list[i]
-            segment_ids = [1] * len(tokens)
+            segment_ids = [0] * len(tokens)
             if len(tokens) > self.max_seq_len:
                 tokens = tokens[:self.max_seq_len]
                 segment_ids = segment_ids[:self.max_seq_len]
@@ -347,7 +353,8 @@ class Data:
                 tokens += [0] * (self.max_seq_len - len(tokens))
                 segment_ids += [1] * (self.max_seq_len - len(tokens))
 
-            input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+            # input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+            input_ids = tokens
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
             input_ids += [0] * (self.max_seq_len - tokens_len)
@@ -403,7 +410,8 @@ class Data:
 
 
 
-            input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+            # input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
+            input_ids = tokens
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
             input_ids += [0] * (self.max_seq_len - tokens_len)

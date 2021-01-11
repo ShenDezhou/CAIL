@@ -914,7 +914,7 @@ class NERNet(nn.Module):
 
             embed_size += bichar_emb.size()[1]
 
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=config.dropout)
         # self.sentence_encoder = SentenceEncoder(args, embed_size)
         self.sentence_encoder = nn.LSTM(embed_size, config.hidden_size, num_layers=1, batch_first=True,
                                         bidirectional=True)
@@ -984,7 +984,7 @@ class NERWNet(nn.Module):
 
         self.kv = WordKVMN(config)
 
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=config.dropout)
         # self.sentence_encoder = SentenceEncoder(args, embed_size)
         self.sentence_encoder = nn.LSTM(embed_size, config.hidden_size, num_layers=1, batch_first=True,
                                         bidirectional=True)
@@ -1056,8 +1056,10 @@ class BERNet(nn.Module):
         #     embed_size += bichar_emb.size()[1]
 
         self.bert = BertModel.from_pretrained(config.bert_model_path)
+        for param in self.bert.parameters():
+            param.requires_grad = True
 
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=config.dropout)
         # self.sentence_encoder = SentenceEncoder(args, embed_size)
         self.sentence_encoder = nn.LSTM(config.hidden_size, config.sent_hidden_size, num_layers=1, batch_first=True,
                                         bidirectional=True)
@@ -1068,15 +1070,17 @@ class BERNet(nn.Module):
         # use anti-mask for answers-locator
         # mask = char_id.eq(0)
         # chars = self.char_emb(char_id)
-        chars, _ = self.bert(input_ids, attention_mask, token_type_ids, output_hidden_states=False)
+        _, _, layers = self.bert(input_ids, attention_mask, token_type_ids, output_hidden_states=True)
         #
         # # if self.bichar_emb is not None:
         # #     bichars = self.bichar_emb(bichar_id)
         # #     chars = torch.cat([chars, bichars], dim=-1)
+        chars = (layers[-1] + layers[0]) / 2
         chars = self.drop(chars)
 
         # sen_encoded = self.sentence_encoder(chars, mask)
-        sen_encoded, _ = self.sentence_encoder(chars)
+        # sen_encoded, _ = self.sentence_encoder(chars)
+        sen_encoded = chars
         sen_encoded = self.drop(sen_encoded)
 
         bio_mask = char_id != 0
