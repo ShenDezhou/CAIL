@@ -9,10 +9,11 @@
   "test_file_path": "data/train_v7.csv",
   "trained_weight":"",
 
-  "batch_size": 512,
+  "batch_size": 128,
 
   "vocab_size": 5288,
-  "hidden_size": 256,
+  "embedding_size": 768,
+  "hidden_size": 384,
   "num_classes": 4,
   "dropout": 0.05,
 

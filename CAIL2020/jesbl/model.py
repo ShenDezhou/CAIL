@@ -893,7 +893,7 @@ class NERNet(nn.Module):
         super(NERNet, self).__init__()
         char_emb = None#model_conf['char_emb']
         bichar_emb = None#model_conf['bichar_emb']
-        embed_size = config.hidden_size#args.char_emb_dim
+        embed_size = config.embedding_size#args.char_emb_dim
         if char_emb is not None:
             # self.char_emb = nn.Embedding.from_pretrained(char_emb, freeze=False, padding_idx=0)
 
@@ -903,7 +903,7 @@ class NERNet(nn.Module):
             embed_size = char_emb.size()[1]
         else:
             vocab_size = config.vocab_size #len(model_conf['char_vocab'])
-            self.char_emb = nn.Embedding(num_embeddings=vocab_size, embedding_dim=config.hidden_size,
+            self.char_emb = nn.Embedding(num_embeddings=vocab_size, embedding_dim=embed_size,
                                          padding_idx=0)
         self.bichar_emb = None
         if bichar_emb is not None:
@@ -961,7 +961,7 @@ class NERWNet(nn.Module):
         super(NERWNet, self).__init__()
         char_emb = None#model_conf['char_emb']
         bichar_emb = None#model_conf['bichar_emb']
-        embed_size = config.hidden_size#args.char_emb_dim
+        embed_size = config.embedding_size#args.char_emb_dim
         if char_emb is not None:
             # self.char_emb = nn.Embedding.from_pretrained(char_emb, freeze=False, padding_idx=0)
 
@@ -971,7 +971,7 @@ class NERWNet(nn.Module):
             embed_size = char_emb.size()[1]
         else:
             vocab_size = config.vocab_size #len(model_conf['char_vocab'])
-            self.char_emb = nn.Embedding(num_embeddings=vocab_size, embedding_dim=config.hidden_size,
+            self.char_emb = nn.Embedding(num_embeddings=vocab_size, embedding_dim=embed_size,
                                          padding_idx=0)
         self.bichar_emb = None
         if bichar_emb is not None:
