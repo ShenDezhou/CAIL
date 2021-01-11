@@ -2,7 +2,7 @@ import json
 import os
 import random
 
-input_path = "/input"
+input_path = "/data"
 output_path = "/output/result.txt"
 
 if __name__ == "__main__":

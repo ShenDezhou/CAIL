@@ -15,7 +15,11 @@ from transformers import (
     CONFIG_MAPPING,
     MODEL_WITH_LM_HEAD_MAPPING,
     AutoConfig,
+    BertConfig,
+    RobertaConfig,
     AutoModelWithLMHead,
+    BertForMaskedLM,
+    RobertaForMaskedLM,
     AutoTokenizer,
     DataCollatorForLanguageModeling,
     HfArgumentParser,
@@ -40,14 +44,17 @@ args = parser.parse_args()
 with open(args.config_file) as fin:
     config = json.load(fin, object_hook=lambda d: SimpleNamespace(**d))
 
-bert_config = AutoConfig.from_pretrained(config.bert_model_path, cache_dir=TEMP)
+bert_config = BertConfig.from_pretrained(config.bert_model_path, cache_dir=TEMP)
 
-WRAPPED_MODEL = AutoModelWithLMHead.from_pretrained(
+WRAPPED_MODEL = BertForMaskedLM.from_pretrained(
             config.bert_model_path,
             from_tf=False,
             config=bert_config,
             cache_dir=TEMP,
         )
+for param in WRAPPED_MODEL.parameters():
+    param.requires_grad = True
+WRAPPED_MODEL.train()
 
 tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)
 WRAPPED_MODEL.resize_token_embeddings(len(tokenizer))
@@ -71,7 +78,7 @@ training_args = TrainingArguments(
     output_dir=TEMP,
     overwrite_output_dir=True,
     num_train_epochs=1,
-    per_device_train_batch_size=8,
+    per_device_train_batch_size=config.batch_size,
     save_steps=10_000,
     save_total_limit=2,
     tpu_num_cores=8,

@@ -6,3 +6,10 @@
 
 ![ALT](config/htfl-train.svg)
 
+#训练集
+"train_file_path": "dataset/train-phase3.csv",
+"valid_file_path": "dataset/valid-phase1.csv",
+
+#精度
+75%
+

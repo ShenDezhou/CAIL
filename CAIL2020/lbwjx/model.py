@@ -1,6 +1,6 @@
 """BERT and RNN model for sentence pair classification.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 Used for SMP-CAIL2020-Argmine.
 """
@@ -150,6 +150,11 @@ class BertXForClassification(nn.Module):
         logits = self.fc3(x)        # logits: (batch_size, num_classes)
         return logits
 
+# from resnet import ResNet,BasicBlock,Bottleneck, resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2
+#
+# resnet_pool = dict(zip(range(9),[resnet18,resnet34,resnet50,resnet101,resnet152, resnext50_32x4d, resnext101_32x8d, wide_resnet50_2, wide_resnet101_2]))
+from resnetv import ResNet
+from FPN import FPN
 class BertYForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):
@@ -168,39 +173,17 @@ class BertYForClassification(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = True
 
-        num_conv_filters = config.num_conv_filters
-        output_channel = config.output_channel
-        hidden_size = config.num_fc_hidden_size
+        hidden_size = config.fc_hidden
         target_class = config.num_classes
-        input_channel = config.hidden_size
+        # self.resnet = resnet18(num_classes=hidden_size)
+        #self.resnet = ResNet(block=BasicBlock, layers=[1, 1, 1, 1], num_classes=hidden_size)
+        self.resnet = ResNet(config.in_channels, 18)
+        self.fpn = FPN([64]* 4, 4)
 
-        self.conv1 = nn.Conv1d(input_channel, num_conv_filters, kernel_size=7)
-        self.conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=7)
-        self.conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3)
-        self.conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3)
-
-
-        self.n_cnn = config.cnn_module_layers
-        self.cnn_list = nn.ModuleList()
-        for i in range(self.n_cnn):
-            inner_list = nn.ModuleList()
-            conv1 = nn.Conv1d(output_channel, num_conv_filters, kernel_size=3, padding=1)
-            conv2 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv3 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv4 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv5 = nn.Conv1d(num_conv_filters, num_conv_filters, kernel_size=3, padding=1)
-            conv6 = nn.Conv1d(num_conv_filters, output_channel, kernel_size=3, padding=1)
-            inner_list.extend([conv1, conv2, conv3, conv4, conv5,conv6])
-            self.cnn_list.append(inner_list)
-
+        self.fpn_seq = FPN([128] * 4, 4)
         #cnn feature map has a total number of 228 dimensions.
         self.dropout = nn.Dropout(config.dropout)
-        self.fc1 = nn.Linear(output_channel, hidden_size)
-        # self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, target_class)
-
+        self.fc1 = nn.Linear(hidden_size, target_class)
         self.num_classes = config.num_classes
 
     def forward(self, input_ids, attention_mask, token_type_ids):
@@ -219,7 +202,7 @@ class BertYForClassification(nn.Module):
             input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
-            # encoder_hidden_states=False
+            output_hidden_states=True
         )
         # bert_output[0]: (batch_size, sequence_length, hidden_size)
         # encoded_output = bert_output[0]
@@ -227,38 +210,29 @@ class BertYForClassification(nn.Module):
         # encoded_output = encoded_output.view(batch_size, 1, encoded_output.shape[1], -1)
 
         # ids: (batch_size, max_seq_len)
-        s1_embed = bert_output[0]
+        x = bert_output[2]
         # s2_embed = self.embedding(s2_ids)
         # embed: (batch_size, max_seq_len, hidden_size)
         # s1_packed: PackedSequence = pack_padded_sequence(
         #     s1_embed, s1_lengths, batch_first=True, enforce_sorted=False)
-        if torch.cuda.is_available():
-            x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
-        else:
-            x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
+        # if torch.cuda.is_available():
+        #     x = s1_embed.transpose(1, 2).type(torch.cuda.FloatTensor)
+        # else:
+        #     x = s1_embed.transpose(1, 2).type(torch.FloatTensor)
+        #x = s1_embed.transpose(1, 2)
+        x = [l.unsqueeze(1) for l in x[-3:]]
+        x = torch.cat(x, dim=1)
+        x = self.resnet(x)
+        x = x.permute((0,3,1,2))
+        x = x[:,0:64,:,:], x[:,64:64+64,:,:], x[:,128:128+64,:,:], x[:,192:,:,:]
+        x = self.fpn(x)
 
-        x = F.max_pool1d(F.relu(self.conv1(x)), 3)
-        x = F.max_pool1d(F.relu(self.conv2(x)), 3)
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = F.relu(self.conv5(x))
-        x = F.relu(self.conv6(x))
-
-
-        for innercnn in self.cnn_list:
-            x = F.max_pool1d(F.relu(innercnn[0](x)), kernel_size=3, padding=1)
-            x = F.max_pool1d(F.relu(innercnn[1](x)), kernel_size=3, padding=1)
-            x = F.relu(innercnn[2](x))
-            x = F.relu(innercnn[3](x))
-            x = F.relu(innercnn[4](x))
-            x = F.relu(innercnn[5](x))
-
-        x = F.max_pool1d(x, x.size(2)).squeeze(2)
-        x = F.relu(self.fc1(x.view(x.size(0), -1)))
-        # x = self.dropout(x)
-        # x = F.relu(self.fc2(x))
+        x = x.permute((0, 2, 3, 1))
+        x = x[:, 0:128, :, :], x[:, 128:128 + 128, :, :], x[:, 256:256 + 128, :, :], x[:, 384:, :, :]
+        x = self.fpn_seq(x)
+        x = x.flatten(start_dim=1)
         x = self.dropout(x)
-        logits = self.fc3(x)        # logits: (batch_size, num_classes)
+        logits = self.fc1(x)        # logits: (batch_size, num_classes)
         return logits
 
 class Attention(nn.Module):

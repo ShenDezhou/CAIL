@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument('--config', '-c', default='default.config', help="specific config file", required=False)
     parser.add_argument('--gpu', '-g', default="0", help="gpu id list")
     parser.add_argument('--checkpoint', default='model/bert/model.bin', help="checkpoint file path", required=False)
-    parser.add_argument('--input', default='/input/', help="input file path", required=False)
+    parser.add_argument('--data', default='/data/', help="data file path", required=False)
     parser.add_argument('--result', default='/output/result.txt', help="result file path", required=False)
     args = parser.parse_args()
 

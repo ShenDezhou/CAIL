@@ -1,6 +1,6 @@
 """Construct English/Chinese vocab for csv files.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 Use nltk to cut English sentences.
 Use jieba to cut Chinese sentences.

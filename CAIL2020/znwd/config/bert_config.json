@@ -4,7 +4,7 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/data_train.csv",
+  "train_file_path": "data/data_train3.csv",
   "valid_file_path": "data/valid.csv",
 
   "batch_size": 2,
@@ -23,11 +23,15 @@
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 10,
-  "num_warmup_steps": 2000,
+  "num_epoch": 5,
+  "log_steps": 100,
+  "serial_load": true,
+  "metrics_debug": false,
+  "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 64,
+  "gradient_accumulation_steps": 8,
   "max_grad_norm": 2e-3,
+  "num_cores": 8,
 
   "experiment_name": "BERT"
 }

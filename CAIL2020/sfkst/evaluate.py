@@ -1,6 +1,6 @@
 """Evaluate model and calculate results for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 """
 
 

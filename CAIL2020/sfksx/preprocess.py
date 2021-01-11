@@ -4,8 +4,8 @@ import pandas
 
 from dataset_tool import dfs_search
 
-def preprocess(data_path="input/", TEMPFILE='test.csv'):
-    # data_path = "input/"
+def preprocess(data_path="data/", TEMPFILE='test.csv'):
+    # data_path = "data/"
     recursive = False
     file_list = []
     file_list = file_list + dfs_search(os.path.join(data_path, ''), recursive)

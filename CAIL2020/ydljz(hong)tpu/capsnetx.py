@@ -132,7 +132,7 @@ class FCCaps(nn.Module):
         W1 = W1.repeat(batch_size, 1, 1, 1, 1)
         u_hat = torch.matmul(W1, x)
 
-        b_ij = Variable(torch.zeros(batch_size, self.input_capsule_num, variable_output_capsule_num, 1)).cuda()
+        b_ij = Variable(torch.zeros(batch_size, self.input_capsule_num, variable_output_capsule_num, 1))
 
         if self.is_AKDE == True:
             poses, activations = Adaptive_KDE_routing(batch_size, b_ij, u_hat)

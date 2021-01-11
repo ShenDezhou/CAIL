@@ -13,11 +13,12 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message
 
 logger = logging.getLogger(__name__)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-c', help="specific config file", required=True)
+    parser.add_argument('--config', '-c', help="specific config file", default="config/model.config")
     parser.add_argument('--gpu', '-g', help="gpu id list")
-    parser.add_argument('--checkpoint', help="checkpoint file path")
+    parser.add_argument('--checkpoint', '-t', help="checkpoint file path")
     parser.add_argument('--do_test', help="do test while training or not", action="store_true")
     parser.add_argument('--local_rank', help='local rank', default=0)
     args = parser.parse_args()
@@ -30,15 +31,15 @@ if __name__ == "__main__":
 
     use_gpu = True
     gpu_list = []
-    if args.gpu is None:
-        use_gpu = False
-    else:
+    if args.gpu:
         use_gpu = True
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
         device_list = args.gpu.split(",")
         for a in range(0, len(device_list)):
             gpu_list.append(int(a))
+    else:
+        use_gpu = False
 
     os.system("clear")
 

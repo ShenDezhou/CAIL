@@ -1,7 +1,7 @@
 
 """Test model for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 
 Usage:
     python main.py --model_config 'config/bert_config.json' \

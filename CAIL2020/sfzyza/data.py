@@ -1,6 +1,6 @@
 """Data processor for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 In data file, each line contains 1 sc sentence and 5 bc sentences.
 The data processor convert each line into 5 samples,
@@ -407,7 +407,7 @@ class Data:
         all_s1_lengths = torch.tensor(all_s1_lengths, dtype=torch.long)
         all_s2_lengths = torch.tensor(all_s2_lengths, dtype=torch.long)
         if label_list:  # train
-            all_label_ids = torch.tensor(label_list, dtype=torch.long)
+            all_label_ids = torch.tensor(label_list, dtype=torch.float)
             return TensorDataset(
                 all_s1_ids, all_s2_ids, all_s1_lengths, all_s2_lengths,
                 all_label_ids)

@@ -1,6 +1,6 @@
 """Utils tools.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 """
 import logging
 import os

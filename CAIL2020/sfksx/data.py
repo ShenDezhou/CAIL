@@ -1,6 +1,6 @@
 """Data processor for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 In data file, each line contains 1 sc sentence and 5 bc sentences.
 The data processor convert each line into 5 samples,
@@ -226,25 +226,6 @@ class Data:
             #         sc_list.append(sc_tokens)
             #         bc_list.append(bc_tokens)
         #add laws book for training dataset augment
-        if train:
-            law_book = pd.read_csv('private/laws.csv')
-            #sc_list, bc_list, label_list = [], [], []
-            for row in law_book.itertuples(index=False):
-                answer = bool(row[-1]) if train else None
-                desclen = len(row[0])
-                sc_tokens = self.tokenizer.tokenize(row[0][:desclen//2])
-                bc_tokens = self.tokenizer.tokenize(row[0][desclen//2:])
-                label = 1 if answer else 0
-
-                sc_list.append(sc_tokens)
-                bc_list.append(bc_tokens)
-                if train:
-                    label_list.append(label)
-
-                bc_list.append(sc_tokens)
-                sc_list.append(bc_tokens)
-                if train:
-                    label_list.append(label)
 
         return sc_list, bc_list, label_list
 
@@ -267,13 +248,19 @@ class Data:
         """
         all_input_ids, all_input_mask, all_segment_ids = [], [], []
         for i, _ in tqdm(enumerate(s1_list), ncols=80):
+            if len(s1_list) + len(s2_list[i]) > self.max_seq_len and len(s2_list[i]) < self.max_seq_len:
+                s1_list[i] = s1_list[i][-(self.max_seq_len - len(s2_list[i])):]
             tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
             segment_ids = [0] * len(tokens)
+            if len(s2_list[i]) >= self.max_seq_len:
+                s2_list[i] = s2_list[i][-(self.max_seq_len-len(s1_list[i])):]
             tokens += s2_list[i] + ['[SEP]']
             segment_ids += [1] * (len(s2_list[i]) + 1)
+            #guard
             if len(tokens) > self.max_seq_len:
                 tokens = tokens[:self.max_seq_len]
                 segment_ids = segment_ids[:self.max_seq_len]
+
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)

@@ -28,7 +28,7 @@ VERSION = "20200516"  # @param ["1.5" , "20200516", "nightly"]
 !curl https://raw.githubusercontent.com/pytorch/xla/master/contrib/scripts/env-setup.py -o pytorch-xla-env-setup.py
 !python pytorch-xla-env-setup.py --version $VERSION
 
-!pip3 install -r "/content/drive/My Drive/htfl/Freeze.txt"
+!pip3 install -r "/content/drive/My Drive/htfl/reqirements.txt"
 
 import os
 print(os.environ["COLAB_TPU_ADDR"])

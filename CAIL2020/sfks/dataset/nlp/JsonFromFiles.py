@@ -17,7 +17,7 @@ class JsonFromFilesDataset(Dataset):
         if mode != "test":
             filename_list = config.get("data", "%s_file_list" % mode).replace(" ", "").split(",")
         else:
-            filename_list = "/input/"
+            filename_list = "/data/"
 
         recursive = False
 

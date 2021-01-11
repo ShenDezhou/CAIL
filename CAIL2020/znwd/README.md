@@ -285,3 +285,31 @@ input dim:768
   "num_conv_filters": 256,
   "output_channel": 64,
   "num_fc_hidden_size": 8,
+  
+# 黄民烈对话系统
+对话信息寻找
+
+* NLU
+* 对话策略学习
+* zero shot learning
+
+* Zhang et al, Task-oriented Dialog Systems. China Science 2020
+
+* NLU
+* DST-
+    |-
+* Policy
+* NLG
+
+domains
+DSTC9
+MultiWOZ ext
+MultiWOZ 2.1
+MultiWOZ 2.2
+MultiWOZ 2.3
+
+CrossWOZ Zhu TACL 2020
+Pipeline(BERT,MILU    Succ:80.9, 77.6)
+Robustness & uncertainty in NLU
+
+WP  TP SR  SD

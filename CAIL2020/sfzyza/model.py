@@ -1,6 +1,6 @@
 """BERT and RNN model for sentence pair classification.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 Used for SMP-CAIL2020-Argmine.
 """
@@ -392,7 +392,7 @@ class BertYForClassification(nn.Module):
         logits = nn.functional.softmax(logits, dim=-1)
         # logits: (batch_size, num_classes)
         return logits
-
+#A Hierarchical Multi-grained Transformer-based Document Summarization Method
 class BertXLForClassification(nn.Module):
     """BERT with simple linear model."""
     def __init__(self, config):

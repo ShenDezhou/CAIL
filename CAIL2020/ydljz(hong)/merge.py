@@ -1,6 +1,7 @@
 import json
 
-files = ["../data/train19_dev.json", "../data/train19_train.json", "../data/train19_test.json", "train_small.json", "train_large.json"]
+# files = ["../data/train19_dev.json", "../data/train19_train.json", "../data/train19_test.json", "train_large.json"]
+files = ["../data/train19_dev.json",  "../data/train19_test.json", "train_small.json",  "train_large.json"]
 
 def read(file, start_id=0):
     with open(file, 'r', encoding='utf-8') as f:

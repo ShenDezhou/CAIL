@@ -1,6 +1,6 @@
 """Test model for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 
 Usage:
     python main.py --model_config 'config/bert_config.json' \
@@ -28,7 +28,7 @@ from utils import load_torch_model
 
 LABELS = ['1', '2', '3', '4', '5']
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 

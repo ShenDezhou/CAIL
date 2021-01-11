@@ -7,7 +7,7 @@
 
   "train_file_path": "data/data_tiny.csv",
   "valid_file_path": "data2/train.json",
-  "trained_model_path": "model/",
+  "trained_model_path": "../lawberta_wwm_ext",
 
   "batch_size": 2,
 

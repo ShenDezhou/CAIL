@@ -1,6 +1,6 @@
 """Test model for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 
 Usage:
     python main.py --model_config 'config/bert_config.json' \
@@ -34,8 +34,8 @@ MODEL_MAP = {
 
 TEMPFILE='test.csv'
 
-def main(in_file='/input/',
-         out_file='/output/result.csv',
+def main(in_file='/data/',
+         out_file='/output/result.txt',
          model_config='config/bert_config.json'):
     """Test model for given test set on 1 GPU or CPU.
 
@@ -57,7 +57,7 @@ def main(in_file='/input/',
                 max_seq_len=config.max_seq_len,
                 model_type=config.model_type, config=config)
 
-    # 1.1 preprocess '/input/' to 'test.csv' file.
+    # 1.1 preprocess '/data/' to 'test.csv' file.
     preprocess(in_file, TEMPFILE)
     test_set = data.load_file(TEMPFILE, train=False)
     data_loader_test = DataLoader(
@@ -85,7 +85,7 @@ def main(in_file='/input/',
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_config', '-c', default='config/bert_config.json', help="specific config file", required=False)
-    parser.add_argument('--in_file', '-i',  default='/input', help="input folder", required=False)
+    parser.add_argument('--in_file', '-i',  default='/data', help="data folder", required=False)
     parser.add_argument('--out_file', '-o', default='/output/result.txt', help="result file path", required=False)
     args = parser.parse_args()
     main(args.in_file, args.out_file, args.model_config)

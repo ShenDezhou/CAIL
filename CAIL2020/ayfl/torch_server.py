@@ -80,6 +80,15 @@ class TorchResource:
         answer_list = [class_case[i] for i in answer_list]
         return {"answer": answer_list}
 
+    def on_options(self, req, resp):
+        logger.info("...")
+        # resp.set_header('Access-Control-Allow-Headers', 'Content-Type')
+        resp.set_header('Access-Control-Allow-Origin', '*')
+        resp.set_header('Access-Control-Allow-Methods', '*')
+        resp.set_header('Access-Control-Allow-Headers', '*')
+        resp.set_header('Access-Control-Allow-Credentials','true')
+
+
     def on_get(self, req, resp):
         logger.info("...")
         resp.set_header('Access-Control-Allow-Origin', '*')

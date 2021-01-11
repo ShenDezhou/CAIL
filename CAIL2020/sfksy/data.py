@@ -1,6 +1,6 @@
 """Data processor for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 In data file, each line contains 1 sc sentence and 5 bc sentences.
 The data processor convert each line into 5 samples,
@@ -225,6 +225,8 @@ class Data:
             #     else:  # test
             #         sc_list.append(sc_tokens)
             #         bc_list.append(bc_tokens)
+        #add laws book for training dataset augment
+
         return sc_list, bc_list, label_list
 
     def _convert_sentence_pair_to_bert_dataset(
@@ -246,13 +248,19 @@ class Data:
         """
         all_input_ids, all_input_mask, all_segment_ids = [], [], []
         for i, _ in tqdm(enumerate(s1_list), ncols=80):
+            if len(s1_list) + len(s2_list[i]) > self.max_seq_len and len(s2_list[i]) < self.max_seq_len:
+                s1_list[i] = s1_list[i][-(self.max_seq_len - len(s2_list[i])):]
             tokens = ['[CLS]'] + s1_list[i] + ['[SEP]']
             segment_ids = [0] * len(tokens)
+            if len(s2_list[i]) >= self.max_seq_len:
+                s2_list[i] = s2_list[i][-(self.max_seq_len-len(s1_list[i])):]
             tokens += s2_list[i] + ['[SEP]']
             segment_ids += [1] * (len(s2_list[i]) + 1)
+            #guard
             if len(tokens) > self.max_seq_len:
                 tokens = tokens[:self.max_seq_len]
                 segment_ids = segment_ids[:self.max_seq_len]
+
             input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)

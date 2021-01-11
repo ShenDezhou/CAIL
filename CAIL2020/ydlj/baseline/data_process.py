@@ -443,7 +443,7 @@ if __name__ == '__main__':
     parser.add_argument("--do_lower_case", default=True, action='store_true',
                         help="Set this flag if you are using an uncased model.")
     parser.add_argument("--max_seq_length", default=512, type=int,
-                        help="The maximum total input sequence length after WordPiece tokenization. Sequences longer "
+                        help="The maximum total data sequence length after WordPiece tokenization. Sequences longer "
                              "than this will be truncated, and sequences shorter than this will be padded.")
     parser.add_argument("--batch_size", default=15, type=int, help="Batch size for predictions.")
     parser.add_argument("--full_data", type=str, required=True)   # 原始数据集文件

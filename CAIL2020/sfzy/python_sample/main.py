@@ -1,6 +1,6 @@
 import json
 
-input_path = '/input/input.json'
+input_path = '/data/data.json'
 output_path = '/output/result.json'
 
 if __name__ == "__main__":

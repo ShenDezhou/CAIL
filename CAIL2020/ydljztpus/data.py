@@ -1,6 +1,6 @@
 """Data processor for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 In data file, each line contains 1 sc sentence and 5 bc sentences.
 The data processor convert each line into 5 samples,
@@ -44,7 +44,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
-max_support_sents = 26
+max_support_sents = 20
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.

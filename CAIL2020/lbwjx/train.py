@@ -1,6 +1,6 @@
 """Training file for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 
 Usage:
     python -m torch.distributed.launch train.py \
@@ -32,7 +32,7 @@ from vocab import build_vocab
 
 
 MODEL_MAP = {
-    'bert': BertXForClassification,
+    'bert': BertYForClassification,
     'rnn': RnnForSentencePairClassification
 }
 
@@ -279,7 +279,7 @@ def main(config_file='config/bert_config.json'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config_file', default='config/bert_config.json',
+        '-c', '--config_file', default='config/lbert_config.json',
         help='model config file')
 
     parser.add_argument(

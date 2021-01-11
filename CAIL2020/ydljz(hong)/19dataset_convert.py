@@ -28,7 +28,7 @@ def supporting_facts(answers, context_lines):
     return res
 
 
-with open('../../../CAIL2020/ydljz(hong)/data/train19_train.json', 'w', encoding='utf8') as fw:
+with open('data/train19_train.json', 'w', encoding='utf8') as fw:
 
     fin = open('big_train_data.json', 'r', encoding='utf8')
     line = fin.readline()

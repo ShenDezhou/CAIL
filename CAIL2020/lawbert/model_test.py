@@ -60,6 +60,6 @@ WRAPPED_MODEL = AutoModelWithLMHead.from_pretrained(
 
 tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)
 WRAPPED_MODEL.to('cpu')
-torch.save(WRAPPED_MODEL.state_dict(), os.path.join(OUTPUT, 'pytorch_model.bin'))
+xm.save(WRAPPED_MODEL.state_dict(), os.path.join(OUTPUT, 'pytorch_model.bin'))
 # WRAPPED_MODEL.save_pretrained(OUTPUT)
 print('DONE')

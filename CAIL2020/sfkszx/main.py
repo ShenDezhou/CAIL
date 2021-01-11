@@ -1,14 +1,13 @@
 import json
 import os
-import jieba
 
 data_path = "/input/"
 test_path = "data"
 output_path = "/output"
 
 if __name__ == "__main__":
-    os.system(
-        "sudo /home/user/miniconda/bin/python3 utils/cutter.py --data /input/ --output data/cutted")
+    # os.system(
+    #     "sudo /home/user/miniconda/bin/python3 utils/jiebacutter.py --data /input/ --output data/cutted")
     os.system(
         "sudo /home/user/miniconda/bin/python3 test.py --gpu 0 --config config/model.config --checkpoint torchmodel/model.bin --result result.json")
     result = {}

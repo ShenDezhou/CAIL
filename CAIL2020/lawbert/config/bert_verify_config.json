@@ -11,7 +11,7 @@
 
   "batch_size": 2,
 
-  "bert_model_path": "model",
+  "bert_model_path": "../lawberta_wwm_ext",
   "trained_weight":"",
 
   "is_AKDE": true,

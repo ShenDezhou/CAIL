@@ -1,5 +1,5 @@
 #coding: utf-8
-infile = "../input/data.json"
+infile = "../data/data.json"
 outfile = "../result/result.json"
 def main():
     data = open(infile,"r")

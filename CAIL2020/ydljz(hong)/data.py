@@ -1,6 +1,6 @@
 """Data processor for SMP-CAIL2020-Argmine.
 
-Author: Yixu GAO (yxgao19@fudan.edu.cn)
+Author: Tsinghuaboy (tsinghua9boy@sina.com)
 
 In data file, each line contains 1 sc sentence and 5 bc sentences.
 The data processor convert each line into 5 samples,
@@ -44,7 +44,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
-max_support_sents = 45
+max_support_sents = 26
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
@@ -416,13 +416,10 @@ class Data:
 
                         offset = sent.find(tmp_answer, offset + 1)
                         if offset != -1:
-                            valid=False
-                            for sup_id in sup_facts_sent_id:
-                                start_, end_ = sent_start_end_position[sup_id]
-                                if offset >= start_ and offset <= end_:
-                                    valid=True
-                            if valid:
-                                answer_offsets.append(offset)  # 把所有相同答案的开始位置都找到
+                            #不在supporting_fact中则不添加到answer_offsets，去找正确的那段
+                            if local_sent_id not in sup_facts_sent_id:
+                                break
+                            answer_offsets.append(offset)  # 把所有相同答案的开始位置都找到
                         else:
                             break
 
@@ -664,9 +661,8 @@ class Data:
                     each record: (input_ids, input_mask, segment_ids)
         """
         IGNORE_INDEX = -100
-        max_seq_len = 512
         sent_limit = max_support_sents
-        max_query_len  = 50
+        # max_query_len  = 50
 
         doc_input_ids, doc_input_mask, doc_segment_ids, query_mapping = [],[],[],[]
         start_mapping, all_mapping, is_support = [], [], []
@@ -676,15 +672,15 @@ class Data:
             doc_input_ids.append(features.doc_input_ids)
             doc_input_mask.append(features.doc_input_mask)
             doc_segment_ids.append(features.doc_segment_ids)
-            query_mapping_ = torch.Tensor(max_seq_len)
+            query_mapping_ = torch.Tensor(self.max_seq_len)
 
-            if len(features.token_to_orig_map) <= 512:
-                features.token_to_orig_map = features.token_to_orig_map + [0]*(512-len(features.token_to_orig_map))
-            features.token_to_orig_map = features.token_to_orig_map[:512]
+            if len(features.token_to_orig_map) <= self.max_seq_len:
+                features.token_to_orig_map = features.token_to_orig_map + [0]*(self.max_seq_len-len(features.token_to_orig_map))
+            features.token_to_orig_map = features.token_to_orig_map[:self.max_seq_len]
             tok_to_orig_index.append(features.token_to_orig_map)
 
-            start_mapping_ = torch.Tensor(sent_limit, max_seq_len)
-            all_mapping_ = torch.Tensor(max_seq_len, sent_limit)
+            start_mapping_ = torch.Tensor(sent_limit, self.max_seq_len)
+            all_mapping_ = torch.Tensor(self.max_seq_len, sent_limit)
             is_support_ = [0] * sent_limit
 
 
@@ -700,7 +696,7 @@ class Data:
                 if len(features.end_position) == 0:
                     y1.append(0)
                     y2.append(0)  # 如果结束位置是0，span的标签就为0
-                elif features.end_position[0] < max_seq_len:
+                elif features.end_position[0] < self.max_seq_len:
                     y1.append(features.start_position[0])  # 只用第一个找到的span
                     y2.append(features.end_position[0])
                 else:

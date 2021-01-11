@@ -11,7 +11,7 @@
 
   "batch_size": 1,
 
-  "bert_model_path": "F:\\wwm_large_ext",
+  "bert_model_path": "J:\\wwm_large_ext",
   "trained_weight":"",
 
   "is_AKDE": true,

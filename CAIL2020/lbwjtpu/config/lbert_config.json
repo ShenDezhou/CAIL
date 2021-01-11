@@ -4,16 +4,17 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/train.csv",
+  "train_file_path": "data/valid.csv",
   "valid_file_path": "data/valid.csv",
 
   "batch_size": 3,
 
-  "bert_model_path": "../wwm_large_ext",
+  "bert_model_path": "F:\\4_model\\roberta3_large_ext",
   "trained_weight":"",
 
   "num_fc_hidden_size": 16,
-  "resnet_type": 0,
+  "in_channels": 3,
+  "layers": 18,
 
   "hidden_size": 1024,
   "num_classes": 2,

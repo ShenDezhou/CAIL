@@ -1,6 +1,6 @@
 """Separate train and valid set for train file.
 
-Author: Yixu GAO yxgao19@fudan.edu.cn
+Author: Tsinghuaboy tsinghua9boy@sina.com
 
 Usage:
     python prepare.py --train_in 'data/SMP-CAIL2020-train.csv' \

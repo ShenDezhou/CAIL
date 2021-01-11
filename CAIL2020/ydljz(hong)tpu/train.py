@@ -612,14 +612,10 @@ def main(config_file='config/bert_config.json'):
     #     tracker = xm.RateTracker()
     #     for x, batch in enumerate(loader):
     #         start_logits, end_logits, type_logits, sp_logits, start_position, end_position = model(*batch)
-    #         loss1 = self.criterion(start_logits, batch[6]) + self.criterion(end_logits, batch[7])#y1,y2
-    #         loss2 = self.config.type_lambda * self.criterion(type_logits, batch[8])#q_type
-    #         sent_num_in_batch = batch[9].sum()  # start_mapping
-    #         sp_value = self.sp_loss_fct(sp_logits.view(-1), batch[10].float().view(-1)).sum()
-    #         if sent_num_in_batch != 0:
-    #             loss3 = self.config.sp_lambda * sp_value / sent_num_in_batch
-    #         else:
-    #             loss3 = self.config.sp_lambda * sp_value * 1e30
+    #         loss1 = criterion(start_logits, batch[6]) + criterion(end_logits, batch[7])#y1,y2
+    #         loss2 = config.type_lambda * criterion(type_logits, batch[8])#q_type
+    #         loss3 = sp_loss_fct(sp_logits.view(-1),
+    #                             batch[10].float().view(-1)).sum() * config.sp_lambda / batch[9].sum()  # is_support
     #
     #         loss = loss1 + loss2 + loss3
     #         loss_list = [loss, loss1, loss2, loss3]
