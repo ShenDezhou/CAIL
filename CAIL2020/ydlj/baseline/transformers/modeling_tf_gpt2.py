@@ -293,7 +293,7 @@ class TFGPT2MainLayer(tf.keras.layers.Layer):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         if not head_mask is None:
             raise NotImplementedError
@@ -381,12 +381,12 @@ GPT2_START_DOCSTRING = r"""    OpenAI GPT-2 model was proposed in
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -397,7 +397,7 @@ GPT2_START_DOCSTRING = r"""    OpenAI GPT-2 model was proposed in
 
 GPT2_INPUTS_DOCSTRING = r"""    Inputs:
         **input_ids**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             GPT-2 is a model with absolute position embeddings so it's usually advised to pad the inputs on
             the right rather than the left.
             Indices can be obtained using :class:`transformers.BPT2Tokenizer`.
@@ -416,7 +416,7 @@ GPT2_INPUTS_DOCSTRING = r"""    Inputs:
             The embeddings from these tokens will be summed with the respective token embeddings.
             Indices are selected in the vocabulary (unlike BERT which has a specific vocabulary for segment indices).
         **position_ids**: (`optional`) ```Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **head_mask**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -438,7 +438,7 @@ class TFGPT2Model(TFGPT2PreTrainedModel):
         **past**:
             list of ``tf.Tensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding.
+            Can be used (see `past` data) to speed up sequential decoding.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -469,7 +469,7 @@ class TFGPT2Model(TFGPT2PreTrainedModel):
 
 
 @add_start_docstrings("""The GPT2 Model transformer with a language modeling head on top
-(linear layer with weights tied to the input embeddings). """, GPT2_START_DOCSTRING, GPT2_INPUTS_DOCSTRING)
+(linear layer with weights tied to the data embeddings). """, GPT2_START_DOCSTRING, GPT2_INPUTS_DOCSTRING)
 class TFGPT2LMHeadModel(TFGPT2PreTrainedModel):
     r"""
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
@@ -478,7 +478,7 @@ class TFGPT2LMHeadModel(TFGPT2PreTrainedModel):
         **past**:
             list of `tf.Tensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding.
+            Can be used (see `past` data) to speed up sequential decoding.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of `tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -520,13 +520,13 @@ class TFGPT2LMHeadModel(TFGPT2PreTrainedModel):
 
 @add_start_docstrings("""The GPT2 Model transformer with a language modeling and a multiple-choice classification
 head on top e.g. for RocStories/SWAG tasks. The two heads are two linear layers.
-The language modeling head has its weights tied to the input embeddings,
-the classification head takes as input the input of a specified classification token index in the input sequence).
+The language modeling head has its weights tied to the data embeddings,
+the classification head takes as data the data of a specified classification token index in the data sequence).
 """, GPT2_START_DOCSTRING, GPT2_INPUTS_DOCSTRING)
 class TFGPT2DoubleHeadsModel(TFGPT2PreTrainedModel):
     r"""
-        **mc_token_ids**: (`optional`, default to index of the last token of the input) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, num_choices)``:
-            Index of the classification token in each input sequence.
+        **mc_token_ids**: (`optional`, default to index of the last token of the data) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, num_choices)``:
+            Index of the classification token in each data sequence.
             Selected in the range ``[0, input_ids.size(-1) - 1[``.
 
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
@@ -537,7 +537,7 @@ class TFGPT2DoubleHeadsModel(TFGPT2PreTrainedModel):
         **past**:
             list of `tf.Tensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding.
+            Can be used (see `past` data) to speed up sequential decoding.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of `tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:

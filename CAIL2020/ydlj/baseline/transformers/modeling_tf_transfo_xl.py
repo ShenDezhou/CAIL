@@ -66,7 +66,7 @@ class TFPositionwiseFF(tf.keras.layers.Layer):
 
         self.layer_1 = tf.keras.layers.Dense(d_inner,
                                              kernel_initializer=get_initializer(init_std),
-                                             activation=tf.nn.relu,
+                                             activation=tf.nn.gelu,
                                              name='CoreNet_._0')
         self.drop_1 = tf.keras.layers.Dropout(dropout)
         self.layer_2 = tf.keras.layers.Dense(d_model,
@@ -499,7 +499,7 @@ class TFTransfoXLMainLayer(tf.keras.layers.Layer):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
         # and head_mask is converted to shape [num_hidden_layers x qlen x klen x bsz x n_head]
         if not head_mask is None:
             raise NotImplementedError
@@ -610,12 +610,12 @@ TRANSFO_XL_START_DOCSTRING = r"""    The Transformer-XL model was proposed in
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -627,7 +627,7 @@ TRANSFO_XL_START_DOCSTRING = r"""    The Transformer-XL model was proposed in
 TRANSFO_XL_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             Transformer-XL is a model with relative position embeddings so you can either pad the inputs on
             the right or on the left.
             Indices can be obtained using :class:`transformers.TransfoXLTokenizer`.
@@ -657,7 +657,7 @@ class TFTransfoXLModel(TFTransfoXLPreTrainedModel):
         **mems**:
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
-            (see `mems` input above). Can be used to speed up sequential decoding and attend to longer context.
+            (see `mems` data above). Can be used to speed up sequential decoding and attend to longer context.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -688,7 +688,7 @@ class TFTransfoXLModel(TFTransfoXLPreTrainedModel):
 
 
 @add_start_docstrings("""The Transformer-XL Model with a language modeling head on top
-    (adaptive softmax with weights tied to the adaptive input embeddings)""",
+    (adaptive softmax with weights tied to the adaptive data embeddings)""",
     TRANSFO_XL_START_DOCSTRING, TRANSFO_XL_INPUTS_DOCSTRING)
 class TFTransfoXLLMHeadModel(TFTransfoXLPreTrainedModel):
     r"""
@@ -699,7 +699,7 @@ class TFTransfoXLLMHeadModel(TFTransfoXLPreTrainedModel):
         **mems**:
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
-            (see `mems` input above). Can be used to speed up sequential decoding and attend to longer context.
+            (see `mems` data above). Can be used to speed up sequential decoding and attend to longer context.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:

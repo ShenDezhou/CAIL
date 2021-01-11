@@ -361,7 +361,7 @@ CTRL_START_DOCSTRING = r"""    CTRL model was proposed in
 
 CTRL_INPUTS_DOCSTRING = r"""    Inputs:
         **input_ids**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             CTRL is a model with absolute position embeddings so it's usually advised to pad the inputs on
             the right rather than the left.
             Indices can be obtained using :class:`transformers.CTRLTokenizer`.
@@ -380,7 +380,7 @@ CTRL_INPUTS_DOCSTRING = r"""    Inputs:
             The embeddings from these tokens will be summed with the respective token embeddings.
             Indices are selected in the vocabulary (unlike BERT which has a specific vocabulary for segment indices).
         **position_ids**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **head_mask**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -402,7 +402,7 @@ class TFCTRLModel(TFCTRLPreTrainedModel):
         **past**:
             list of ``tf.Tensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding.
+            Can be used (see `past` data) to speed up sequential decoding.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -437,7 +437,7 @@ class TFCTRLLMHead(tf.keras.layers.Layer):
         super(TFCTRLLMHead, self).__init__(**kwargs)
         self.vocab_size = config.vocab_size
 
-        # The output weights are the same as the input embeddings, but there is
+        # The output weights are the same as the data embeddings, but there is
         # an output-only bias for each token.
         self.input_embeddings = input_embeddings
 
@@ -455,7 +455,7 @@ class TFCTRLLMHead(tf.keras.layers.Layer):
 
 
 @add_start_docstrings("""The CTRL Model transformer with a language modeling head on top
-(linear layer with weights tied to the input embeddings). """, CTRL_START_DOCSTRING, CTRL_INPUTS_DOCSTRING)
+(linear layer with weights tied to the data embeddings). """, CTRL_START_DOCSTRING, CTRL_INPUTS_DOCSTRING)
 class TFCTRLLMHeadModel(TFCTRLPreTrainedModel):
     r"""
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
@@ -464,7 +464,7 @@ class TFCTRLLMHeadModel(TFCTRLPreTrainedModel):
         **past**:
             list of ``tf.Tensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding.
+            Can be used (see `past` data) to speed up sequential decoding.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:

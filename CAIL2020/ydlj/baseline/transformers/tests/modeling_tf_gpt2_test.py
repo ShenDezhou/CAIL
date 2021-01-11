@@ -140,7 +140,7 @@ class TFGPT2ModelTest(TFCommonTestCases.TFCommonModelTester):
                       'token_type_ids': token_type_ids}
             sequence_output = model(inputs)[0]
 
-            inputs = [input_ids, None, input_mask]  # None is the input for 'past'
+            inputs = [input_ids, None, input_mask]  # None is the data for 'past'
             sequence_output = model(inputs)[0]
 
             sequence_output = model(input_ids)[0]

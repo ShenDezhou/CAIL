@@ -218,7 +218,7 @@ class TFMultiHeadSelfAttention(tf.keras.layers.Layer):
         query, key, value, mask, head_mask = inputs
         bs, q_length, dim = shape_list(query)
         k_length = shape_list(key)[1]
-        # assert dim == self.dim, 'Dimensions do not match: %s input vs %s configured' % (dim, self.dim)
+        # assert dim == self.dim, 'Dimensions do not match: %s data vs %s configured' % (dim, self.dim)
         # assert key.size() == value.size()
 
         dim_per_head = self.dim // self.n_heads
@@ -270,7 +270,7 @@ class TFFFN(tf.keras.layers.Layer):
                                           kernel_initializer=get_initializer(config.initializer_range),
                                           name="lin2")
         assert config.activation in ['relu', 'gelu'], "activation ({}) must be in ['relu', 'gelu']".format(config.activation)
-        self.activation = tf.keras.layers.Activation(gelu) if config.activation=='gelu' else tf.keras.activations.relu
+        self.activation = tf.keras.layers.Activation(gelu) if config.activation=='gelu' else tf.keras.activations.gelu
 
     def call(self, input, training=False):
         x = self.lin1(input)
@@ -445,7 +445,7 @@ class TFDistilBertMainLayer(tf.keras.layers.Layer):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         if head_mask is not None:
             raise NotImplementedError
@@ -477,7 +477,7 @@ DISTILBERT_START_DOCSTRING = r"""
     Here are the differences between the interface of Bert and DistilBert:
 
     - DistilBert doesn't have `token_type_ids`, you don't need to indicate which token belongs to which segment. Just separate your segments with the separation token `tokenizer.sep_token` (or `[SEP]`)
-    - DistilBert doesn't have options to select the input positions (`position_ids` input). This could be added if necessary though, just let's us know if you need this option.
+    - DistilBert doesn't have options to select the data positions (`position_ids` data). This could be added if necessary though, just let's us know if you need this option.
 
     For more information on DistilBERT, please refer to our
     `detailed blog post`_
@@ -499,12 +499,12 @@ DISTILBERT_START_DOCSTRING = r"""
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -516,8 +516,8 @@ DISTILBERT_START_DOCSTRING = r"""
 DISTILBERT_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids** ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            The input sequences should start with `[CLS]` and end with `[SEP]` tokens.
+            Indices of data sequence tokens in the vocabulary.
+            The data sequences should start with `[CLS]` and end with `[SEP]` tokens.
             
             For now, ONLY BertTokenizer(`bert-base-uncased`) is supported and you should use this tokenizer when using DistilBERT.
         **attention_mask**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
@@ -575,7 +575,7 @@ class TFDistilBertLMHead(tf.keras.layers.Layer):
         super(TFDistilBertLMHead, self).__init__(**kwargs)
         self.vocab_size = config.vocab_size
 
-        # The output weights are the same as the input embeddings, but there is
+        # The output weights are the same as the data embeddings, but there is
         # an output-only bias for each token.
         self.input_embeddings = input_embeddings
 

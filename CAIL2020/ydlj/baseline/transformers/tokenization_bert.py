@@ -113,7 +113,7 @@ class BertTokenizer(PreTrainedTokenizer):
 
     Args:
         vocab_file: Path to a one-wordpiece-per-line vocabulary file
-        do_lower_case: Whether to lower case the input. Only has an effect when do_wordpiece_only=False
+        do_lower_case: Whether to lower case the data. Only has an effect when do_wordpiece_only=False
         do_basic_tokenize: Whether to do basic tokenization before wordpiece.
         max_len: An artificial maximum length to truncate tokenized sequences to; Effective maximum length is always the
             minimum of this value (if specified) and the underlying BERT model's sequence length.
@@ -134,7 +134,7 @@ class BertTokenizer(PreTrainedTokenizer):
         Args:
             **vocab_file**: Path to a one-wordpiece-per-line vocabulary file
             **do_lower_case**: (`optional`) boolean (default True)
-                Whether to lower case the input
+                Whether to lower case the data
                 Only has an effect when do_basic_tokenize=True
             **do_basic_tokenize**: (`optional`) boolean (default True)
                 Whether to do basic tokenization before wordpiece.
@@ -273,7 +273,7 @@ class BasicTokenizer(object):
         """ Constructs a BasicTokenizer.
 
         Args:
-            **do_lower_case**: Whether to lower case the input.
+            **do_lower_case**: Whether to lower case the data.
             **never_split**: (`optional`) list of str
                 Kept for backward compatibility purposes.
                 Now implemented directly at the base class level (see :func:`PreTrainedTokenizer.tokenize`)
@@ -417,7 +417,7 @@ class WordpieceTokenizer(object):
         using the given vocabulary.
 
         For example:
-          input = "unaffable"
+          data = "unaffable"
           output = ["un", "##aff", "##able"]
 
         Args:

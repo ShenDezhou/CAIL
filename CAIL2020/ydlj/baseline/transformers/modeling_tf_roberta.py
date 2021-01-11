@@ -110,12 +110,12 @@ ROBERTA_START_DOCSTRING = r"""    The RoBERTa model was proposed in
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -127,8 +127,8 @@ ROBERTA_START_DOCSTRING = r"""    The RoBERTa model was proposed in
 ROBERTA_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            To match pre-training, RoBERTa input sequence should be formatted with <s> and </s> tokens as follows:
+            Indices of data sequence tokens in the vocabulary.
+            To match pre-training, RoBERTa data sequence should be formatted with <s> and </s> tokens as follows:
 
             (a) For sequence pairs:
 
@@ -158,7 +158,7 @@ ROBERTA_INPUTS_DOCSTRING = r"""
             corresponds to a `sentence B` token
             (see `BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding`_ for more details).
         **position_ids**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1[``.
         **head_mask**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -182,8 +182,8 @@ class TFRobertaModel(TFRobertaPreTrainedModel):
             further processed by a Linear layer and a Tanh activation function. The Linear
             layer weights are trained from the next sentence prediction (classification)
             objective during Bert pretraining. This output is usually *not* a good summary
-            of the semantic content of the input, you're often better with averaging or pooling
-            the sequence of hidden-states for the whole input sequence.
+            of the semantic content of the data, you're often better with averaging or pooling
+            the sequence of hidden-states for the whole data sequence.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -224,7 +224,7 @@ class TFRobertaLMHead(tf.keras.layers.Layer):
         self.layer_norm = tf.keras.layers.LayerNormalization(epsilon=config.layer_norm_eps, name='layer_norm')
         self.act = tf.keras.layers.Activation(gelu)
 
-        # The output weights are the same as the input embeddings, but there is
+        # The output weights are the same as the data embeddings, but there is
         # an output-only bias for each token.
         self.decoder = input_embeddings
 

@@ -479,13 +479,13 @@ XLNET_START_DOCSTRING = r"""    The XLNet model was proposed in
     by Zhilin Yang*, Zihang Dai*, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le.
     XLnet is an extension of the Transformer-XL model pre-trained using an autoregressive method
     to learn bidirectional contexts by maximizing the expected likelihood over all permutations
-    of the input sequence factorization order.
+    of the data sequence factorization order.
 
-    The specific attention pattern can be controlled at training and test time using the `perm_mask` input.
+    The specific attention pattern can be controlled at training and test time using the `perm_mask` data.
 
     Do to the difficulty of training a fully auto-regressive model over various factorization order,
     XLNet is pretrained using only a sub-set of the output tokens as target which are selected
-    with the `target_mapping` input.
+    with the `target_mapping` data.
 
     To use XLNet for sequential decoding (i.e. not in fully bi-directional setting), use the `perm_mask` and
     `target_mapping` inputs to control the attention span and outputs (see examples in `examples/run_generation.py`)
@@ -508,7 +508,7 @@ XLNET_START_DOCSTRING = r"""    The XLNet model was proposed in
 XLNET_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             XLNet is a model with relative position embeddings so you can either pad the inputs on
             the right or on the left.
             Indices can be obtained using :class:`transformers.XLNetTokenizer`.
@@ -530,9 +530,9 @@ XLNET_INPUTS_DOCSTRING = r"""
             (see `mems` output below). Can be used to speed up sequential decoding and attend to longer context.
             To activate mems you need to set up config.mem_len to a positive value which will be the max number of tokens in
             the memory output by the model. E.g. `model = XLNetModel.from_pretrained('xlnet-base-case, mem_len=1024)` will
-            instantiate a model which can use up to 1024 tokens of memory (in addition to the input it self).
+            instantiate a model which can use up to 1024 tokens of memory (in addition to the data it self).
         **perm_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(batch_size, sequence_length, sequence_length)``:
-            Mask to indicate the attention pattern for each input token with values selected in ``[0, 1]``:
+            Mask to indicate the attention pattern for each data token with values selected in ``[0, 1]``:
             If ``perm_mask[k, i, j] = 0``, i attend to j in batch k;
             if ``perm_mask[k, i, j] = 1``, i does not attend to j in batch k.
             If None, each token attends to all the others (full bidirectional attention).
@@ -575,7 +575,7 @@ class XLNetModel(XLNetPreTrainedModel):
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -756,7 +756,7 @@ class XLNetModel(XLNetPreTrainedModel):
         else:
             raise ValueError('Unsupported attention type: {}'.format(self.attn_type))
 
-        # data mask: input mask & perm mask
+        # data mask: data mask & perm mask
         assert input_mask is None or attention_mask is None, "You can only use one of input_mask (uses 1 for padding) "
         "or attention_mask (uses 0 for padding, added for compatbility with BERT). Please choose one."
         if input_mask is None and attention_mask is not None:
@@ -799,7 +799,7 @@ class XLNetModel(XLNetPreTrainedModel):
         output_h = self.dropout(word_emb_k)
         if target_mapping is not None:
             word_emb_q = self.mask_emb.expand(target_mapping.shape[0], bsz, -1)
-        # else:  # We removed the inp_q input which was same as target mapping
+        # else:  # We removed the inp_q data which was same as target mapping
         #     inp_q_ext = inp_q[:, :, None]
         #     word_emb_q = inp_q_ext * self.mask_emb + (1 - inp_q_ext) * word_emb_k
             output_g = self.dropout(word_emb_q)
@@ -828,7 +828,7 @@ class XLNetModel(XLNetPreTrainedModel):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
         # and head_mask is converted to shape [num_hidden_layers x qlen x klen x bsz x n_head]
         if head_mask is not None:
             if head_mask.dim() == 1:
@@ -890,7 +890,7 @@ class XLNetModel(XLNetPreTrainedModel):
 
 
 @add_start_docstrings("""XLNet Model with a language modeling head on top
-    (linear layer with weights tied to the input embeddings). """,
+    (linear layer with weights tied to the data embeddings). """,
     XLNET_START_DOCSTRING, XLNET_INPUTS_DOCSTRING)
 class XLNetLMHeadModel(XLNetPreTrainedModel):
     r"""
@@ -910,7 +910,7 @@ class XLNetLMHeadModel(XLNetPreTrainedModel):
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -993,7 +993,7 @@ class XLNetForSequenceClassification(XLNetPreTrainedModel):
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -1061,8 +1061,8 @@ class XLNetForTokenClassification(XLNetPreTrainedModel):
     r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            The second dimension of the input (`num_choices`) indicates the number of choices to scores.
+            Indices of data sequence tokens in the vocabulary.
+            The second dimension of the data (`num_choices`) indicates the number of choices to scores.
         **token_type_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Segment token indices to indicate first and second portions of the inputs.
             Indices are selected in ``[0, 1]``: ``0`` corresponds to a `sentence A` token, ``1``
@@ -1081,7 +1081,7 @@ class XLNetForTokenClassification(XLNetPreTrainedModel):
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above)
+            of the data tensors. (see `input_ids` above)
 
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
         **loss**: (`optional`, returned when ``labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
@@ -1092,7 +1092,7 @@ class XLNetForTokenClassification(XLNetPreTrainedModel):
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -1160,15 +1160,15 @@ class XLNetForMultipleChoice(XLNetPreTrainedModel):
     r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            The second dimension of the input (`num_choices`) indicates the number of choices to scores.
+            Indices of data sequence tokens in the vocabulary.
+            The second dimension of the data (`num_choices`) indicates the number of choices to scores.
         **token_type_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
             Segment token indices to indicate first and second portions of the inputs.
-            The second dimension of the input (`num_choices`) indicates the number of choices to score.
+            The second dimension of the data (`num_choices`) indicates the number of choices to score.
             Indices are selected in ``[0, 1]``: ``0`` corresponds to a `sentence A` token, ``1``
         **attention_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
             Mask to avoid performing attention on padding token indices.
-            The second dimension of the input (`num_choices`) indicates the number of choices to score.
+            The second dimension of the data (`num_choices`) indicates the number of choices to score.
             Mask values selected in ``[0, 1]``:
             ``1`` for tokens that are NOT MASKED, ``0`` for MASKED tokens.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
@@ -1182,19 +1182,19 @@ class XLNetForMultipleChoice(XLNetPreTrainedModel):
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above)
+            of the data tensors. (see `input_ids` above)
 
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
         **loss**: (`optional`, returned when ``labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
             Classification loss.
         **classification_scores**: ``torch.FloatTensor`` of shape ``(batch_size, num_choices)`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above).
+            of the data tensors. (see `input_ids` above).
             Classification scores (before SoftMax).
         **mems**: (`optional`, returned when ``config.mem_len > 0``)
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -1280,7 +1280,7 @@ class XLNetForQuestionAnsweringSimple(XLNetPreTrainedModel):
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -1368,7 +1368,7 @@ class XLNetForQuestionAnswering(XLNetPreTrainedModel):
         **is_impossible**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels whether a question has an answer or no answer (SQuAD 2.0)
         **cls_index**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
-            Labels for position (index) of the classification token to use as input for computing plausibility of the answer.
+            Labels for position (index) of the classification token to use as data for computing plausibility of the answer.
         **p_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(batch_size, sequence_length)``:
             Optional mask of tokens which can't be in answers (e.g. [CLS], [PAD], ...).
             1.0 means token should be masked. 0.0 mean token is not masked.
@@ -1395,7 +1395,7 @@ class XLNetForQuestionAnswering(XLNetPreTrainedModel):
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:

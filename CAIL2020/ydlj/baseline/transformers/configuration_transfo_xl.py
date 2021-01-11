@@ -39,8 +39,8 @@ class TransfoXLConfig(PretrainedConfig):
             d_model: Dimensionality of the model's hidden states.
             d_embed: Dimensionality of the embeddings
             d_head: Dimensionality of the model's heads.
-            div_val: divident value for adapative input and softmax
-            pre_lnorm: apply LayerNorm to the input instead of the output
+            div_val: divident value for adapative data and softmax
+            pre_lnorm: apply LayerNorm to the data instead of the output
             d_inner: Inner dimension in FF
             n_layer: Number of hidden layers in the Transformer encoder.
             n_head: Number of attention heads for each attention layer in

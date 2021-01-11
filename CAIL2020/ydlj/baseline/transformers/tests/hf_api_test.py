@@ -25,7 +25,7 @@ USER = "__DUMMY_TRANSFORMERS_USER__"
 PASS = "__DUMMY_TRANSFORMERS_PASS__"
 FILE_KEY = "Test-{}.txt".format(int(time.time()))
 FILE_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "fixtures/input.txt"
+    os.path.dirname(os.path.abspath(__file__)), "fixtures/data.txt"
 )
 
 

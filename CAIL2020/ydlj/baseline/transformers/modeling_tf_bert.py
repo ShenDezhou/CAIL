@@ -83,7 +83,7 @@ def swish(x):
 
 
 ACT2FN = {"gelu": tf.keras.layers.Activation(gelu),
-          "relu": tf.keras.activations.relu,
+          "relu": tf.keras.activations.gelu,
           "swish": tf.keras.layers.Activation(swish),
           "gelu_new": tf.keras.layers.Activation(gelu_new)}
 
@@ -421,7 +421,7 @@ class TFBertLMPredictionHead(tf.keras.layers.Layer):
         self.vocab_size = config.vocab_size
         self.transform = TFBertPredictionHeadTransform(config, name='transform')
 
-        # The output weights are the same as the input embeddings, but there is
+        # The output weights are the same as the data embeddings, but there is
         # an output-only bias for each token.
         self.input_embeddings = input_embeddings
 
@@ -536,7 +536,7 @@ class TFBertMainLayer(tf.keras.layers.Layer):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         if not head_mask is None:
             raise NotImplementedError
@@ -586,12 +586,12 @@ BERT_START_DOCSTRING = r"""    The BERT model was proposed in
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -603,8 +603,8 @@ BERT_START_DOCSTRING = r"""    The BERT model was proposed in
 BERT_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            To match pre-training, BERT input sequence should be formatted with [CLS] and [SEP] tokens as follows:
+            Indices of data sequence tokens in the vocabulary.
+            To match pre-training, BERT data sequence should be formatted with [CLS] and [SEP] tokens as follows:
 
             (a) For sequence pairs:
 
@@ -634,7 +634,7 @@ BERT_INPUTS_DOCSTRING = r"""
             corresponds to a `sentence B` token
             (see `BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding`_ for more details).
         **position_ids**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **head_mask**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -658,8 +658,8 @@ class TFBertModel(TFBertPreTrainedModel):
             further processed by a Linear layer and a Tanh activation function. The Linear
             layer weights are trained from the next sentence prediction (classification)
             objective during Bert pretraining. This output is usually *not* a good summary
-            of the semantic content of the input, you're often better with averaging or pooling
-            the sequence of hidden-states for the whole input sequence.
+            of the semantic content of the data, you're often better with averaging or pooling
+            the sequence of hidden-states for the whole data sequence.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -890,7 +890,7 @@ class TFBertForMultipleChoice(TFBertPreTrainedModel):
     r"""
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
         **classification_scores**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, num_choices)`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above).
+            of the data tensors. (see `input_ids` above).
             Classification scores (before SoftMax).
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``Numpy array`` or ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)

@@ -303,7 +303,7 @@ OPENAI_GPT_START_DOCSTRING = r"""    OpenAI GPT model was proposed in
 
 OPENAI_GPT_INPUTS_DOCSTRING = r"""    Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             GPT is a model with absolute position embeddings so it's usually advised to pad the inputs on
             the right rather than the left.
             Indices can be obtained using :class:`transformers.BPT2Tokenizer`.
@@ -318,7 +318,7 @@ OPENAI_GPT_INPUTS_DOCSTRING = r"""    Inputs:
             The embeddings from these tokens will be summed with the respective token embeddings.
             Indices are selected in the vocabulary (unlike BERT which has a specific vocabulary for segment indices)
         **position_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -464,7 +464,7 @@ class OpenAIGPTModel(OpenAIGPTPreTrainedModel):
 
 
 @add_start_docstrings("""OpenAI GPT Model transformer with a language modeling head on top
-(linear layer with weights tied to the input embeddings). """, OPENAI_GPT_START_DOCSTRING, OPENAI_GPT_INPUTS_DOCSTRING)
+(linear layer with weights tied to the data embeddings). """, OPENAI_GPT_START_DOCSTRING, OPENAI_GPT_INPUTS_DOCSTRING)
 class OpenAIGPTLMHeadModel(OpenAIGPTPreTrainedModel):
     r"""
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
@@ -533,13 +533,13 @@ class OpenAIGPTLMHeadModel(OpenAIGPTPreTrainedModel):
 
 @add_start_docstrings("""OpenAI GPT Model transformer with a language modeling and a multiple-choice classification
 head on top e.g. for RocStories/SWAG tasks. The two heads are two linear layers.
-The language modeling head has its weights tied to the input embeddings,
-the classification head takes as input the input of a specified classification token index in the input sequence).
+The language modeling head has its weights tied to the data embeddings,
+the classification head takes as data the data of a specified classification token index in the data sequence).
 """, OPENAI_GPT_START_DOCSTRING, OPENAI_GPT_INPUTS_DOCSTRING)
 class OpenAIGPTDoubleHeadsModel(OpenAIGPTPreTrainedModel):
     r"""
-        **mc_token_ids**: (`optional`, default to index of the last token of the input) ``torch.LongTensor`` of shape ``(batch_size, num_choices)``:
-            Index of the classification token in each input sequence.
+        **mc_token_ids**: (`optional`, default to index of the last token of the data) ``torch.LongTensor`` of shape ``(batch_size, num_choices)``:
+            Index of the classification token in each data sequence.
             Selected in the range ``[0, input_ids.size(-1) - 1[``.
         **lm_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Labels for language modeling.
@@ -550,7 +550,7 @@ class OpenAIGPTDoubleHeadsModel(OpenAIGPTPreTrainedModel):
         **mc_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above)
+            of the data tensors. (see `input_ids` above)
 
             `multiple_choice_labels`: optional multiple choice labels: ``torch.LongTensor`` of shape [batch_size]
                 with indices selected in [0, ..., num_choices].

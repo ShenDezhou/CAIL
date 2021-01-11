@@ -99,8 +99,8 @@ ROBERTA_START_DOCSTRING = r"""    The RoBERTa model was proposed in
 ROBERTA_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            To match pre-training, RoBERTa input sequence should be formatted with <s> and </s> tokens as follows:
+            Indices of data sequence tokens in the vocabulary.
+            To match pre-training, RoBERTa data sequence should be formatted with <s> and </s> tokens as follows:
 
             (a) For sequence pairs:
 
@@ -130,7 +130,7 @@ ROBERTA_INPUTS_DOCSTRING = r"""
             corresponds to a `sentence B` token
             (see `BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding`_ for more details).
         **position_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1[``.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -154,8 +154,8 @@ class RobertaModel(BertModel):
             further processed by a Linear layer and a Tanh activation function. The Linear
             layer weights are trained from the next sentence prediction (classification)
             objective during Bert pretraining. This output is usually *not* a good summary
-            of the semantic content of the input, you're often better with averaging or pooling
-            the sequence of hidden-states for the whole input sequence.
+            of the semantic content of the data, you're often better with averaging or pooling
+            the sequence of hidden-states for the whole data sequence.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -356,9 +356,9 @@ class RobertaForMultipleChoice(BertPreTrainedModel):
     r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            The second dimension of the input (`num_choices`) indicates the number of choices to score.
-            To match pre-training, RoBerta input sequence should be formatted with [CLS] and [SEP] tokens as follows:
+            Indices of data sequence tokens in the vocabulary.
+            The second dimension of the data (`num_choices`) indicates the number of choices to score.
+            To match pre-training, RoBerta data sequence should be formatted with [CLS] and [SEP] tokens as follows:
 
             (a) For sequence pairs:
 
@@ -377,11 +377,11 @@ class RobertaForMultipleChoice(BertPreTrainedModel):
             :func:`transformers.PreTrainedTokenizer.convert_tokens_to_ids` for details.
         **token_type_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
             Segment token indices to indicate first and second portions of the inputs.
-            The second dimension of the input (`num_choices`) indicates the number of choices to score.
+            The second dimension of the data (`num_choices`) indicates the number of choices to score.
             Indices are selected in ``[0, 1]``: ``0`` corresponds to a `sentence A` token, ``1``
         **attention_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(batch_size, num_choices, sequence_length)``:
             Mask to avoid performing attention on padding token indices.
-            The second dimension of the input (`num_choices`) indicates the number of choices to score.
+            The second dimension of the data (`num_choices`) indicates the number of choices to score.
             Mask values selected in ``[0, 1]``:
             ``1`` for tokens that are NOT MASKED, ``0`` for MASKED tokens.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
@@ -395,13 +395,13 @@ class RobertaForMultipleChoice(BertPreTrainedModel):
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above)
+            of the data tensors. (see `input_ids` above)
 
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
         **loss**: (`optional`, returned when ``labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
             Classification loss.
         **classification_scores**: ``torch.FloatTensor`` of shape ``(batch_size, num_choices)`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above).
+            of the data tensors. (see `input_ids` above).
             Classification scores (before SoftMax).
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)

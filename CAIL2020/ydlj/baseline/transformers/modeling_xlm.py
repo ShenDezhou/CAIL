@@ -145,7 +145,7 @@ class MultiHeadAttention(nn.Module):
             klen = qlen if cache is None else cache['slen'] + qlen
         else:
             klen = kv.size(1)
-        # assert dim == self.dim, 'Dimensions do not match: %s input vs %s configured' % (dim, self.dim)
+        # assert dim == self.dim, 'Dimensions do not match: %s data vs %s configured' % (dim, self.dim)
         n_heads = self.n_heads
         dim_per_head = self.dim // n_heads
         mask_reshape = (bs, 1, qlen, klen) if mask.dim() == 3 else (bs, 1, 1, klen)
@@ -273,7 +273,7 @@ XLM_START_DOCSTRING = r"""    The XLM model was proposed in
 XLM_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
 
             XLM is a model with absolute position embeddings so it's usually advised to pad the inputs on
             the right rather than the left.
@@ -286,7 +286,7 @@ XLM_INPUTS_DOCSTRING = r"""
             Mask values selected in ``[0, 1]``:
             ``1`` for tokens that are NOT MASKED, ``0`` for MASKED tokens.
         **langs**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            A parallel sequence of tokens to be used to indicate the language of each token in the input.
+            A parallel sequence of tokens to be used to indicate the language of each token in the data.
             Indices are languages ids which can be obtained from the language names by using two conversion mappings
             provided in the configuration of the model (only provided for multilingual models).
             More precisely, the `language name -> language id` mapping is in `model.config.lang2id` (dict str -> int) and
@@ -296,7 +296,7 @@ XLM_INPUTS_DOCSTRING = r"""
             The embeddings from these tokens will be summed with the respective token embeddings.
             Indices are selected in the vocabulary (unlike BERT which has a specific vocabulary for segment indices).
         **position_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **lengths**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Length of each sentence that can be used to avoid performing attention on padding token indices.
@@ -471,7 +471,7 @@ class XLMModel(XLMPreTrainedModel):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x qlen x klen]
         if head_mask is not None:
             if head_mask.dim() == 1:
@@ -596,7 +596,7 @@ class XLMPredLayer(nn.Module):
 
 
 @add_start_docstrings("""The XLM Model transformer with a language modeling head on top
-    (linear layer with weights tied to the input embeddings). """,
+    (linear layer with weights tied to the data embeddings). """,
     XLM_START_DOCSTRING, XLM_INPUTS_DOCSTRING)
 class XLMWithLMHeadModel(XLMPreTrainedModel):
     r"""
@@ -747,7 +747,7 @@ class XLMForQuestionAnsweringSimple(XLMPreTrainedModel):
         **is_impossible**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels whether a question has an answer or no answer (SQuAD 2.0)
         **cls_index**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
-            Labels for position (index) of the classification token to use as input for computing plausibility of the answer.
+            Labels for position (index) of the classification token to use as data for computing plausibility of the answer.
         **p_mask**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Optional mask of tokens which can't be in answers (e.g. [CLS], [PAD], ...) 
 
@@ -843,7 +843,7 @@ class XLMForQuestionAnswering(XLMPreTrainedModel):
         **is_impossible**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels whether a question has an answer or no answer (SQuAD 2.0)
         **cls_index**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
-            Labels for position (index) of the classification token to use as input for computing plausibility of the answer.
+            Labels for position (index) of the classification token to use as data for computing plausibility of the answer.
         **p_mask**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Optional mask of tokens which can't be in answers (e.g. [CLS], [PAD], ...) 
 

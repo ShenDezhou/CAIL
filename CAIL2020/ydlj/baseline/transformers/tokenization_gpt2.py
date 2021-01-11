@@ -107,7 +107,7 @@ class GPT2Tokenizer(PreTrainedTokenizer):
     """
     GPT-2 BPE tokenizer. Peculiarities:
         - Byte-level Byte-Pair-Encoding
-        - Requires a space to start the input string => the encoding and tokenize methods should be called with the
+        - Requires a space to start the data string => the encoding and tokenize methods should be called with the
           ``add_prefix_space`` flag set to ``True``.
           Otherwise, this tokenizer's ``encode``, ``decode``, and ``tokenize`` methods will not conserve
           the spaces at the beginning of a string: `tokenizer.decode(tokenizer.encode(" Hello")) = "Hello"`

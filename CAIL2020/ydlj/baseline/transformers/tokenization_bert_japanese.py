@@ -89,7 +89,7 @@ class BertJapaneseTokenizer(BertTokenizer):
         Args:
             **vocab_file**: Path to a one-wordpiece-per-line vocabulary file.
             **do_lower_case**: (`optional`) boolean (default True)
-                Whether to lower case the input.
+                Whether to lower case the data.
                 Only has an effect when do_basic_tokenize=True.
             **do_word_tokenize**: (`optional`) boolean (default True)
                 Whether to do word tokenization.
@@ -164,7 +164,7 @@ class MecabTokenizer(object):
 
         Args:
             **do_lower_case**: (`optional`) boolean (default True)
-                Whether to lower case the input.
+                Whether to lower case the data.
             **never_split**: (`optional`) list of str
                 Kept for backward compatibility purposes.
                 Now implemented directly at the base class level (see :func:`PreTrainedTokenizer.tokenize`)
@@ -231,7 +231,7 @@ class CharacterTokenizer(object):
         """Tokenizes a piece of text into characters.
 
         For example:
-            input = "apple"
+            data = "apple"
             output = ["a", "p", "p", "l", "e"]
         Args:
             text: A single token or whitespace separated tokens.

@@ -57,8 +57,8 @@ CAMEMBERT_START_DOCSTRING = r"""    The CamemBERT model was proposed in
 CAMEMBERT_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            To match pre-training, CamemBERT input sequence should be formatted with <s> and </s> tokens as follows:
+            Indices of data sequence tokens in the vocabulary.
+            To match pre-training, CamemBERT data sequence should be formatted with <s> and </s> tokens as follows:
 
             (a) For sequence pairs:
 
@@ -88,7 +88,7 @@ CAMEMBERT_INPUTS_DOCSTRING = r"""
             corresponds to a `sentence B` token
             (see `BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding`_ for more details).
         **position_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1[``.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -111,7 +111,7 @@ class CamembertModel(RobertaModel):
             Last layer hidden-state of the first token of the sequence (classification token)
             further processed by a Linear layer and a Tanh activation function. The Linear
             layer weights are trained from the next sentence prediction (classification)
-            eo match pre-training, CamemBERT input sequence should be formatted with [CLS] and [SEP] tokens as follows:
+            eo match pre-training, CamemBERT data sequence should be formatted with [CLS] and [SEP] tokens as follows:
 
             (a) For sequence pairs:
 
@@ -126,8 +126,8 @@ class CamembertModel(RobertaModel):
                 ``token_type_ids:   0   0   0   0  0     0   0``
 
             objective during Bert pretraining. This output is usually *not* a good summary
-            of the semantic content of the input, you're often better with averaging or pooling
-            the sequence of hidden-states for the whole input sequence.
+            of the semantic content of the data, you're often better with averaging or pooling
+            the sequence of hidden-states for the whole data sequence.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -232,7 +232,7 @@ class CamembertForMultipleChoice(RobertaForMultipleChoice):
         **loss**: (`optional`, returned when ``labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
             Classification loss.
         **classification_scores**: ``torch.FloatTensor`` of shape ``(batch_size, num_choices)`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above).
+            of the data tensors. (see `input_ids` above).
             Classification scores (before SoftMax).
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)

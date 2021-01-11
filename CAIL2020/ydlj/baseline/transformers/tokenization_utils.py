@@ -48,7 +48,7 @@ class PreTrainedTokenizer(object):
 
         - ``vocab_files_names``: a python ``dict`` with, as keys, the ``__init__`` keyword name of each vocabulary file required by the model, and as associated values, the filename for saving the associated file (string).
         - ``pretrained_vocab_files_map``: a python ``dict of dict`` the high-level keys being the ``__init__`` keyword name of each vocabulary file required by the model, the low-level being the `short-cut-names` (string) of the pretrained models with, as associated values, the `url` (string) to the associated pretrained vocabulary file.
-        - ``max_model_input_sizes``: a python ``dict`` with, as keys, the `short-cut-names` (string) of the pretrained models, and as associated values, the maximum length of the sequence inputs of this model, or None if the model has no maximum input size.
+        - ``max_model_input_sizes``: a python ``dict`` with, as keys, the `short-cut-names` (string) of the pretrained models, and as associated values, the maximum length of the sequence inputs of this model, or None if the model has no maximum data size.
         - ``pretrained_init_configuration``: a python ``dict`` with, as keys, the `short-cut-names` (string) of the pretrained models, and as associated values, a dictionnary of specific arguments to pass to the ``__init__``method of the tokenizer class for this pretrained model when loading the tokenizer with the ``from_pretrained()`` method.
 
     Parameters:
@@ -59,11 +59,11 @@ class PreTrainedTokenizer(object):
 
         - ``unk_token``: (`Optional`) string: an unknown token. Will be associated to ``self.unk_token`` and ``self.unk_token_id``
 
-        - ``sep_token``: (`Optional`) string: a separation token (e.g. to separate context and query in an input sequence). Will be associated to ``self.sep_token`` and ``self.sep_token_id``
+        - ``sep_token``: (`Optional`) string: a separation token (e.g. to separate context and query in an data sequence). Will be associated to ``self.sep_token`` and ``self.sep_token_id``
 
         - ``pad_token``: (`Optional`) string: a padding token. Will be associated to ``self.pad_token`` and ``self.pad_token_id``
 
-        - ``cls_token``: (`Optional`) string: a classification token (e.g. to extract a summary of an input sequence leveraging self-attention along the full depth of the model). Will be associated to ``self.cls_token`` and ``self.cls_token_id``
+        - ``cls_token``: (`Optional`) string: a classification token (e.g. to extract a summary of an data sequence leveraging self-attention along the full depth of the model). Will be associated to ``self.cls_token`` and ``self.cls_token_id``
 
         - ``mask_token``: (`Optional`) string: a masking token (e.g. when training a model with masked-language modeling). Will be associated to ``self.mask_token`` and ``self.mask_token_id``
 
@@ -103,7 +103,7 @@ class PreTrainedTokenizer(object):
 
     @property
     def sep_token(self):
-        """ Separation token (string). E.g. separate context and query in an input sequence. Log an error if used while not having been set. """
+        """ Separation token (string). E.g. separate context and query in an data sequence. Log an error if used while not having been set. """
         if self._sep_token is None:
             logger.error("Using sep_token, but it is not set yet.")
         return self._sep_token
@@ -117,7 +117,7 @@ class PreTrainedTokenizer(object):
 
     @property
     def cls_token(self):
-        """ Classification token (string). E.g. to extract a summary of an input sequence leveraging self-attention along the full depth of the model. Log an error if used while not having been set. """
+        """ Classification token (string). E.g. to extract a summary of an data sequence leveraging self-attention along the full depth of the model. Log an error if used while not having been set. """
         if self._cls_token is None:
             logger.error("Using cls_token, but it is not set yet.")
         return self._cls_token
@@ -185,7 +185,7 @@ class PreTrainedTokenizer(object):
 
     @property
     def sep_token_id(self):
-        """ Id of the separation token in the vocabulary. E.g. separate context and query in an input sequence. Log an error if used while not having been set. """
+        """ Id of the separation token in the vocabulary. E.g. separate context and query in an data sequence. Log an error if used while not having been set. """
         return self.convert_tokens_to_ids(self.sep_token)
 
     @property
@@ -200,7 +200,7 @@ class PreTrainedTokenizer(object):
 
     @property
     def cls_token_id(self):
-        """ Id of the classification token in the vocabulary. E.g. to extract a summary of an input sequence leveraging self-attention along the full depth of the model. Log an error if used while not having been set. """
+        """ Id of the classification token in the vocabulary. E.g. to extract a summary of an data sequence leveraging self-attention along the full depth of the model. Log an error if used while not having been set. """
         return self.convert_tokens_to_ids(self.cls_token)
 
     @property
@@ -758,11 +758,11 @@ class PreTrainedTokenizer(object):
             stride: if set to a number along with max_length, the overflowing tokens returned will contain some tokens
                 from the main sequence returned. The value of this argument defines the number of additional tokens.
             truncation_strategy: string selected in the following options:
-                - 'longest_first' (default) Iteratively reduce the inputs sequence until the input is under max_length
-                    starting from the longest one at each token (when there is a pair of input sequences)
+                - 'longest_first' (default) Iteratively reduce the inputs sequence until the data is under max_length
+                    starting from the longest one at each token (when there is a pair of data sequences)
                 - 'only_first': Only truncate the first sequence
                 - 'only_second': Only truncate the second sequence
-                - 'do_not_truncate': Does not truncate (raise an error if the input sequence is longer than max_length)
+                - 'do_not_truncate': Does not truncate (raise an error if the data sequence is longer than max_length)
             pad_to_max_length: if set to True, the returned sequences will be padded according to the model's padding side and
                 padding index, up to their max length. If no max length is specified, the padding is done up to the model's max length.
                 The tokenizer padding sides are handled by the following strings:
@@ -817,11 +817,11 @@ class PreTrainedTokenizer(object):
             stride: if set to a number along with max_length, the overflowing tokens returned will contain some tokens
                 from the main sequence returned. The value of this argument defines the number of additional tokens.
             truncation_strategy: string selected in the following options:
-                - 'longest_first' (default) Iteratively reduce the inputs sequence until the input is under max_length
-                    starting from the longest one at each token (when there is a pair of input sequences)
+                - 'longest_first' (default) Iteratively reduce the inputs sequence until the data is under max_length
+                    starting from the longest one at each token (when there is a pair of data sequences)
                 - 'only_first': Only truncate the first sequence
                 - 'only_second': Only truncate the second sequence
-                - 'do_not_truncate': Does not truncate (raise an error if the input sequence is longer than max_length)
+                - 'do_not_truncate': Does not truncate (raise an error if the data sequence is longer than max_length)
             pad_to_max_length: if set to True, the returned sequences will be padded according to the model's padding side and
                 padding index, up to their max length. If no max length is specified, the padding is done up to the model's max length.
                 The tokenizer padding sides are handled by the following strings:
@@ -893,15 +893,15 @@ class PreTrainedTokenizer(object):
                           return_overflowing_tokens=False,
                           return_special_tokens_mask=False):
         """
-        Prepares a sequence of input id, or a pair of sequences of inputs ids so that it can be used by the model.
+        Prepares a sequence of data id, or a pair of sequences of inputs ids so that it can be used by the model.
         It adds special tokens, truncates
         sequences if overflowing while taking into account the special tokens and manages a window stride for
         overflowing tokens
 
         Args:
-            ids: list of tokenized input ids. Can be obtained from a string by chaining the
+            ids: list of tokenized data ids. Can be obtained from a string by chaining the
                 `tokenize` and `convert_tokens_to_ids` methods.
-            pair_ids: Optional second list of input ids. Can be obtained from a string by chaining the
+            pair_ids: Optional second list of data ids. Can be obtained from a string by chaining the
                 `tokenize` and `convert_tokens_to_ids` methods.
             max_length: maximum length of the returned list. Will truncate by taking into account the special tokens.
             add_special_tokens: if set to ``True``, the sequences will be encoded with the special tokens relative
@@ -909,11 +909,11 @@ class PreTrainedTokenizer(object):
             stride: window stride for overflowing tokens. Can be useful for edge effect removal when using sequential
                 list of inputs.
             truncation_strategy: string selected in the following options:
-                - 'longest_first' (default) Iteratively reduce the inputs sequence until the input is under max_length
-                    starting from the longest one at each token (when there is a pair of input sequences)
+                - 'longest_first' (default) Iteratively reduce the inputs sequence until the data is under max_length
+                    starting from the longest one at each token (when there is a pair of data sequences)
                 - 'only_first': Only truncate the first sequence
                 - 'only_second': Only truncate the second sequence
-                - 'do_not_truncate': Does not truncate (raise an error if the input sequence is longer than max_length)
+                - 'do_not_truncate': Does not truncate (raise an error if the data sequence is longer than max_length)
             pad_to_max_length: if set to True, the returned sequences will be padded according to the model's padding side and
                 padding index, up to their max length. If no max length is specified, the padding is done up to the model's max length.
                 The tokenizer padding sides are handled by the following strings:
@@ -1050,12 +1050,12 @@ class PreTrainedTokenizer(object):
     def truncate_sequences(self, ids, pair_ids=None, num_tokens_to_remove=0, truncation_strategy='longest_first', stride=0):
         """Truncates a sequence pair in place to the maximum length.
             truncation_strategy: string selected in the following options:
-                - 'longest_first' (default) Iteratively reduce the inputs sequence until the input is under max_length
-                    starting from the longest one at each token (when there is a pair of input sequences).
+                - 'longest_first' (default) Iteratively reduce the inputs sequence until the data is under max_length
+                    starting from the longest one at each token (when there is a pair of data sequences).
                     Overflowing tokens only contains overflow from the first sequence.
                 - 'only_first': Only truncate the first sequence. raise an error if the first sequence is shorter or equal to than num_tokens_to_remove.
                 - 'only_second': Only truncate the second sequence
-                - 'do_not_truncate': Does not truncate (raise an error if the input sequence is longer than max_length)
+                - 'do_not_truncate': Does not truncate (raise an error if the data sequence is longer than max_length)
         """
         if num_tokens_to_remove <= 0:
             return ids, pair_ids, []
@@ -1160,7 +1160,7 @@ class PreTrainedTokenizer(object):
         Similar to doing ``self.convert_tokens_to_string(self.convert_ids_to_tokens(token_ids))``.
 
         Args:
-            token_ids: list of tokenized input ids. Can be obtained using the `encode` or `encode_plus` methods.
+            token_ids: list of tokenized data ids. Can be obtained using the `encode` or `encode_plus` methods.
             skip_special_tokens: if set to True, will replace special tokens.
             clean_up_tokenization_spaces: if set to True, will clean up the tokenization spaces.
         """

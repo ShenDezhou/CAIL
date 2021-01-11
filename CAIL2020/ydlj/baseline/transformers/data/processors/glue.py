@@ -54,8 +54,8 @@ def glue_convert_examples_to_features(examples, tokenizer,
             actual values)
 
     Returns:
-        If the ``examples`` input is a ``tf.data.Dataset``, will return a ``tf.data.Dataset``
-        containing the task-specific features. If the input is a list of ``InputExamples``, will return
+        If the ``examples`` data is a ``tf.data.Dataset``, will return a ``tf.data.Dataset``
+        containing the task-specific features. If the data is a list of ``InputExamples``, will return
         a list of task-specific ``InputFeatures`` which can be fed to the model.
 
     """
@@ -105,9 +105,9 @@ def glue_convert_examples_to_features(examples, tokenizer,
             attention_mask = attention_mask + ([0 if mask_padding_with_zero else 1] * padding_length)
             token_type_ids = token_type_ids + ([pad_token_segment_id] * padding_length)
 
-        assert len(input_ids) == max_length, "Error with input length {} vs {}".format(len(input_ids), max_length)
-        assert len(attention_mask) == max_length, "Error with input length {} vs {}".format(len(attention_mask), max_length)
-        assert len(token_type_ids) == max_length, "Error with input length {} vs {}".format(len(token_type_ids), max_length)
+        assert len(input_ids) == max_length, "Error with data length {} vs {}".format(len(input_ids), max_length)
+        assert len(attention_mask) == max_length, "Error with data length {} vs {}".format(len(attention_mask), max_length)
+        assert len(token_type_ids) == max_length, "Error with data length {} vs {}".format(len(token_type_ids), max_length)
 
         if output_mode == "classification":
             label = label_map[example.label]

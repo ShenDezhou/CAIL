@@ -54,7 +54,7 @@ class PreTrainedModel(nn.Module):
     r""" Base class for all models.
 
         :class:`~transformers.PreTrainedModel` takes care of storing the configuration of the models and handles methods for loading/downloading/saving models
-        as well as a few methods common to all models to (i) resize the input embeddings and (ii) prune heads in the self-attention heads.
+        as well as a few methods common to all models to (i) resize the data embeddings and (ii) prune heads in the self-attention heads.
 
         Class attributes (overridden by derived classes):
             - ``config_class``: a class derived from :class:`~transformers.PretrainedConfig` to use as configuration class for this model architecture.
@@ -89,7 +89,7 @@ class PreTrainedModel(nn.Module):
         return getattr(self, self.base_model_prefix, self)
 
     def get_input_embeddings(self):
-        """ Get model's input embeddings
+        """ Get model's data embeddings
         """
         base_model = getattr(self, self.base_model_prefix, self)
         if base_model is not self:
@@ -98,7 +98,7 @@ class PreTrainedModel(nn.Module):
             raise NotImplementedError
 
     def set_input_embeddings(self, value):
-        """ Set model's input embeddings
+        """ Set model's data embeddings
         """
         base_model = getattr(self, self.base_model_prefix, self)
         if base_model is not self:
@@ -113,7 +113,7 @@ class PreTrainedModel(nn.Module):
         return None  # Overwrite for models with output embeddings
 
     def tie_weights(self):
-        """ Make sure we are sharing the input and output embeddings.
+        """ Make sure we are sharing the data and output embeddings.
             Export to TorchScript can't handle parameter sharing so we are cloning them instead.
         """
         output_embeddings = self.get_output_embeddings()
@@ -139,17 +139,17 @@ class PreTrainedModel(nn.Module):
             output_embeddings.out_features = input_embeddings.num_embeddings
 
     def resize_token_embeddings(self, new_num_tokens=None):
-        """ Resize input token embeddings matrix of the model if new_num_tokens != config.vocab_size.
+        """ Resize data token embeddings matrix of the model if new_num_tokens != config.vocab_size.
         Take care of tying weights embeddings afterwards if the model class has a `tie_weights()` method.
 
         Arguments:
 
             new_num_tokens: (`optional`) int:
                 New number of tokens in the embedding matrix. Increasing the size will add newly initialized vectors at the end. Reducing the size will remove vectors from the end.
-                If not provided or None: does nothing and just returns a pointer to the input tokens ``torch.nn.Embeddings`` Module of the model.
+                If not provided or None: does nothing and just returns a pointer to the data tokens ``torch.nn.Embeddings`` Module of the model.
 
         Return: ``torch.nn.Embeddings``
-            Pointer to the input tokens Embeddings Module of the model
+            Pointer to the data tokens Embeddings Module of the model
         """
         base_model = getattr(self, self.base_model_prefix, self)  # get the base model if needed
         model_embeds = base_model._resize_token_embeddings(new_num_tokens)

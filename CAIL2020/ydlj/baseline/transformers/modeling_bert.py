@@ -436,7 +436,7 @@ class BertLMPredictionHead(nn.Module):
         super(BertLMPredictionHead, self).__init__()
         self.transform = BertPredictionHeadTransform(config)
 
-        # The output weights are the same as the input embeddings, but there is
+        # The output weights are the same as the data embeddings, but there is
         # an output-only bias for each token.
         self.decoder = nn.Linear(config.hidden_size,
                                  config.vocab_size,
@@ -528,8 +528,8 @@ BERT_START_DOCSTRING = r"""    The BERT model was proposed in
 BERT_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
-            To match pre-training, BERT input sequence should be formatted with [CLS] and [SEP] tokens as follows:
+            Indices of data sequence tokens in the vocabulary.
+            To match pre-training, BERT data sequence should be formatted with [CLS] and [SEP] tokens as follows:
 
             (a) For sequence pairs:
 
@@ -559,7 +559,7 @@ BERT_INPUTS_DOCSTRING = r"""
             corresponds to a `sentence B` token
             (see `BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding`_ for more details).
         **position_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -573,7 +573,7 @@ BERT_INPUTS_DOCSTRING = r"""
             Sequence of hidden-states at the output of the last layer of the encoder. Used in the cross-attention if the model
             is configured as a decoder.
         **encoder_attention_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(batch_size, sequence_length)``:
-            Mask to avoid performing attention on the padding token indices of the encoder input. This mask
+            Mask to avoid performing attention on the padding token indices of the encoder data. This mask
             is used in the cross-attention if the model is configured as a decoder.
             Mask values selected in ``[0, 1]``:
             ``1`` for tokens that are NOT MASKED, ``0`` for MASKED tokens.
@@ -591,8 +591,8 @@ class BertModel(BertPreTrainedModel):
             further processed by a Linear layer and a Tanh activation function. The Linear
             layer weights are trained from the next sentence prediction (classification)
             objective during Bert pretraining. This output is usually *not* a good summary
-            of the semantic content of the input, you're often better with averaging or pooling
-            the sequence of hidden-states for the whole input sequence.
+            of the semantic content of the data, you're often better with averaging or pooling
+            the sequence of hidden-states for the whole data sequence.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -645,7 +645,7 @@ class BertModel(BertPreTrainedModel):
 
         To behave as an decoder the model needs to be initialized with the
         `is_decoder` argument of the configuration set to `True`; an
-        `encoder_hidden_states` is expected as an input to the forward pass.
+        `encoder_hidden_states` is expected as an data to the forward pass.
 
         .. _`Attention is all you need`:
             https://arxiv.org/abs/1706.03762
@@ -718,7 +718,7 @@ class BertModel(BertPreTrainedModel):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         if head_mask is not None:
             if head_mask.dim() == 1:
@@ -893,14 +893,14 @@ class BertForMaskedLM(BertPreTrainedModel):
         #    the cross-entropy is the MLM cross-entropy that measures the likelihood
         #    of predictions for masked words.
         # 2. If `lm_labels` is provided we are in a causal scenario where we
-        #    try to predict the next token for each input in the decoder.
+        #    try to predict the next token for each data in the decoder.
         if masked_lm_labels is not None:
             loss_fct = CrossEntropyLoss(ignore_index=-1)  # -1 index = padding token
             masked_lm_loss = loss_fct(prediction_scores.view(-1, self.config.vocab_size), masked_lm_labels.view(-1))
             outputs = (masked_lm_loss,) + outputs
 
         if lm_labels is not None:
-            # we are doing next-token prediction; shift prediction scores and input ids by one
+            # we are doing next-token prediction; shift prediction scores and data ids by one
             prediction_scores = prediction_scores[:, :-1, :].contiguous()
             lm_labels = lm_labels[:, 1:].contiguous()
             loss_fct = CrossEntropyLoss(ignore_index=-1)
@@ -1058,13 +1058,13 @@ class BertForMultipleChoice(BertPreTrainedModel):
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above)
+            of the data tensors. (see `input_ids` above)
 
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
         **loss**: (`optional`, returned when ``labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
             Classification loss.
         **classification_scores**: ``torch.FloatTensor`` of shape ``(batch_size, num_choices)`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above).
+            of the data tensors. (see `input_ids` above).
             Classification scores (before SoftMax).
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)

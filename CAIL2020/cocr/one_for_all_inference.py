@@ -545,10 +545,5 @@ if __name__ == '__main__':
     parser.add_argument(
         '-r', '--recognizer_pretrained_model_file', default=r'model/rec-model.bin',
         help='model config file')
-
-
-    parser.add_argument(
-        '--local_rank', default=0,
-        help='used for distributed parallel')
     args = parser.parse_args()
     main(args.eval_dataset_directory, args.detector_pretrained_model_file, args.recognizer_pretrained_model_file)

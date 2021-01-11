@@ -62,7 +62,7 @@ class XLNetConfig(PretrainedConfig):
         mem_len: int, the number of tokens to cache.
         reuse_len: int, the number of tokens in the currect batch to be cached
             and reused in the future.
-        bi_data: bool, whether to use bidirectional input pipeline.
+        bi_data: bool, whether to use bidirectional data pipeline.
             Usually set to True during pretraining and False during finetuning.
         clamp_len: int, clamp all relative distances larger than clamp_len.
             -1 means no clamping.

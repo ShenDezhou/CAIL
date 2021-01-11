@@ -13,3 +13,5 @@ dataset_cv100/
 *.docx
 *.html
 CT*/
+misc/
+data_cp/

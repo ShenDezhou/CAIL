@@ -128,7 +128,7 @@ class TFMultiHeadAttention(tf.keras.layers.Layer):
             klen = qlen if cache is None else cache['slen'] + qlen
         else:
             klen = shape_list(kv)[1]
-        # assert dim == self.dim, 'Dimensions do not match: %s input vs %s configured' % (dim, self.dim)
+        # assert dim == self.dim, 'Dimensions do not match: %s data vs %s configured' % (dim, self.dim)
         n_heads = self.n_heads
         dim_per_head = self.dim // n_heads
         mask_reshape = (bs, 1, qlen, klen) if len(shape_list(mask)) == 3 else (bs, 1, 1, klen)
@@ -188,7 +188,7 @@ class TFTransformerFFN(tf.keras.layers.Layer):
         super(TFTransformerFFN, self).__init__(**kwargs)
         self.lin1 = tf.keras.layers.Dense(dim_hidden, kernel_initializer=get_initializer(config.init_std), name='lin1')
         self.lin2 = tf.keras.layers.Dense(out_dim, kernel_initializer=get_initializer(config.init_std), name='lin2')
-        self.act = tf.keras.layers.Activation(gelu) if config.gelu_activation else tf.keras.activations.relu
+        self.act = tf.keras.layers.Activation(gelu) if config.gelu_activation else tf.keras.activations.gelu
         self.dropout = tf.keras.layers.Dropout(config.dropout)
 
     def call(self, input, training=False):
@@ -366,7 +366,7 @@ class TFXLMMainLayer(tf.keras.layers.Layer):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads]
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x qlen x klen]
         if head_mask is not None:
             raise NotImplementedError
@@ -493,12 +493,12 @@ XLM_START_DOCSTRING = r"""    The XLM model was proposed in
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -510,7 +510,7 @@ XLM_START_DOCSTRING = r"""    The XLM model was proposed in
 XLM_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ```Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
 
             XLM is a model with absolute position embeddings so it's usually advised to pad the inputs on
             the right rather than the left.
@@ -523,7 +523,7 @@ XLM_INPUTS_DOCSTRING = r"""
             Mask values selected in ``[0, 1]``:
             ``1`` for tokens that are NOT MASKED, ``0`` for MASKED tokens.
         **langs**: (`optional`) ```Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            A parallel sequence of tokens to be used to indicate the language of each token in the input.
+            A parallel sequence of tokens to be used to indicate the language of each token in the data.
             Indices are languages ids which can be obtained from the language names by using two conversion mappings
             provided in the configuration of the model (only provided for multilingual models).
             More precisely, the `language name -> language id` mapping is in `model.config.lang2id` (dict str -> int) and
@@ -533,7 +533,7 @@ XLM_INPUTS_DOCSTRING = r"""
             The embeddings from these tokens will be summed with the respective token embeddings.
             Indices are selected in the vocabulary (unlike BERT which has a specific vocabulary for segment indices).
         **position_ids**: (`optional`) ```Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **lengths**: (`optional`) ```Numpy array`` or ``tf.Tensor`` of shape ``(batch_size,)``:
             Length of each sentence that can be used to avoid performing attention on padding token indices.
@@ -613,7 +613,7 @@ class TFXLMPredLayer(tf.keras.layers.Layer):
             # )
 
     def build(self, input_shape):
-        # The output weights are the same as the input embeddings, but there is an output-only bias for each token.
+        # The output weights are the same as the data embeddings, but there is an output-only bias for each token.
         self.bias = self.add_weight(shape=(self.n_words,),
                                     initializer='zeros',
                                     trainable=True,
@@ -627,7 +627,7 @@ class TFXLMPredLayer(tf.keras.layers.Layer):
 
 
 @add_start_docstrings("""The XLM Model transformer with a language modeling head on top
-    (linear layer with weights tied to the input embeddings). """,
+    (linear layer with weights tied to the data embeddings). """,
     XLM_START_DOCSTRING, XLM_INPUTS_DOCSTRING)
 class TFXLMWithLMHeadModel(TFXLMPreTrainedModel):
     r"""

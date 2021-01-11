@@ -289,7 +289,7 @@ GPT2_START_DOCSTRING = r"""    OpenAI GPT-2 model was proposed in
 
 GPT2_INPUTS_DOCSTRING = r"""    Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             GPT-2 is a model with absolute position embeddings so it's usually advised to pad the inputs on
             the right rather than the left.
             Indices can be obtained using :class:`transformers.GPT2Tokenizer`.
@@ -299,7 +299,7 @@ GPT2_INPUTS_DOCSTRING = r"""    Inputs:
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             (see `past` output below). Can be used to speed up sequential decoding. The token ids which have their past given to this model 
-            should not be passed as input ids as they have already been computed.
+            should not be passed as data ids as they have already been computed.
         **attention_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(batch_size, sequence_length)``:
             Mask to avoid performing attention on padding token indices.
             Mask values selected in ``[0, 1]``:
@@ -309,7 +309,7 @@ GPT2_INPUTS_DOCSTRING = r"""    Inputs:
             The embeddings from these tokens will be summed with the respective token embeddings.
             Indices are selected in the vocabulary (unlike BERT which has a specific vocabulary for segment indices).
         **position_ids**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of positions of each input sequence tokens in the position embeddings.
+            Indices of positions of each data sequence tokens in the position embeddings.
             Selected in the range ``[0, config.max_position_embeddings - 1]``.
         **head_mask**: (`optional`) ``torch.FloatTensor`` of shape ``(num_heads,)`` or ``(num_layers, num_heads)``:
             Mask to nullify selected heads of the self-attention modules.
@@ -331,8 +331,8 @@ class GPT2Model(GPT2PreTrainedModel):
         **past**:
             list of ``torch.FloatTensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding. The token ids which have their past given to this model 
-            should not be passed as input ids as they have already been computed.
+            Can be used (see `past` data) to speed up sequential decoding. The token ids which have their past given to this model
+            should not be passed as data ids as they have already been computed.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -487,7 +487,7 @@ class GPT2Model(GPT2PreTrainedModel):
 
 
 @add_start_docstrings("""The GPT2 Model transformer with a language modeling head on top
-(linear layer with weights tied to the input embeddings). """, GPT2_START_DOCSTRING, GPT2_INPUTS_DOCSTRING)
+(linear layer with weights tied to the data embeddings). """, GPT2_START_DOCSTRING, GPT2_INPUTS_DOCSTRING)
 class GPT2LMHeadModel(GPT2PreTrainedModel):
     r"""
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
@@ -505,8 +505,8 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
         **past**:
             list of ``torch.FloatTensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding. The token ids which have their past given to this model 
-            should not be passed as input ids as they have already been computed.
+            Can be used (see `past` data) to speed up sequential decoding. The token ids which have their past given to this model
+            should not be passed as data ids as they have already been computed.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -567,13 +567,13 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
 
 @add_start_docstrings("""The GPT2 Model transformer with a language modeling and a multiple-choice classification
 head on top e.g. for RocStories/SWAG tasks. The two heads are two linear layers.
-The language modeling head has its weights tied to the input embeddings,
-the classification head takes as input the input of a specified classification token index in the input sequence).
+The language modeling head has its weights tied to the data embeddings,
+the classification head takes as data the data of a specified classification token index in the data sequence).
 """, GPT2_START_DOCSTRING, GPT2_INPUTS_DOCSTRING)
 class GPT2DoubleHeadsModel(GPT2PreTrainedModel):
     r"""
-        **mc_token_ids**: (`optional`, default to index of the last token of the input) ``torch.LongTensor`` of shape ``(batch_size, num_choices)``:
-            Index of the classification token in each input sequence.
+        **mc_token_ids**: (`optional`, default to index of the last token of the data) ``torch.LongTensor`` of shape ``(batch_size, num_choices)``:
+            Index of the classification token in each data sequence.
             Selected in the range ``[0, input_ids.size(-1) - 1[``.
         **lm_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Labels for language modeling.
@@ -584,7 +584,7 @@ class GPT2DoubleHeadsModel(GPT2PreTrainedModel):
         **mc_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
-            of the input tensors. (see `input_ids` above)
+            of the data tensors. (see `input_ids` above)
 
     Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
         **lm_loss**: (`optional`, returned when ``lm_labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
@@ -598,8 +598,8 @@ class GPT2DoubleHeadsModel(GPT2PreTrainedModel):
         **past**:
             list of ``torch.FloatTensor`` (one for each layer) of shape ``(2, batch_size, num_heads, sequence_length, embed_size_per_head)``:
             that contains pre-computed hidden-states (key and values in the attention blocks).
-            Can be used (see `past` input) to speed up sequential decoding. The token ids which have their past given to this model 
-            should not be passed as input ids as they have already been computed.
+            Can be used (see `past` data) to speed up sequential decoding. The token ids which have their past given to this model
+            should not be passed as data ids as they have already been computed.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:

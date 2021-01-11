@@ -56,12 +56,12 @@ class InputFeatures(object):
     A single set of features of data.
 
     Args:
-        input_ids: Indices of input sequence tokens in the vocabulary.
+        input_ids: Indices of data sequence tokens in the vocabulary.
         attention_mask: Mask to avoid performing attention on padding token indices.
             Mask values selected in ``[0, 1]``:
             Usually  ``1`` for tokens that are NOT MASKED, ``0`` for MASKED (padded) tokens.
         token_type_ids: Segment token indices to indicate first and second portions of the inputs.
-        label: Label corresponding to the input
+        label: Label corresponding to the data
     """
 
     def __init__(self, input_ids, attention_mask, token_type_ids, label):

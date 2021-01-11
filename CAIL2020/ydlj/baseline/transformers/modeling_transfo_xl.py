@@ -539,7 +539,7 @@ TRANSFO_XL_START_DOCSTRING = r"""    The Transformer-XL model was proposed in
 TRANSFO_XL_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             Transformer-XL is a model with relative position embeddings so you can either pad the inputs on
             the right or on the left.
             Indices can be obtained using :class:`transformers.TransfoXLTokenizer`.
@@ -569,7 +569,7 @@ class TransfoXLModel(TransfoXLPreTrainedModel):
         **mems**:
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
-            (see `mems` input above). Can be used to speed up sequential decoding and attend to longer context.
+            (see `mems` data above). Can be used to speed up sequential decoding and attend to longer context.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -717,7 +717,7 @@ class TransfoXLModel(TransfoXLPreTrainedModel):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
         # and head_mask is converted to shape [num_hidden_layers x qlen x klen x bsz x n_head]
         if head_mask is not None:
             if head_mask.dim() == 1:
@@ -792,7 +792,7 @@ class TransfoXLModel(TransfoXLPreTrainedModel):
 
 
 @add_start_docstrings("""The Transformer-XL Model with a language modeling head on top
-    (adaptive softmax with weights tied to the adaptive input embeddings)""",
+    (adaptive softmax with weights tied to the adaptive data embeddings)""",
     TRANSFO_XL_START_DOCSTRING, TRANSFO_XL_INPUTS_DOCSTRING)
 class TransfoXLLMHeadModel(TransfoXLPreTrainedModel):
     r"""
@@ -812,7 +812,7 @@ class TransfoXLLMHeadModel(TransfoXLPreTrainedModel):
         **mems**:
             list of ``torch.FloatTensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
-            (see `mems` input above). Can be used to speed up sequential decoding and attend to longer context.
+            (see `mems` data above). Can be used to speed up sequential decoding and attend to longer context.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -846,7 +846,7 @@ class TransfoXLLMHeadModel(TransfoXLPreTrainedModel):
 
     def tie_weights(self):
         """
-        Run this to be sure output and input (adaptive) softmax weights are tied
+        Run this to be sure output and data (adaptive) softmax weights are tied
         """
         # sampled softmax
         if self.sample_softmax > 0:

@@ -181,9 +181,9 @@ class PreTrainedEncoderDecoder(nn.Module):
 
         Params:
             encoder_input_ids: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``
-                Indices of encoder input sequence tokens in the vocabulary.
+                Indices of encoder data sequence tokens in the vocabulary.
             decoder_input_ids: ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``
-                Indices of decoder input sequence tokens in the vocabulary.
+                Indices of decoder data sequence tokens in the vocabulary.
             kwargs: (`optional`) Remaining dictionary of keyword arguments.
         """
         # keyword arguments come in 3 flavors: encoder-specific (prefixed by

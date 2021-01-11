@@ -80,7 +80,7 @@ def squad_convert_examples_to_features(examples, tokenizer, max_seq_length,
                                        doc_stride, max_query_length, is_training, 
                                        return_dataset=False):
     """
-    Converts a list of examples into a list of features that can be directly given as input to a model.
+    Converts a list of examples into a list of features that can be directly given as data to a model.
     It is model-dependant and takes advantage of many of the tokenizer's features to create the model's inputs.
 
     Args:
@@ -513,7 +513,7 @@ class SquadFeatures(object):
     using the :method:`~transformers.data.processors.squad.squad_convert_examples_to_features` method.
 
     Args:
-        input_ids: Indices of input sequence tokens in the vocabulary.
+        input_ids: Indices of data sequence tokens in the vocabulary.
         attention_mask: Mask to avoid performing attention on padding token indices.
         token_type_ids: Segment token indices to indicate first and second portions of the inputs.
         cls_index: the index of the CLS token.
@@ -525,7 +525,7 @@ class SquadFeatures(object):
         token_is_max_context: List of booleans identifying which tokens have their maximum context in this feature object.
             If a token does not have their maximum context in this feature object, it means that another feature object
             has more information related to that token and should be prioritized over this feature for that token.
-        tokens: list of tokens corresponding to the input ids
+        tokens: list of tokens corresponding to the data ids
         token_to_orig_map: mapping between the tokens and the original text, needed in order to identify the answer.
         start_position: start of the answer token index 
         end_position: end of the answer token index 

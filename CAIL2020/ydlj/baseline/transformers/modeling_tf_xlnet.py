@@ -55,7 +55,7 @@ def swish(x):
 
 
 ACT2FN = {"gelu": tf.keras.layers.Activation(gelu),
-          "relu": tf.keras.activations.relu,
+          "relu": tf.keras.activations.gelu,
           "swish": tf.keras.layers.Activation(swish)}
 
 
@@ -331,7 +331,7 @@ class TFXLNetLMHead(tf.keras.layers.Layer):
     def __init__(self, config, input_embeddings, **kwargs):
         super(TFXLNetLMHead, self).__init__(**kwargs)
         self.vocab_size = config.vocab_size
-        # The output weights are the same as the input embeddings, but there is
+        # The output weights are the same as the data embeddings, but there is
         # an output-only bias for each token.
         self.input_embeddings = input_embeddings
 
@@ -548,7 +548,7 @@ class TFXLNetMainLayer(tf.keras.layers.Layer):
         else:
             raise ValueError('Unsupported attention type: {}'.format(self.attn_type))
 
-        # data mask: input mask & perm mask
+        # data mask: data mask & perm mask
         assert input_mask is None or attention_mask is None, "You can only use one of input_mask (uses 1 for padding) " \
             "or attention_mask (uses 0 for padding, added for compatbility with BERT). Please choose one."
         if input_mask is None and attention_mask is not None:
@@ -590,7 +590,7 @@ class TFXLNetMainLayer(tf.keras.layers.Layer):
         output_h = self.dropout(word_emb_k, training=training)
         if target_mapping is not None:
             word_emb_q = tf.tile(self.mask_emb, [shape_list(target_mapping)[0], bsz, 1])
-        # else:  # We removed the inp_q input which was same as target mapping
+        # else:  # We removed the inp_q data which was same as target mapping
         #     inp_q_ext = inp_q[:, :, None]
         #     word_emb_q = inp_q_ext * self.mask_emb + (1 - inp_q_ext) * word_emb_k
             output_g = self.dropout(word_emb_q, training=training)
@@ -618,7 +618,7 @@ class TFXLNetMainLayer(tf.keras.layers.Layer):
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
         # attention_probs has shape bsz x n_heads x N x N
-        # input head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
+        # data head_mask has shape [num_heads] or [num_hidden_layers x num_heads] (a head_mask for each layer)
         # and head_mask is converted to shape [num_hidden_layers x qlen x klen x bsz x n_head]
         if head_mask is not None:
             if head_mask.dim() == 1:
@@ -689,13 +689,13 @@ XLNET_START_DOCSTRING = r"""    The XLNet model was proposed in
     by Zhilin Yang*, Zihang Dai*, Yiming Yang, Jaime Carbonell, Ruslan Salakhutdinov, Quoc V. Le.
     XLnet is an extension of the Transformer-XL model pre-trained using an autoregressive method
     to learn bidirectional contexts by maximizing the expected likelihood over all permutations
-    of the input sequence factorization order.
+    of the data sequence factorization order.
 
-    The specific attention pattern can be controlled at training and test time using the `perm_mask` input.
+    The specific attention pattern can be controlled at training and test time using the `perm_mask` data.
 
     Do to the difficulty of training a fully auto-regressive model over various factorization order,
     XLNet is pretrained using only a sub-set of the output tokens as target which are selected
-    with the `target_mapping` input.
+    with the `target_mapping` data.
 
     To use XLNet for sequential decoding (i.e. not in fully bi-directional setting), use the `perm_mask` and
     `target_mapping` inputs to control the attention span and outputs (see examples in `examples/run_generation.py`)
@@ -717,12 +717,12 @@ XLNET_START_DOCSTRING = r"""    The XLNet model was proposed in
 
         This second option is usefull when using `tf.keras.Model.fit()` method which currently requires having all the tensors in the first argument of the model call function: `model(inputs)`.
 
-        If you choose this second option, there are three possibilities you can use to gather all the input Tensors in the first positional argument :
+        If you choose this second option, there are three possibilities you can use to gather all the data Tensors in the first positional argument :
 
         - a single Tensor with input_ids only and nothing else: `model(inputs_ids)
-        - a list of varying length with one or several input Tensors IN THE ORDER given in the docstring:
+        - a list of varying length with one or several data Tensors IN THE ORDER given in the docstring:
             `model([input_ids, attention_mask])` or `model([input_ids, attention_mask, token_type_ids])`
-        - a dictionary with one or several input Tensors associaed to the input names given in the docstring:
+        - a dictionary with one or several data Tensors associaed to the data names given in the docstring:
             `model({'input_ids': input_ids, 'token_type_ids': token_type_ids})`
 
     Parameters:
@@ -734,7 +734,7 @@ XLNET_START_DOCSTRING = r"""    The XLNet model was proposed in
 XLNET_INPUTS_DOCSTRING = r"""
     Inputs:
         **input_ids**: ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length)``:
-            Indices of input sequence tokens in the vocabulary.
+            Indices of data sequence tokens in the vocabulary.
             XLNet is a model with relative position embeddings so you can either pad the inputs on
             the right or on the left.
             Indices can be obtained using :class:`transformers.XLNetTokenizer`.
@@ -750,9 +750,9 @@ XLNET_INPUTS_DOCSTRING = r"""
             (see `mems` output below). Can be used to speed up sequential decoding and attend to longer context.
             To activate mems you need to set up config.mem_len to a positive value which will be the max number of tokens in
             the memory output by the model. E.g. `model = XLNetModel.from_pretrained('xlnet-base-case, mem_len=1024)` will
-            instantiate a model which can use up to 1024 tokens of memory (in addition to the input it self).
+            instantiate a model which can use up to 1024 tokens of memory (in addition to the data it self).
         **perm_mask**: (`optional`) ``Numpy array`` or ``tf.Tensor`` of shape ``(batch_size, sequence_length, sequence_length)``:
-            Mask to indicate the attention pattern for each input token with values selected in ``[0, 1]``:
+            Mask to indicate the attention pattern for each data token with values selected in ``[0, 1]``:
             If ``perm_mask[k, i, j] = 0``, i attend to j in batch k;
             if ``perm_mask[k, i, j] = 1``, i does not attend to j in batch k.
             If None, each token attends to all the others (full bidirectional attention).
@@ -795,7 +795,7 @@ class TFXLNetModel(TFXLNetPreTrainedModel):
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -826,7 +826,7 @@ class TFXLNetModel(TFXLNetPreTrainedModel):
 
 
 @add_start_docstrings("""XLNet Model with a language modeling head on top
-    (linear layer with weights tied to the input embeddings). """,
+    (linear layer with weights tied to the data embeddings). """,
     XLNET_START_DOCSTRING, XLNET_INPUTS_DOCSTRING)
 class TFXLNetLMHeadModel(TFXLNetPreTrainedModel):
     r"""
@@ -837,7 +837,7 @@ class TFXLNetLMHeadModel(TFXLNetPreTrainedModel):
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -895,7 +895,7 @@ class TFXLNetForSequenceClassification(TFXLNetPreTrainedModel):
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -950,7 +950,7 @@ class TFXLNetForTokenClassification(TFXLNetPreTrainedModel):
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -1006,7 +1006,7 @@ class TFXLNetForQuestionAnsweringSimple(TFXLNetPreTrainedModel):
             list of ``tf.Tensor`` (one for each layer):
             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-            See details in the docstring of the `mems` input above.
+            See details in the docstring of the `mems` data above.
         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
             of shape ``(batch_size, sequence_length, hidden_size)``:
@@ -1073,7 +1073,7 @@ class TFXLNetForQuestionAnsweringSimple(TFXLNetPreTrainedModel):
 #             list of ``tf.Tensor`` (one for each layer):
 #             that contains pre-computed hidden-states (key and values in the attention blocks) as computed by the model
 #             if config.mem_len > 0 else tuple of None. Can be used to speed up sequential decoding and attend to longer context.
-#             See details in the docstring of the `mems` input above.
+#             See details in the docstring of the `mems` data above.
 #         **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
 #             list of ``tf.Tensor`` (one for the output of each layer + the output of the embeddings)
 #             of shape ``(batch_size, sequence_length, hidden_size)``:
