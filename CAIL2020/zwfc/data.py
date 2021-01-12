@@ -171,7 +171,7 @@ class Data:
             dataset = self._convert_sentence_pair_to_bert_dataset(
                 sc_list,  label_list)
         elif 'bertxl' == self.model_type:
-            dataset = self._convert_sentence_pair_to_bertxl_dataset(
+            dataset = self._convert_sentence_pair_to_bert_dataset(
                 sc_list,  label_list)
         else:  # rnn
             dataset = self._convert_sentence_pair_to_rnn_dataset(
@@ -299,9 +299,8 @@ class Data:
                 # all_label_list.append(label_list)
         return all_sc_list, all_label_list, all_rows
 
-
     def _convert_sentence_pair_to_bert_dataset(
-            self, s1_list,  label_list=None):
+            self, s1_list, label_list=None):
         """Convert sentence pairs to dataset for BERT model.
 
         Args:
@@ -317,15 +316,15 @@ class Data:
                 torch.utils.data.TensorDataset
                     each record: (input_ids, input_mask, segment_ids)
         """
-        all_s1_ids= []
+        all_s1_ids = []
         all_s1_lengths = []
         all_label_list = []
         for i in tqdm(range(len(s1_list)), ncols=80):
-            tokens_s1= s1_list[i]
+            tokens_s1 = s1_list[i]
             all_s1_lengths.append(min(len(tokens_s1), self.max_seq_len))
             if len(tokens_s1) > self.max_seq_len:
                 tokens_s1 = tokens_s1[:self.max_seq_len]
-            #tokens_s1 = tokens_s1 #self.tokenizer.convert_tokens_to_ids(tokens_s1)
+            # tokens_s1 = self.tokenizer.convert_tokens_to_ids(tokens_s1)
             if len(tokens_s1) < self.max_seq_len:
                 tokens_s1 += [0] * (self.max_seq_len - len(tokens_s1))
             all_s1_ids.append(tokens_s1)
@@ -340,7 +339,6 @@ class Data:
 
         all_s1_ids = torch.tensor(all_s1_ids, dtype=torch.long)
         all_s1_lengths = torch.tensor(all_s1_lengths, dtype=torch.long)
-
 
         all_input_ids, all_input_mask, all_segment_ids = [], [], []
 
@@ -359,16 +357,16 @@ class Data:
             if len(tokens) > self.max_seq_len:
                 tokens = tokens[:self.max_seq_len]
                 segment_ids = segment_ids[:self.max_seq_len]
-            if len(tokens) < self.max_seq_len:
-                tokens += [0] * (self.max_seq_len - len(tokens))
-                segment_ids += [1] * (self.max_seq_len - len(tokens))
+            # if len(tokens) < self.max_seq_len:
+            #     tokens += [0] * (self.max_seq_len - len(tokens))
+            #     segment_ids += [1] * (self.max_seq_len - len(tokens))
 
             # input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
             input_ids = tokens
             input_mask = [1] * len(input_ids)
             tokens_len = len(input_ids)
             input_ids += [0] * (self.max_seq_len - tokens_len)
-            segment_ids += [0] * (self.max_seq_len - tokens_len)
+            segment_ids += [1] * (self.max_seq_len - tokens_len)
             input_mask += [0] * (self.max_seq_len - tokens_len)
 
             all_input_ids.append(input_ids)

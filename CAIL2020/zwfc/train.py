@@ -27,13 +27,14 @@ from transformers.optimization import (
 
 from data import Data
 from evaluate import evaluate, calculate_accuracy_f1, get_labels_from_file,handy_tool
-from model import RnnForSentencePairClassification, BERNet, NERNet, NERWNet
+from model import RnnForSentencePairClassification, BERNet, BERXLNet, NERNet, NERWNet
 from utils import get_csv_logger, get_path
 from vocab import build_vocab
 
 
 MODEL_MAP = {
     'bert': BERNet,
+    'bertxl': BERXLNet,
     'rnn': NERNet,
     'rnnkv': NERWNet
 }
