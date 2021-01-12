@@ -4,6 +4,7 @@ services:
     environment:
       - gpus=all
     network_mode: "host"
+    restart: unless-stopped
     volumes:
       - /mnt/data/xlnet_base:/workspace/xlnet_base
       - /mnt/data/xsfldocker/model/bertxl:/workspace/model/bertxl/

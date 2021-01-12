@@ -4,6 +4,7 @@ services:
     environment:
       - gpus=all
     network_mode: "host"
+    restart: unless-stopped
     volumes:
       - /mnt/data/roberta3_ext:/workspace/roberta3_ext
       - /mnt/data/xsfldocker/model/bert:/workspace/model/bert/
