@@ -289,12 +289,6 @@ class Data:
                 # 0 segment id, 1 content line
                 line = row[0]
                 all_rows.append(line)
-                # line = line.lstrip("“").lstrip("‘")
-                # line = line.replace("  ", " ", 10 ** 10)
-                # subline = line.strip().split("。")
-                # subline = [sub for sub in subline if len(sub)]
-                # subline = [sub + "。" for sub in subline]
-                # for sub in subline:
                 token_list, label_list = self.encoder(line)
                 if 'rnn' == self.model_type:
                     sc_tokens = self.tokenizer.tokenize("".join(token_list))
