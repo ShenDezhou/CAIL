@@ -11,7 +11,7 @@
 
   "batch_size": 512,
 
-  "vocab_size": 5168,
+  "vocab_size": 5245,
   "hidden_size": 256,
   "num_classes": 4,
   "dropout": 0.05,

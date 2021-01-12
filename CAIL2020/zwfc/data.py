@@ -36,6 +36,7 @@ from typing import List
 import torch
 
 import pandas as pd
+from six import unichr
 
 from torch.utils.data import TensorDataset
 from transformers import BertTokenizer
@@ -229,6 +230,18 @@ class Data:
             label_list.append(label)
         return char_list, label_list
 
+    def strQ2B(self, ustring):
+        """全角转半角"""
+        rstring = ""
+        for uchar in ustring:
+            inside_code = ord(uchar)
+            if inside_code == 12288:  # 全角空格直接转换
+                inside_code = 32
+            elif (inside_code >= 65281 and inside_code <= 65374):  # 全角字符（除空格）根据关系转化
+                inside_code -= 65248
+
+            rstring += unichr(inside_code)
+        return rstring
 
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
@@ -261,14 +274,17 @@ class Data:
                 subline = [sub for sub in subline if len(sub)]
                 subline = [sub + "。" for sub in subline]
                 for sub in subline:
-                    token_list, label_list = self.encoder(sub)
-                    if 'rnn' == self.model_type:
-                        sc_tokens = self.tokenizer.tokenize("".join(token_list))
-                    else:
-                        sc_tokens = token_list
-                    sc_ids = self.tokenizer.convert_tokens_to_ids(sc_tokens)
-                    all_sc_list.append(sc_ids)
-                    all_label_list.append(label_list)
+                    # The code for data augment for the Special Characters, named QUANJIAO and BANJIAO, in Chinese.
+                    bsub = self.strQ2B(sub)
+                    for l in list(set([sub, bsub])):
+                        token_list, label_list = self.encoder(l)
+                        if 'rnn' == self.model_type:
+                            sc_tokens = self.tokenizer.tokenize("".join(token_list))
+                        else:
+                            sc_tokens = token_list
+                        sc_ids = self.tokenizer.convert_tokens_to_ids(sc_tokens)
+                        all_sc_list.append(sc_ids)
+                        all_label_list.append(label_list)
             else:
                 # 0 segment id, 1 content line
                 line = row[0]
