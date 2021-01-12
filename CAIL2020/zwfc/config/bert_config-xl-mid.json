@@ -1,34 +1,32 @@
 {
   "model_type": "bertxl",
-  "max_seq_len": 512,
+  "max_seq_len": 128,
   "model_path": "model/bertxlm/",
   "log_path": "log/",
 
-  "train_file_path": "data/core_summary_train.csv",
-  "valid_file_path": "data/core_summary_valid.csv",
+  "train_file_path": "data/msr_train.txt",
+  "valid_file_path": "data/msr_test.txt",
+  "test_file_path": "data/msr_test.txt",
 
-  "batch_size": 1,
+  "batch_size": 8,
 
   "bert_model_path": "../xlnet_mid",
   "trained_weight":"",
   "hidden_size": 768,
-  "num_classes": 512,
+  "sent_hidden_size": 384,
+  "num_classes": 4,
   "dropout": 0.05,
 
-  "is_AKDE": true,
-  "dim_capsule": 16,
-  "num_compressed_capsule": 128,
-
-  "lr": 1e-4,
-  "num_epoch": 1,
+  "lr": 4e-5,
+  "num_epoch": 10,
   "log_steps": 100,
   "serial_load": true,
   "metrics_debug": false,
   "num_warmup_steps": 200,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 8,
-  "max_grad_norm": 4e-3,
+  "gradient_accumulation_steps": 1,
+  "max_grad_norm": 4e-2,
   "num_cores": 8,
 
-  "experiment_name": "BERTXL"
+  "experiment_name": "BERTXLM"
 }

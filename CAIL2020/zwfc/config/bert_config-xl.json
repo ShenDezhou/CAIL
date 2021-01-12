@@ -1,6 +1,6 @@
 {
   "model_type": "bertxl",
-  "max_seq_len": 512,
+  "max_seq_len": 128,
   "model_path": "model/bertxl/",
   "log_path": "log/",
 
