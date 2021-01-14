@@ -293,7 +293,7 @@ def main(config_file='config/bert_config.json'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config_file', default='config/rnn_config.json',
+        '-c', '--config_file', default='config/bert_config-xl.json',
         help='model config file')
 
     parser.add_argument(

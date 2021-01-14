@@ -1065,6 +1065,9 @@ class BERNet(nn.Module):
                                         bidirectional=True)
         self.emission = nn.Linear(config.sent_hidden_size * 2, config.num_classes)
         self.crf = CRF(config.num_classes, batch_first=True)
+        self.label_type = nn.Linear(config.sent_hidden_size * 2, 1)
+        self.criterion = nn.MultiLabelSoftMarginLoss(reduction='mean') #label
+
 
     def forward(self, input_ids, attention_mask, token_type_ids, char_id, length, label_id=None):
         # use anti-mask for answers-locator
@@ -1089,7 +1092,10 @@ class BERNet(nn.Module):
 
         if label_id is not None:
             crf_loss = -self.crf(emission, label_id, mask=bio_mask, reduction='mean')
-            return crf_loss
+            label_type = self.label_type(sen_encoded).squeeze(dim=-1)
+            target_type = (label_id + 2) // 3
+            type_loss = self.criterion(label_type, target_type)
+            return crf_loss + type_loss
         else:
             pred = self.crf.decode(emissions=emission, mask=bio_mask)
             # TODO:check

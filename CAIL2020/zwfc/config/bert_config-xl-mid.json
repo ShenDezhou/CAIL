@@ -8,7 +8,7 @@
   "valid_file_path": "data/msr_test.txt",
   "test_file_path": "data/msr_test.txt",
 
-  "batch_size": 8,
+  "batch_size": 16,
 
   "bert_model_path": "../xlnet_mid",
   "trained_weight":"",
