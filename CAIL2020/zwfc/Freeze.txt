@@ -4,6 +4,6 @@ pandas==1.0.3
 transformers==3.0.2
 scikit-learn==0.22.2.post1
 torchsnooper
-pytorch_pretrained_bert==0.6.2
+#pytorch_pretrained_bert==0.6.2
 ujson
 tensorboardX==2.0
