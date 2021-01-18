@@ -32,6 +32,7 @@ Usage:
     data = Data('model/bert/vocab.txt', model_type='bert')
     test_set = data.load_file('SMP-CAIL2020-test.csv', train=False)
 """
+import re
 from typing import List
 import torch
 
@@ -244,6 +245,20 @@ class Data:
         # assert len(line) == len(label),(len(line), len(label))
         return line, label
 
+
+    def split(self, content):
+        line = re.findall('(.*?(?:[\n ]|.$))', content)
+        sublines = []
+        for l in line:
+            if len(l) > self.max_seq_len:
+                ll = re.findall('(.*?(?:[。，]|.$))', l)
+                sublines.extend(ll)
+            else:
+                sublines.append(l)
+        sublines = [l for l in sublines if len(l.strip())> 0]
+        return sublines
+
+
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
 
@@ -285,7 +300,7 @@ class Data:
                 # line = "".join(row)
                 # line = line.lstrip("“").lstrip("‘")
                 # line = line.replace("  "," ", 10**10)
-                subline = content.strip().split("。")
+                subline = self.split(content)
                 # subline = [sub for sub in subline if len(sub)]
                 subline = [sub + "。" for sub in subline]
                 offset = 0
@@ -306,8 +321,9 @@ class Data:
                     offset += len(sub)
             else:
                 content = row[0]
-                subline = content.strip().split("。")
-                subline = [sub + "。" for sub in subline]
+                # subline = content.strip().split("。")
+                # subline = [sub + "。" for sub in subline]
+                subline = self.split(content)
                 offset = 0
                 for sub in subline:
                     sc_tokens = self.tokenizer.tokenize(sub)

@@ -107,8 +107,28 @@ class TorchResource:
     def flatten(self, ll):
         return list(itertools.chain(*ll))
 
+
+    def split(self, content):
+        line = re.findall('(.*?(?:[\n ]|.$))', content)
+        sublines = []
+        for l in line:
+            if len(l) > self.config.max_seq_len:
+                ll = re.findall('(.*?(?:[。，]|.$))', l)
+                sublines.extend(ll)
+            else:
+                sublines.append(l)
+        sublines = [l for l in sublines if len(l.strip())> 0]
+        return sublines
+
+
     def cleanall(self, content):
         return content.replace(" ", "", 10**10)
+
+    def filter(self, entity):
+        ls = re.findall('[1234567890零一二三四五六七八九十百千万亿兆〇壹贰叁肆伍陆柒捌玖拾佰仟萬億１２３４５６７８９０,，\.人民币元角分]', entity)
+        ratio = len(ls) * 1.0 / len(entity)
+        return ratio
+
 
     def bert_classification(self, content):
         logger.info('1:{}'.format( content))
@@ -132,7 +152,7 @@ class TorchResource:
         entities = [item['entities'] for item in result]
         entities = self.flatten(entities)
         amount_entities = [entity['word'] for entity in entities if entity['type'] == 'bms']
-
+        # amount_entities = [amount for amount in amount_entities if self.filter(amount)>0.5]
         return {"answer": amount_entities}
 
     def on_get(self, req, resp):
