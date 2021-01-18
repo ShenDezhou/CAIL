@@ -10,7 +10,7 @@
 
   "batch_size": 64,
 
-  "bert_model_path": "../roberta3_ext",
+  "bert_model_path": "../roberta_wwm_ext",
   "trained_weight":"",
   "hidden_size": 768,
   "sent_hidden_size": 384,
