@@ -115,7 +115,7 @@ def digit2formal(word, prefix_type = 0):
                 trans += LARGE_FORMAL_DIGIT[int(c)] + '分'
             fraction += 1
     if natural:
-        trans = trans[::-1]
+        trans = trans[::-1] + "元"
     if prefix_type== 1:
         trans = "人民币"+ trans
     return trans
@@ -123,7 +123,7 @@ def digit2formal(word, prefix_type = 0):
 
 
 amount_len = (1, 16)
-category_size = 2000
+category_size = 1000
 
 df = pandas.read_csv('contract.dic',sep=',',names=['word','frequency'])
 chinese_dic = df['word'].to_list()
@@ -268,23 +268,23 @@ def gen_with_rule(type = 0):
 
 
 tpl_amounts = []
-tpl_amounts.append('218399')
-tpl_amounts.append('贰拾壹万捌仟叁佰玖十九')
-tpl_amounts.append('31287')
-tpl_amounts.append('叁万壹仟贰佰捌拾柒')
-tpl_amounts.append('300000')
-tpl_amounts.append('叁拾万')
-tpl_amounts.append('280000')
-tpl_amounts.append('贰拾捌万')
-tpl_amounts.append('135998')
-tpl_amounts.append('拾叁万伍仟玖佰玖拾捌')
-tpl_amounts.append('75382')
-tpl_amounts.append('柒万伍仟叁佰捌拾贰')
-tpl_amounts.append('135998')
-tpl_amounts.append('柒万伍仟叁佰捌拾贰')
-tpl_amounts.append('1800000')
-tpl_amounts.append('壹佰捌拾万')
-tpl_amounts.append('1.99')
+tpl_amounts.append('218399元')
+tpl_amounts.append('贰拾壹万捌仟叁佰玖十九元')
+tpl_amounts.append('31287元')
+tpl_amounts.append('叁万壹仟贰佰捌拾柒元')
+tpl_amounts.append('300000元')
+tpl_amounts.append('叁拾万元')
+tpl_amounts.append('280000元')
+tpl_amounts.append('贰拾捌万元')
+tpl_amounts.append('135998元')
+tpl_amounts.append('拾叁万伍仟玖佰玖拾捌元')
+tpl_amounts.append('75382元')
+tpl_amounts.append('柒万伍仟叁佰捌拾贰元')
+tpl_amounts.append('135998元')
+tpl_amounts.append('柒万伍仟叁佰捌拾贰元')
+tpl_amounts.append('1800000元')
+tpl_amounts.append('壹佰捌拾万元')
+tpl_amounts.append('1.99万元')
 
 digits = list("0123456789")
 formals = list("零壹贰叁肆伍陆柒捌玖")
