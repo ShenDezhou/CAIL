@@ -32,6 +32,7 @@ Usage:
     data = Data('model/bert/vocab.txt', model_type='bert')
     test_set = data.load_file('SMP-CAIL2020-test.csv', train=False)
 """
+import re
 from typing import List
 import torch
 
@@ -243,6 +244,18 @@ class Data:
             rstring += unichr(inside_code)
         return rstring
 
+    def split(self, content):
+        line = re.findall('(.*?(?:[\n ]|.$))', content)
+        sublines = []
+        for l in line:
+            if len(l) > self.max_seq_len:
+                ll = re.findall('(.*?(?:[。，]|.$))', l)
+                sublines.extend(ll)
+            else:
+                sublines.append(l)
+        sublines = [l for l in sublines if len(l.strip())> 0]
+        return sublines
+
     def _load_file(self, filename, train: bool = True):
         """Load SMP-CAIL2020-Argmine train/test file.
 
@@ -289,7 +302,7 @@ class Data:
                 # 0 segment id, 1 content line
                 line = row[0]
                 all_rows.append(line)
-                token_list, label_list = self.encoder(line)
+                token_list = list(line)
                 if 'rnn' == self.model_type:
                     sc_tokens = self.tokenizer.tokenize("".join(token_list))
                 else:

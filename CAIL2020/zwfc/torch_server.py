@@ -43,7 +43,7 @@ parser.add_argument(
     '-p', '--port', default=58081,
     help='falcon server port')
 parser.add_argument(
-    '-c', '--config_file', default='config/rnn_config.json',
+    '-c', '--config_file', default='config/bert_config-xl.json',
     help='model config file')
 args = parser.parse_args()
 model_config=args.config_file
