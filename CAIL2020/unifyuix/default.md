@@ -8,7 +8,9 @@
 
 * [合同金额识别v2（总、分）](/static/jesbv2.html)
 
-* [合同金额识别v3（总）](/static/jesbv3.html)
+* [合同金额识别v3（仅金额）](/static/jesbv3.html)
+
+* [合同金额识别v4（类别）](/static/jesbv4.html)
 
 
 ## 1.2 合同风险识别
@@ -86,6 +88,7 @@ xsfl-202|58073
 xsfl-202-xlnet|58074
 jesbv3|58075
 znfc|58076
+jesbv4|58077
 htfl-17-12|58080
 htfl-17-24|58081
 alfl-2|58082
