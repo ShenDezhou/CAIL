@@ -29,10 +29,10 @@ if __name__ == "__main__":
         "python main.py -in_file={} -out_file={}".format(input_path, pre_input_path))
     os.chdir('../sfzyzb')
     os.system(
-        "python main.py -in_file={} -out_file={}".format(pre_input_path, phase1_file))
-    os.chdir('../sfzyza')
-    os.system(
-        "python main.py -in_file={} -temp_file={} -out_file={}".format(pre_input_path, phase1_file, output_path))
+        "python main.py -in_file={} -out_file={}".format(pre_input_path, output_path))
+    # os.chdir('../sfzyza')
+    # os.system(
+    #     "python main.py -in_file={} -temp_file={} -out_file={}".format(pre_input_path, phase1_file, output_path))
     # os.chdir('../sfzyzc')
     # get_path("prediction")
     # pred_list = []

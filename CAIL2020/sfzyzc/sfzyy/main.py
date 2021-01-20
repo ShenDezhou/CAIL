@@ -46,7 +46,7 @@ class Segment_Abstract(object):
 
         # 1. 纠纷原因
         for i, sentence in enumerate(text):
-            which_reason = reason.isArgueReason(sentence["sentence"])
+            which_reason = self.reason.isArgueReason(sentence["sentence"])
             if which_reason:
                 break
             if i > 3:

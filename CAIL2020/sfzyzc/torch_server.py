@@ -4,6 +4,7 @@ import re
 import time
 
 import falcon
+import pandas
 from falcon_cors import CORS
 import json
 import waitress
@@ -15,7 +16,7 @@ from sfzyy.main import Segment_Abstract
 
 sys.path.remove('sfzyy')
 from Sentence_Abstract import Sentence_Abstract
-from Word_Abstract import Word_Abstract
+# from Word_Abstract import Word_Abstract
 from dataclean import cleanall, shortenlines
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)-18s %(message)s')
@@ -44,7 +45,7 @@ class TorchResource:
         logger.info("...")
         self.segemnt = Segment_Abstract()
         self.sentence = Sentence_Abstract()
-        self.word = Word_Abstract()
+        # self.word = Word_Abstract()
         logger.info("###")
 
     def process_context(self, line):
@@ -75,9 +76,15 @@ class TorchResource:
         # 2. sentence abstract
         phase2_filename = self.sentence.get_abstract(phase1_filename)
 
+
+        # with open(phase2_filename,'r', encoding='utf-8') as f:
+        #     summary = f.readlines()
+        df = pandas.read_csv(phase2_filename)
+        summary = df['content'].tolist()
+        summary = "".join(summary).strip()
         # 3. word abstract
-        summary = self.word.get_abstract(phase1_filename, phase2_filename)
-        return {"answer": summary}
+        # summary = self.word.get_abstract(phase1_filename, phase2_filename)
+        return {"answer": [{"id":title,"summary":summary}]}
 
     def on_get(self, req, resp):
         logger.info("...")

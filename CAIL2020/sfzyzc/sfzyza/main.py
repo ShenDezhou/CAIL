@@ -97,8 +97,8 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
         summary_dict[id_dict[id]] += remove(summary).replace(" ","")
 
     with open(out_file, 'w', encoding='utf8') as fout:
-        for id, sumamry in summary_dict.items():
-            fout.write(json.dumps({'id':id,'summary':sumamry},  ensure_ascii=False) + '\n')
+        for id, summary in summary_dict.items():
+            fout.write(json.dumps({'id':id,'summary':summary},  ensure_ascii=False) + '\n')
 
 
 if __name__ == '__main__':

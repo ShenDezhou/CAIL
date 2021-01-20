@@ -122,8 +122,9 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
             for sent in sentences:
                 tag_sents.append((para_id, sent))
             para_id += 1
-        df = pandas.DataFrame(tag_sents, columns=['para', 'content'])
-        df.to_csv("data/para_content_test.csv", columns=['para', 'content'], index=False)
+    df = pandas.DataFrame(tag_sents, columns=['para', 'content'])
+    df.to_csv("data/para_content_test.csv", columns=['para', 'content'], index=False)
+
 
     # 1. Load data
     data = Data(vocab_file=os.path.join(config.model_path, 'vocab.txt'),
@@ -145,6 +146,7 @@ def main(in_file='/data/SMP-CAIL2020-test1.csv',
     filter_list = [k for k,v in zip(idcontent_list, answer_list) if v]
     df = pd.DataFrame(filter_list, columns=['para', 'content'])
     df.to_csv(out_file, columns=['para', 'content'], index=False)
+    
 
 
 if __name__ == '__main__':

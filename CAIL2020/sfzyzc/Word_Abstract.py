@@ -96,10 +96,10 @@ class Word_Abstract(object):
             summary_dict[id_dict[id]] += remove(summary)
 
         summary_list = []
-        for id, sumamry in summary_dict.items():
+        for id, summary in summary_dict.items():
             if reason_dict.get(id):
                 reason = "原被告系" + reason_dict.get(id) + "关系。"
-                sumamry = reason + sumamry
-            summary_list.append({'id': id, 'summary': sumamry})
+                summary = reason + summary
+            summary_list.append({'id': id, 'summary': summary})
         return summary_list
 
