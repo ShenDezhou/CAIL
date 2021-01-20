@@ -134,7 +134,7 @@ C、乙方收款账户信息
 
         var input = $('#input').val();
         // debugger
-        input = input.replaceAll('\n', '\\n');
+        input = input.replace(/\n/g, '\n');
 
         var mydata = {
             '1': input

@@ -73,7 +73,7 @@
         var title = $( "#title option:selected" ).text();
         var input = $('#input').val();
         debugger
-        input = input.replaceAll('\n', '\\n');
+        input = input.replace(/\n/g, '\n');
 
         var mydata = {
             'title': title,
