@@ -1,2 +1,8 @@
 psutil==5.7.0
 fire==0.3.1
+pandas==1.0.3
+jieba==0.42.1
+transformers==3.0.2
+scikit-learn==0.22.2.post1
+torchsnooper
+waitress==1.4.4

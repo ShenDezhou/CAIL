@@ -1,4 +1,4 @@
-FROM machinelearning:1.0
+FROM machinelearning:cuda1.0
 USER root
 
 COPY ./requirements.txt /workspace/requirements.txt
