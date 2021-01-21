@@ -42,6 +42,7 @@
 * [案例摘要-6类-12层](/static/alzy-6-12.html)
 * [案例摘要-129类-3层](/static/alzy-129-3.html)
 * [案例摘要-129类-3层(可读性)](/static/alzy-129-3v2.html)
+* [案例摘要-129类-3层(可读性GPU)](/static/alzy-129-3cuv2.html)
 
 ## 3.2 案例分类
 * [案例分类-2类](/static/alfl-2.html)
@@ -90,6 +91,8 @@ xsfl-202-xlnet|58074
 jesbv3|58075
 znfc|58076
 jesbv4|58077
+alzy-129-3-v3|58078
+alzy-129-3-v4|58079
 htfl-17-12|58080
 htfl-17-24|58081
 alfl-2|58082
