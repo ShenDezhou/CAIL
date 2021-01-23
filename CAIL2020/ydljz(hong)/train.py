@@ -357,7 +357,7 @@ def train_epoch(data_loader, model, logger, predict_during_train=False, epoch=1)
     pbar = tqdm(total=len(data_loader))
     epoch_len = len(data_loader)
     step_count = 0
-    predict_step = epoch_len // 2
+    predict_step = epoch_len
     while not data_loader.empty():
         step_count += 1
         batch = next(iter(data_loader))

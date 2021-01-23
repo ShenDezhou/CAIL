@@ -44,7 +44,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
-max_support_sents = 26
+max_support_sents = 10
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
@@ -449,7 +449,7 @@ class Data:
 
             if len(ans_end_position) > 1:
                 cnt += 1  # 如果答案结束的位置大于1，cnt+1，如果答案结束位置是0呢？
-            if key < 10:
+            if key =='e139eef6-fc0c-4953-acec-a83a0095ce4e0':
                 print("qid {}".format(key))
                 print("qas type {}".format(qas_type))
                 print("doc tokens {}".format(doc_tokens))
@@ -605,7 +605,7 @@ class Data:
             sup_fact_ids = [sent_id for sent_id in sup_fact_ids if sent_id < sent_num]
             if len(sup_fact_ids) != len(example.sup_fact_id):
                 failed += 1
-            if example.qas_id < 10:
+            if example.qas_id == 'e139eef6-fc0c-4953-acec-a83a0095ce4e0':
                 print("qid {}".format(example.qas_id))
                 print("all_doc_tokens {}".format(all_doc_tokens))
                 print("doc_input_ids {}".format(doc_input_ids))

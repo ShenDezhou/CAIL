@@ -1,17 +1,17 @@
 {
   "model_type": "bert",
   "max_seq_len": 512,
-  "max_query_len": 50,
+  "max_query_len": 20,
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data2/train_full.json",
-  "valid_file_path": "data/train19_test.json",
-  "test_file_path": "data/dev.json",
+  "train_file_path": "data/2019_big_train_data.json",
+  "valid_file_path": "data/2019_dev_ground_truth.json",
+  "test_file_path": "data/2019_test_ground_truth.json",
 
-  "batch_size": 1,
+  "batch_size": 16,
 
-  "bert_model_path": "J:\\wwm_large_ext",
+  "bert_model_path": "../roberta3_ext",
   "trained_weight":"",
 
   "is_AKDE": true,
@@ -23,10 +23,10 @@
   "dropout": 0.05,
 
   "lr": 1e-4,
-  "num_epoch": 50,
+  "num_epoch": 10,
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 32,
+  "gradient_accumulation_steps": 1,
   "max_grad_norm": 1e-2,
 
   "prediction_path":"output/submissions",
