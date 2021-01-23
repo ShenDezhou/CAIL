@@ -9,9 +9,9 @@
   "valid_file_path": "data/2019_dev_ground_truth.json",
   "test_file_path": "data/2019_test_ground_truth.json",
 
-  "batch_size": 16,
+  "batch_size": 4,
 
-  "bert_model_path": "../roberta3_ext",
+  "bert_model_path": "../roberta_wwm_ext",
   "trained_weight":"",
 
   "is_AKDE": true,

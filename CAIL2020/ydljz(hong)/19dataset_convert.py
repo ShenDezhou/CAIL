@@ -30,6 +30,9 @@ def supporting_facts(answers, context_lines):
                 idx.add(i)
     return res
 
+
+_id = 0
+
 for type in ['big_train_data','dev_ground_truth','test_ground_truth']:
     with open('2019_'+type+'.json', 'w', encoding='utf8') as fw:
         fin = open(type+'.json', 'r', encoding='utf8')
@@ -42,7 +45,6 @@ for type in ['big_train_data','dev_ground_truth','test_ground_truth']:
             context = para['context']
             casename = para['casename']
             qas = para['qas']
-            _id = 0
             for qa in qas:
                 question = qa['question']
                 qid = qa['id']
@@ -58,7 +60,7 @@ for type in ['big_train_data','dev_ground_truth','test_ground_truth']:
                 answer_end = min(answer_start+512, len(context))
 
                 conv_dic = {}
-                conv_dic['_id'] = id.strip(".txt") + str(_id)
+                conv_dic['_id'] = _id
                 conv_dic['context'] = process_context(context[answer_start:answer_end])
                 conv_dic['question'] = question
                 conv_dic['supporting_facts'] = []

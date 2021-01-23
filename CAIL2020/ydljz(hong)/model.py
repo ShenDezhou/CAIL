@@ -39,7 +39,7 @@ class BertSupportNetX(nn.Module):
 
         self.flatten_capsules = FlattenCaps()
 
-        self.W_doc = nn.Parameter(torch.FloatTensor(49024, self.num_compressed_capsule))
+        self.W_doc = nn.Parameter(torch.FloatTensor(config.magic_param, self.num_compressed_capsule))
         torch.nn.init.xavier_uniform_(self.W_doc)
 
         self.fc_capsules_doc_child = FCCaps(config, output_capsule_num=config.num_classes,
