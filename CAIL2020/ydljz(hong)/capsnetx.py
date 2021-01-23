@@ -83,6 +83,7 @@ def KDE_routing(batch_size, b_ij, u_hat):
 class FlattenCaps(nn.Module):
     def __init__(self):
         super(FlattenCaps, self).__init__()
+
     def forward(self, p, a):
         poses = p.view(p.size(0), p.size(2) * p.size(3) * p.size(4), -1)
         activations = a.view(a.size(0), a.size(1) * a.size(2) * a.size(3), -1)
@@ -130,7 +131,7 @@ class FCCaps(nn.Module):
         x = torch.stack([x] * variable_output_capsule_num, dim=2).unsqueeze(4)
 
         W1 = W1.repeat(batch_size, 1, 1, 1, 1)
-        u_hat = torch.matmul(W1, x)
+        u_hat = torch.matmul(W1, x).cuda()
 
         b_ij = Variable(torch.zeros(batch_size, self.input_capsule_num, variable_output_capsule_num, 1)).cuda()
 
