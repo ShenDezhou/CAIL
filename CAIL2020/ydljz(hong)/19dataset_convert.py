@@ -2,8 +2,9 @@ import json
 import re
 
 
-results = []
 
+ANSWER_MARGIN=50
+MAX_SEQ_LEN=512
 
 def process_context(line):
     line = line.replace("&middot;", "", 100)
@@ -31,13 +32,15 @@ def supporting_facts(answers, context_lines):
     return res
 
 
-_id = 0
+
 
 for type in ['big_train_data','dev_ground_truth','test_ground_truth']:
     with open('2019_'+type+'.json', 'w', encoding='utf8') as fw:
         fin = open(type+'.json', 'r', encoding='utf8')
         line = fin.readline()
         dic = json.loads(line)
+        results = []
+        _id = 0
         for item in dic['data']:
             id = item['caseid']
             domain = item['domain']
@@ -56,8 +59,14 @@ for type in ['big_train_data','dev_ground_truth','test_ground_truth']:
                     answer_pos = min(ans_starts)
                 else:
                     answer_pos = 0
-                answer_start = max(answer_pos-150, 0)
-                answer_end = min(answer_start+512, len(context))
+
+                if len(context)>MAX_SEQ_LEN:
+                    answer_start = min(answer_pos-ANSWER_MARGIN, len(context)-MAX_SEQ_LEN)
+                    answer_start = max(answer_start,0)
+                    answer_end = min(answer_start+MAX_SEQ_LEN, len(context))
+                else:
+                    answer_start = 0
+                    answer_end = len(context)
 
                 conv_dic = {}
                 conv_dic['_id'] = _id
@@ -67,7 +76,10 @@ for type in ['big_train_data','dev_ground_truth','test_ground_truth']:
                 if is_unknown == "true":
                     conv_dic['answer'] = "unknown"
                 else:
-                    conv_dic['answer'] = answers[0]['text']
+                    if answers[0]['text'] in ["YES","NO"]:
+                        conv_dic['answer'] = answers[0]['text'].lower()
+                    else:
+                        conv_dic['answer'] = answers[0]['text']
                     ans_spans = [answer['text'] for answer in answers]
                     conv_dic['supporting_facts'] = supporting_facts(ans_spans, conv_dic['context'][0][1])
                 results.append(conv_dic)

@@ -44,7 +44,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
-max_support_sents = 10
+max_support_sents = 20
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.
@@ -221,6 +221,7 @@ class Data:
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)
         self.max_seq_len = max_seq_len
+        self.max_query_len = config.max_query_len
 
     def load_file(self,
                   file_path='SMP-CAIL2020-train.csv',
@@ -434,14 +435,14 @@ class Data:
                             ans_end_position.append(char_to_word_offset[end_char_position])
 
                     # Truncate longer document
-                    if len(doc_tokens) >= 460:  # 如果大于382个词则break
+                    if len(doc_tokens) >= self.max_seq_len - self.max_query_len:  # 如果大于382个词则break
                         # 这个截断会让每个段落至少有一个句子被加入，即使整个样本已经超过382，这样后面匹配entity还能匹配上吗？
                         break
 
                 # 问题改写
                 # case['question'] = dynamic_fit_bert_size(case['question'], ratio)
-                if len(case['question']) > 50:
-                    case['question'] = case['question'][-50:]
+                if len(case['question']) > self.max_query_len:
+                    case['question'] = case['question'][-self.max_query_len:]
                 para_end_position = len(doc_tokens) - 1
                 # 一个段落的开始和结束token位置（白空格分词）
                 para_start_end_position.append(
@@ -449,7 +450,7 @@ class Data:
 
             if len(ans_end_position) > 1:
                 cnt += 1  # 如果答案结束的位置大于1，cnt+1，如果答案结束位置是0呢？
-            if key =='e139eef6-fc0c-4953-acec-a83a0095ce4e0':
+            if key == 0:
                 print("qid {}".format(key))
                 print("qas type {}".format(qas_type))
                 print("doc tokens {}".format(doc_tokens))
@@ -479,7 +480,7 @@ class Data:
                 end_position=ans_end_position)
             examples.append(example)
 
-        features_list = self.convert_examples_to_features(examples, self.tokenizer, 512, 50)
+        features_list = self.convert_examples_to_features(examples, self.tokenizer, self.max_seq_len, self.max_query_len)
         return examples, features_list
 
     def convert_examples_to_features(self, examples, tokenizer, max_seq_length, max_query_length):
@@ -605,7 +606,7 @@ class Data:
             sup_fact_ids = [sent_id for sent_id in sup_fact_ids if sent_id < sent_num]
             if len(sup_fact_ids) != len(example.sup_fact_id):
                 failed += 1
-            if example.qas_id == 'e139eef6-fc0c-4953-acec-a83a0095ce4e0':
+            if example.qas_id == 0:
                 print("qid {}".format(example.qas_id))
                 print("all_doc_tokens {}".format(all_doc_tokens))
                 print("doc_input_ids {}".format(doc_input_ids))
