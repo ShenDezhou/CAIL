@@ -44,7 +44,7 @@ from transformers import BertTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
-max_support_sents = 20
+max_support_sents = 10
 
 class Tokenizer:
     """Tokenizer for Chinese given vocab.txt.

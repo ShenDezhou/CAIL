@@ -1,7 +1,7 @@
 {
   "model_type": "bert",
   "max_seq_len": 512,
-  "max_query_len": 20,
+  "max_query_len": 45,
   "model_path": "model/bert/",
   "log_path": "log/",
 
@@ -23,11 +23,11 @@
   "num_classes": 4,
   "dropout": 0.05,
 
-  "lr": 5e-5,
+  "lr": 5e-4,
   "num_epoch": 10,
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 2,
+  "gradient_accumulation_steps": 1,
   "max_grad_norm": 1e-2,
 
   "prediction_path":"output/submissions",
