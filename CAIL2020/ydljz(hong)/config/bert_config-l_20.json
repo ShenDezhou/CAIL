@@ -5,21 +5,21 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/2019_big_train_data.json",
-  "valid_file_path": "data/2019_dev_ground_truth.json",
-  "test_file_path": "data/2019_test_ground_truth.json",
+  "train_file_path": "data/ydlj2020_train_p2.json",
+  "valid_file_path": "data/ydlj2020_train_p1.json",
+  "test_file_path": "data/ydlj2020_train_p1.json",
 
-  "batch_size": 16,
+  "batch_size": 4,
 
-  "bert_model_path": "../roberta3_ext",
+  "bert_model_path": "../roberta_wwm_large_ext",
   "trained_weight":"",
 
   "is_AKDE": true,
   "dim_capsule": 16,
   "num_compressed_capsule": 128,
-  "magic_param": 36736,
+  "magic_param": 49024,
 
-  "hidden_size": 768,
+  "hidden_size": 1024,
   "num_classes": 4,
   "dropout": 0.05,
 
@@ -27,7 +27,7 @@
   "num_epoch": 10,
   "num_warmup_steps": 0,
   "num_training_steps": 32000,
-  "gradient_accumulation_steps": 1,
+  "gradient_accumulation_steps": 4,
   "max_grad_norm": 1e-2,
 
   "prediction_path":"output/submissions",
@@ -38,5 +38,5 @@
   "sp_threshold": 0.5,
   "log_steps": 2000,
 
-  "experiment_name": "BERT"
+  "experiment_name": "BERTL20"
 }

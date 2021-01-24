@@ -5,9 +5,9 @@
   "model_path": "model/bert/",
   "log_path": "log/",
 
-  "train_file_path": "data/2019_big_train_data.json",
-  "valid_file_path": "data/2019_dev_ground_truth.json",
-  "test_file_path": "data/2019_test_ground_truth.json",
+  "train_file_path": "data/ydlj2020_train_p2.json",
+  "valid_file_path": "data/ydlj2020_train_p1.json",
+  "test_file_path": "data/ydlj2020_train_p1.json",
 
   "batch_size": 16,
 
@@ -38,5 +38,5 @@
   "sp_threshold": 0.5,
   "log_steps": 2000,
 
-  "experiment_name": "BERT"
+  "experiment_name": "BERT20"
 }
