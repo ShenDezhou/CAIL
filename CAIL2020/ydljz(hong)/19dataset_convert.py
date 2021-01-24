@@ -8,9 +8,11 @@ MAX_SEQ_LEN=512
 
 def process_context(line):
     line = line.replace("&middot;", "", 100)
-    spans = re.split('([,，。])', line)
-    if len(spans) == 1:
-        spans = re.split('([;；])', line)
+    spans = re.split('([,。])', line)
+    if len(spans) <= 2:
+        spans = re.split('([，。])', line)
+    if len(spans) <= 2:
+        spans = re.split('([;；，。,])', line)
     assert len(spans) > 2, spans
     # spans = [span for span in spans if len(span)>1]
     spans_sep = []
