@@ -132,11 +132,10 @@
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(mydata),
             success: function (res) {
-                var ans = res.answer;
-                var type = res.tags;
-                var ss = "";
+                 var ans = res.answer;
+                 var ss = "";
                 for (let i = 0; i < ans.length; i++) {
-                    ss += ans[i]+","+type[i]+'<br/>';
+                    ss += ans[i]+'<br/>';
                 }
                 $('#output').html(ss);
             },

@@ -1,9 +1,7 @@
-import itertools
 import json
 import os
 import random
 import re
-
 import pandas
 
 totaldic = []
@@ -17,17 +15,13 @@ dic2=[]
 with open('amount_2.dic', 'r', encoding='utf-8') as f:
     lines = f.readlines()
     dic2.extend([l for l in lines if len(l.strip())])
-    # dic2 = [l for l in dic2 if len(l)]
-    # dic2 = list(itertools.chain(*dic2))
     totaldic.extend(dic2)
-
 
 dic3=[]
 with open('amount_3.dic', 'r', encoding='utf-8') as f:
     lines = f.readlines()
     dic3.extend([l.strip() for l in lines if len(l.strip())])
     totaldic.extend(dic3)
-
 
 def getType(line):
     result = 0
@@ -63,7 +57,6 @@ def getType(line):
 print(len(totaldic))
 regdic = []
 for word in totaldic:
-    # word = word.replace('_', r'[_\d]?', 10 ** 10)
     r = re.compile(word + ".+(\[\s+\])")
     regdic.append(r)
     r = re.compile(word + ".+({.underline})")
@@ -171,7 +164,7 @@ def digit2formal(word, prefix_type = 0):
 
 
 amount_len = (1, 16)
-category_size = 1
+category_size = 80
 
 df = pandas.read_csv('contract.dic',sep=',',names=['word','frequency'])
 chinese_dic = df['word'].to_list()
@@ -389,6 +382,7 @@ for dirpath, dnames, fnames in os.walk("txt/"):
                 for paragraph in fr:
                     paragraph = clean_line(paragraph)
                     lines = paragraph.split("。")
+                    lines = [line + "。" for line in lines]
                     for line in lines:
                         res = reg_trigger(line)
                         if res:
@@ -422,35 +416,11 @@ for dirpath, dnames, fnames in os.walk("txt/"):
                                                 if index==1 or index==2:
                                                     type = random.randint(0,1)
                                                 formald = gen_with_rule(type=type)
-                                                # if random.randint(0, 1) == 0:
-                                                #     formald = "人民币" + formald
+
                                                 gen_amounts.append(formald)
                                                 line = line[:start_index] + re.sub(res[3], formald, line[start_index:], count=1)
                                                 gen_types.append(getType(line))
-                                        #
-                                        # elif '￥' in line:
-                                        #     start_index = line.find('￥') + 1
-                                        #     digitid = gen_with_rule(type=random.randint(0,1))
-                                        #     # if random.randint(0, 1) == 0:
-                                        #     #     digitid = '￥' + digitid
-                                        #     gen_amounts.append(digitid)
-                                        #     newline = line[:start_index] + re.sub(res[3],  digitid, line[start_index:], count=1)
-                                        # elif '¥' in line:
-                                        #     start_index = line.find('¥') + 1
-                                        #     digitid = gen_with_rule(type=random.randint(0,1))
-                                        #     # if random.randint(0, 1) == 0:
-                                        #     #     digitid = '¥' + digitid
-                                        #     gen_amounts.append(digitid)
-                                        #     newline = line[:start_index] + re.sub(res[3],  digitid, line[start_index:], count=1)
-                                        # else:
-                                        #     gen_type = random.randint(0,2)
-                                        #     mis_formald = gen_with_rule(type=gen_type)
-                                        #     # if gen_type == 1:
-                                        #     #     mis_formald = "人民币" + mis_formald
-                                        #     # else:
-                                        #     #     mis_formald = random.sample(list(PREFIX_SIGN), 1)[0] + mis_formald +"元"
-                                        #     gen_amounts.append(mis_formald)
-                                        #     newline = line[:start_index] + re.sub(res[3],   mis_formald, line[start_index:], count=1)
+
                                     newline = line
                                     buffer.append(newline)
 
@@ -480,40 +450,8 @@ for dirpath, dnames, fnames in os.walk("txt/"):
                             item['entities'] = entities
                             contract_list.append(item)
                         else:
-                            # if getType(line.strip()) == "RES":
-                            #     gen_type = random.randint(0, 2)
-                            #     mis_formald = gen_with_rule(type=gen_type)
-                            #     newline = line[:start_index] + re.sub(res[3], digitid, line[start_index:], count=1)
-                            #     item = {}
-                            #     item['text'] = newline
-                            #     entities = [mis_formald + "-" + 'RES']
-                            #     item['entities'] = entities
-                            #     contract_list.append(item)
-                            buffer.append(line.strip())
 
-                # contracts = r"\n".join(buffer)
-                #
-                # contracts = contracts.replace("[", "", 10 ** 10)
-                # contracts = contracts.replace("]", "", 10 ** 10)
-                # contracts = contracts.replace("/", "", 10 ** 10)
-                #
-                # contracts = contracts.replace("▁", "", 10 ** 10)
-                # contracts = contracts.replace("_", "", 10 ** 10)
-                # contracts = contracts.replace("＿", "", 10 ** 10)
-                #
-                # contracts = contracts.replace("{.underline}", "", 10 ** 10)
-                # index_marks = []
-                # for amount in gen_amounts:
-                #     start = contracts.find(amount)
-                #     end = start + len(amount) -1
-                #     if start>0:
-                #         index_marks.append((start,end))
-                # if index_marks:
-                #     indexs =";".join( [str(k)+','+str(v) for (k,v) in index_marks] )
-                #     contract_list.append({"contract":contracts,"indexes": indexs})
-                # df = df.append({"contract":contracts,"indexes": indexs}, ignore_index=True)
-# df = pandas.DataFrame(contract_list)
-# df.to_csv("../data/contract_amount_train_v7.csv", columns=["contract", "indexes"], index=False)
+                            buffer.append(line.strip())
 with open('../data/amount_train_v8.json','w',encoding='utf-8') as fw:
     json.dump(contract_list, fw, ensure_ascii=False,indent=4)
 print('FIN')
