@@ -3,7 +3,7 @@ from torch import nn
 from torch.autograd import Variable
 import numpy as np
 from transformers import BertModel
-
+from transformers import AutoModel
 
 from resnet import ResNet,BasicBlock
 from resnet2d import ResNet2D
@@ -18,8 +18,11 @@ class BertSupportNetX(nn.Module):
     """
     def __init__(self, config):
         super(BertSupportNetX, self).__init__()
+        if 'xl' in config.model_type:
+            self.encoder = AutoModel.from_pretrained(config.bert_model_path)
+        else:
+            self.encoder = BertModel.from_pretrained(config.bert_model_path)
 
-        self.encoder = BertModel.from_pretrained(config.bert_model_path)
         self.config = config  # 就是args
         self.max_query_length = self.config.max_query_len
         self.input_dim = config.hidden_size

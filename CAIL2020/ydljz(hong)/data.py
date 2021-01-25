@@ -41,6 +41,7 @@ import pandas as pd
 
 from torch.utils.data import TensorDataset
 from transformers import BertTokenizer
+from transformers import AutoTokenizer
 # from pytorch_pretrained_bert import BertTokenizer
 from tqdm import tqdm
 
@@ -218,6 +219,8 @@ class Data:
         self.model_type = model_type
         if self.model_type == 'bert':
             self.tokenizer = BertTokenizer.from_pretrained(config.bert_model_path)#BertTokenizer(vocab_file)
+        elif 'bertxl' == self.model_type:
+            self.tokenizer = AutoTokenizer.from_pretrained(config.bert_model_path)
         else:  # rnn
             self.tokenizer = Tokenizer(vocab_file)
         self.max_seq_len = max_seq_len
@@ -252,9 +255,12 @@ class Data:
         """
         examples, features_list = self._load_file1(file_path, train)
 
-        # if self.model_type == 'bert':
-        dataset = self._convert_sentence_pair_to_bert_dataset(
-            features_list)
+        if self.model_type == 'bert':
+            dataset = self._convert_sentence_pair_to_bert_dataset(
+                features_list)
+        elif 'bertxl' == self.model_type:
+            dataset = self._convert_sentence_pair_to_bert_dataset(
+                sc_list,  label_list)
         # else:  # rnn
         #     dataset = self._convert_sentence_pair_to_rnn_dataset(
         #         sc_list, bc_list, label_list)
