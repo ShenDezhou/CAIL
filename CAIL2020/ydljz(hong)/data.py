@@ -255,12 +255,12 @@ class Data:
         """
         examples, features_list = self._load_file1(file_path, train)
 
-        if self.model_type == 'bert':
-            dataset = self._convert_sentence_pair_to_bert_dataset(
-                features_list)
-        elif 'bertxl' == self.model_type:
-            dataset = self._convert_sentence_pair_to_bert_dataset(
-                sc_list,  label_list)
+        # if self.model_type == 'bert':
+        dataset = self._convert_sentence_pair_to_bert_dataset(
+            features_list)
+        # elif 'bertxl' == self.model_type:
+        #     dataset = self._convert_sentence_pair_to_bert_dataset(
+        #         sc_list,  label_list)
         # else:  # rnn
         #     dataset = self._convert_sentence_pair_to_rnn_dataset(
         #         sc_list, bc_list, label_list)
@@ -504,12 +504,20 @@ class Data:
             else:
                 ans_type = 0  # 统计answer type
 
-            query_tokens = ["[CLS]"]
-            for token in example.question_text.split(' '):
-                query_tokens.extend(tokenizer.tokenize(token))
-            if len(query_tokens) > max_query_length - 1:
-                query_tokens = query_tokens[:max_query_length - 1]
-            query_tokens.append("[SEP]")
+            if self.model_type == 'bert':
+                query_tokens = ["[CLS]"]
+                for token in example.question_text.split(' '):
+                    query_tokens.extend(tokenizer.tokenize(token))
+                if len(query_tokens) > max_query_length - 1:
+                    query_tokens = query_tokens[:max_query_length - 1]
+                query_tokens.append("[SEP]")
+            elif self.model_type == 'bertxl':
+                query_tokens = []
+                for token in example.question_text.split(' '):
+                    query_tokens.extend(list(token))
+                if len(query_tokens) > max_query_length - 1:
+                    query_tokens = query_tokens[:max_query_length - 1]
+                query_tokens.append("[SEP]")
 
             # para_spans = []
             # entity_spans = []
@@ -519,16 +527,28 @@ class Data:
             orig_to_tok_back_index = []
             tok_to_orig_index = [0] * len(query_tokens)
 
-            all_doc_tokens = ["[CLS]"]  # 这一段不是啰嗦的代码吗
-            for token in example.question_text.split(' '):
-                all_doc_tokens.extend(tokenizer.tokenize(token))
-            if len(all_doc_tokens) > max_query_length - 1:
-                all_doc_tokens = all_doc_tokens[:max_query_length - 1]
-            all_doc_tokens.append("[SEP]")
+            if self.model_type == 'bert':
+                all_doc_tokens = ["[CLS]"]  # 这一段不是啰嗦的代码吗
+                for token in example.question_text.split(' '):
+                    all_doc_tokens.extend(tokenizer.tokenize(token))
+                if len(all_doc_tokens) > max_query_length - 1:
+                    all_doc_tokens = all_doc_tokens[:max_query_length - 1]
+                all_doc_tokens.append("[SEP]")
+            elif self.model_type == 'bertxl':
+                all_doc_tokens = []  # 这一段不是啰嗦的代码吗
+                for token in example.question_text.split(' '):
+                    all_doc_tokens.extend(list(token))
+                if len(all_doc_tokens) > max_query_length - 1:
+                    all_doc_tokens = all_doc_tokens[:max_query_length - 1]
+                all_doc_tokens.append("[SEP]")
+
 
             for (i, token) in enumerate(example.doc_tokens):  # 遍历context的所有token（白空格分割）
                 orig_to_tok_index.append(len(all_doc_tokens))  # 空格分词的token与wp分词后的token对应
-                sub_tokens = tokenizer.tokenize(token)
+                if self.model_type == 'bert':
+                    sub_tokens = tokenizer.tokenize(token)
+                elif self.model_type == 'bertxl':
+                    sub_tokens = list(token)
                 for sub_token in sub_tokens:
                     tok_to_orig_index.append(i)  # wp 分词后的token对应的空格分词的token
                     all_doc_tokens.append(sub_token)
@@ -576,7 +596,10 @@ class Data:
             #     para_spans.append((para_start_position, para_end_position, para_span[2], para_span[3]))  # 3是是否是sup para
 
             # Padding Document
-            all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + ["[SEP]"]
+            if self.model_type == 'bert':
+                all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + ["[SEP]"]
+            elif self.model_type == 'bertxl':
+                all_doc_tokens = all_doc_tokens[:max_seq_length - 2] + ["[SEP]","[CLS]"]
             doc_input_ids = tokenizer.convert_tokens_to_ids(all_doc_tokens)
             query_input_ids = tokenizer.convert_tokens_to_ids(query_tokens)
 

@@ -38,5 +38,5 @@
   "sp_threshold": 0.5,
   "log_steps": 2000,
 
-  "experiment_name": "BERTM"
+  "experiment_name": "BERTXL"
 }

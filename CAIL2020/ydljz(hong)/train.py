@@ -30,7 +30,8 @@ from evaluate.evaluate import eval
 from utils import get_path,get_csv_logger
 
 MODEL_MAP={
-    "bert": BertSupportNetX
+    "bert": BertSupportNetX,
+    "bertxl": BertSupportNetX
 }
 
 class Trainer:
@@ -484,7 +485,7 @@ def main(config_file='config/bert_config.json'):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config_file', default='config/bert_config.json',
+        '-c', '--config_file', default='config/bert_config-xl.json',
         help='model config file')
 
     parser.add_argument(

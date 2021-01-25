@@ -80,8 +80,14 @@ class BertSupportNetX(nn.Module):
             start_mapping,
             is_support,tok_to_orig_index):
         # roberta不可以输入token_type_ids
-        hiddens = self.encoder(input_ids=context_idxs, attention_mask=context_mask,token_type_ids=segment_idxs,
-                                                                    output_hidden_states=True)[2]
+        if 'xl' in self.config.model_type:
+            _, hiddens = self.encoder(input_ids=context_idxs, attention_mask=context_mask, token_type_ids=segment_idxs,
+                                  output_hidden_states=True)
+        else:
+            hiddens = self.encoder(input_ids=context_idxs, attention_mask=context_mask,token_type_ids=segment_idxs,
+                                                                        output_hidden_states=True)[2]
+
+
         input_state = torch.cat([hiddens[-1], hiddens[-2]], dim=2)
         start_logits = self.start_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
         end_logits = self.end_linear(input_state).squeeze(2) - 1e30 * (1 - context_mask)
