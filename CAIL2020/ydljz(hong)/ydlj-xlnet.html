@@ -1,0 +1,141 @@
+﻿<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Post Data</title>
+    <!--<script src="js/jquery.min.js"></script>-->
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        table, table tr th, table tr td {
+            border: 1px solid #7197b9;
+            border-collapse: collapse;
+            padding: 4px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body style="background-color: #d5d8dc;">
+    <table style="width: 100%; height: 100%;">
+        <tr>
+            <td colspan="2" style="font-size: 22px; color: #fff; height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">Web服务数据请求
+            </td>
+        </tr>
+        <tr style="height: 30px; text-align: center;">
+            <td colspan="2">url：<input id="input_url" type="text" value="localhost:58081/z" /></td>
+        </tr>
+
+        <tr style="height: 30px; background-color: #e2eaf1;">
+            <td style="width: 50%;">输入：
+
+                <button onclick="claertext();return false;" style="float: right;">清空</button>
+
+            </td>
+            <td>输出：</td>
+        </tr>
+        <tr style="height: 500px; background-color: #fff;">
+            <td>
+                问题:<textarea id="inputquestion" style="width: 100%; height: 45%;">
+事故结果如何？
+                </textarea>
+            上下文：<textarea id="inputcontext" style="width: 100%; height: 45%;">
+6月1日,
+田x17驾驶粤A×××××号车辆与严x3驾驶的赣C×××××号重型仓栅式货车发生碰撞,
+造成两车不同程度损坏的交通事故交警部门作出事故认定书,
+认定严x3承担事故的全部责任,
+田x17不负事故责任粤A×××××号车辆在原告处投保了保险金额为908000元的机动车损失保险,
+事故发生在保险期间内事故发生后,
+粤A×××××号车辆的被保险人陈x18就该车辆的损失以财产保险合同纠纷起诉至佛山市禅城区人民法院案经审理,
+佛山市禅城区人民法院于2015年8月18日作出(2015)佛城法民二初字第1006号民事判决,
+查明粤A×××××号车辆经广州市华盟价格事务所有限公司评估,
+损失价格为241541元,
+陈x18支付了粤A×××××号车辆的维修费241541元、评估费9050元;本案原告在庭审中明确表示不申请重新对车辆损失进行评估鉴定并判决原告向陈x18支付粤A×××××号车辆损失保险理赔款250591元2015年10月11日,
+原告向陈x18赔付了250591元及诉讼费用2529元后原告提起本案之诉并查明,
+赣C×××××号车辆的所有人为被告万友公司,
+该车辆在被告中华联合广东分公司处投保了交强险,
+事故发生在保险期内事故发生后
+            </textarea></td>
+            <td>
+                <div id="output"></div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="height: 50px; text-align: center; background-color: #7197b9; vertical-align: middle;">
+                <button onclick="dopost();" style="padding: 4px 40px; cursor: pointer;">确　认</button>
+            </td>
+        </tr>
+    </table>
+</body>
+<script>
+
+
+    function dopost() {
+        var url = 'http://' + $('#input_url').val(); 'http://139.198.13.204:58084/z';
+
+        var inputquestion = $('#inputquestion').val();
+        var inputcontext = $('#inputcontext').val();
+
+
+        inputcontext = inputcontext.replace(/[\n| ]/g, '');
+
+        var spans = inputcontext.split(/[,。]/)
+        if (spans.length <= 2) {
+            spans = inputcontext.split(/[，。]/)
+        }
+        if (spans.length <= 2) {
+            spans = inputcontext.split(/[;；，。,]/)
+        }
+
+        inputquestion = inputquestion.replace(/[\n| ]/g, '');
+        var mydata = {
+            'question': inputquestion,
+            'context': inputcontext
+        };
+
+        $('#output').html('正在读取数据，请稍候......');
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            async: true,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(mydata),
+            success: function (res) {
+                var answer = res.data.answer[0];
+                var support = res.data.sp[0];
+
+                debugger
+
+                var ss = "回答:<br/>";
+                ss += answer;
+                ss += "<hr/>支持理由为：<br/>"
+                for (var i=0;i< support.length; i++){
+                    var s_i = support[i][1];
+                    ss += spans[s_i] +"<br/>";
+                }
+                $('#output').html(ss);
+            },
+            error: function (xhr, textStatus) {
+                var err = xhr.status + ',' + xhr.readyState + ',' + textStatus;
+                if (xhr.readyState == 0 && xhr.status == 0) { err = '调用被拒绝!  ' + textStatus; }
+
+                $('#output').html(err);
+            },
+            timeout: 60000,
+            dataType: 'JSON'
+        });
+    }
+
+    function claertext() {
+        $('#input').val('');
+        $('#input').focus();
+    }
+</script>
+
+
+</html>
