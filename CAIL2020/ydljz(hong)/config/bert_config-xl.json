@@ -11,7 +11,7 @@
 
   "batch_size": 8,
 
-  "bert_model_path": "F:\\4_model\\xlnet_base",
+  "bert_model_path": "./xlnet_base",
   "trained_weight":"",
 
   "is_AKDE": true,

@@ -1,0 +1,14 @@
+services:
+  web:
+    image: casecomprehension:1.0
+    environment:
+      - gpus=all
+      - PYTHONIOENCODING=utf-8
+    network_mode: "host"
+    restart: unless-stopped
+    container_name: casecomprehension_1.0
+    volumes:
+      - /mnt/data/sfzy/log:/workspace/data
+      - /mnt/data/xlnet_base:/workspace/xlnet_base
+      - /mnt/data/ydljdocker/model/bertxl:/workspace/model/bertxl
+    command: python3 torch_server.py -p 58060
