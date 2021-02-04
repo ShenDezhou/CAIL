@@ -1155,8 +1155,11 @@ class BERXLNet(nn.Module):
         # use anti-mask for answers-locator
         # mask = char_id.eq(0)
         # chars = self.char_emb(char_id)
-        _, layers = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids,
+        # xlnet_tiny has three output for this forward. There is a significant change in the transformer3.0.2 to 3.1.0
+        _, _, layers = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids,
                               output_hidden_states=True)
+
+
         #
         # # if self.bichar_emb is not None:
         # #     bichars = self.bichar_emb(bichar_id)
