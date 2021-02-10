@@ -26,6 +26,10 @@
 
 * [合同条款与模板匹配](/static/rouge.html)
 
+## 1.5 合同实体引擎
+
+* [合同实体识别](/static/stsb_xlnet.html)
+
 # 2.法规
 
 ## 2.1 智能检索
@@ -87,6 +91,7 @@
 模块 | 端口
 ----|----
 ydlj-xlnet|58060
+slsb-xlnet|58061
 rouge|58070
 hyfl-97|58071
 hyfl-dnn-97|58072
