@@ -11,4 +11,4 @@ lawa==1.2.6
 tensorboard==1.14.0
 tensorboardX==2.0
 tensorflow-gpu==1.14.0
-waitress==1.4.4
+waitress==2.1.2

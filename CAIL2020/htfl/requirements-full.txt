@@ -201,7 +201,7 @@ traitlets==4.3.2
 tzlocal==2.0.0
 ujson==3.0.0
 unicodecsv==0.14.1
-waitress==1.3.1
+waitress==2.1.2
 wcwidth==0.1.7
 webencodings==0.5.1
 Werkzeug==1.0.0
